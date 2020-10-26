@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:live_chat/components/common/login_button.dart';
@@ -59,8 +60,25 @@ class SignInPage extends StatelessWidget {
               buttonRadius: 16,
               buttonColor: Colors.grey,
 
-              icon: Icon(Icons.email, color: Colors.white, size: 30,),
+              icon: Icon(Icons.email, color: Colors.white, size: 34,),
               onPressed: (){},
+            ),
+
+            LoginButton(
+              buttonText: 'Misafir olarak Oturum Aç',
+              textColor: Colors.white,
+              textSize: Theme.of(context).textTheme.headline6.fontSize,
+
+              buttonRadius: 16,
+              buttonColor: Colors.orange,
+
+              icon: Icon(Icons.person, color: Colors.white, size: 34,),
+              onPressed: () async {
+
+                UserCredential userResult = await FirebaseAuth.instance.signInAnonymously();
+                print(userResult.user.uid.toString());
+
+              },
             )
 
           ],
