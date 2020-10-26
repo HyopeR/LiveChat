@@ -20,7 +20,7 @@ class SignInPage extends StatelessWidget {
           children: [
 
             Text(
-                'Oturum Açın',
+                'Oturum Açma Yöntemleri',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24)
             ),
@@ -29,14 +29,13 @@ class SignInPage extends StatelessWidget {
 
             LoginButton(
               buttonText: 'Google ile Oturum Aç',
-              textColor: Colors.white,
+              textColor: Colors.black,
               textSize: Theme.of(context).textTheme.headline6.fontSize,
 
-              buttonRadius: 15,
-              buttonColor: Colors.red,
-              buttonHeight: 50,
+              buttonRadius: 16,
+              buttonColor: Colors.white,
 
-              icon: Icon(Icons.add, color: Colors.white,),
+              icon: Image.asset('assets/images/google-logo.png'),
               onPressed: (){},
             ),
 
@@ -45,11 +44,22 @@ class SignInPage extends StatelessWidget {
               textColor: Colors.white,
               textSize: Theme.of(context).textTheme.headline6.fontSize,
 
-              buttonRadius: 15,
+              buttonRadius: 16,
               buttonColor: Color(0xFF334D92),
-              buttonHeight: 50,
 
-              icon: Icon(Icons.add, color: Colors.white,),
+              icon: Image.asset('assets/images/facebook-logo.png'),
+              onPressed: (){},
+            ),
+
+            LoginButton(
+              buttonText: 'Email ve Şifre ile Oturum Aç',
+              textColor: Colors.white,
+              textSize: Theme.of(context).textTheme.headline6.fontSize,
+
+              buttonRadius: 16,
+              buttonColor: Colors.grey,
+
+              icon: Icon(Icons.email, color: Colors.white, size: 30,),
               onPressed: (){},
             )
 

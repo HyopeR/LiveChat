@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
-
   final String buttonText;
   final Color buttonColor;
   final Color textColor;
@@ -12,16 +11,21 @@ class LoginButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
-  const LoginButton({
-    Key key,
-    this.buttonText,
-    this.buttonColor,
-    this.textColor,
-    this.textSize,
-    this.buttonRadius,
-    this.buttonHeight,
-    this.icon,
-    this.onPressed}) : super(key: key);
+  // Varsayılan değerleri : ile belirtiyoruz.
+  const LoginButton(
+      {Key key,
+      @required this.buttonText,
+      this.buttonColor: Colors.blue,
+      this.textColor: Colors.white,
+      this.textSize: 16,
+      this.buttonRadius: 16,
+      this.buttonHeight: 50,
+      this.icon,
+      this.onPressed})
+
+      // Assert kısmı herhangi bir kullanımda hata çıkarsa uyarı verir.
+      : assert(buttonText != null),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,27 +36,26 @@ class LoginButton extends StatelessWidget {
           color: buttonColor,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(buttonRadius))),
-          child: Row(
+          child: Stack(
             children: [
-              Expanded(
-                flex: 1,
-                child: Container(
 
-                    child: icon,
-
-                )
-              ),
-
-              Expanded(
-                  flex: 5,
-                  child: Container(
-
-                    child: Text(
-                      '${buttonText.toString()}',
-                      style: TextStyle(color: textColor, fontSize: textSize),
-                    ),
-
+              icon != null
+                ? Positioned(
+                    height: buttonHeight,
+                    left: 0,
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: icon,
+                      )
                   )
+                : Container(),
+
+              Container(
+                alignment: Alignment.center,
+                child: Text(
+                  '${buttonText.toString()}',
+                  style: TextStyle(color: textColor, fontSize: textSize),
+                ),
               )
             ],
           ),
