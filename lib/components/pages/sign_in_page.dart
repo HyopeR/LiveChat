@@ -73,12 +73,7 @@ class SignInPage extends StatelessWidget {
               buttonColor: Colors.orange,
 
               icon: Icon(Icons.person, color: Colors.white, size: 34,),
-              onPressed: () async {
-
-                UserCredential userResult = await FirebaseAuth.instance.signInAnonymously();
-                print(userResult.user.uid.toString());
-
-              },
+              onPressed: () => visitorLogin(context),
             )
 
           ],
@@ -86,4 +81,20 @@ class SignInPage extends StatelessWidget {
       ),
     );
   }
+
+  void visitorLogin(BuildContext context) async {
+    UserCredential userResult = await FirebaseAuth.instance.signInAnonymously();
+
+    if(userResult.user != null) {
+      Navigator.of(context).pushReplacementNamed(
+          '/homePage',
+          arguments: userResult.user
+      );
+    } else {
+      print('Hata oluştu.');
+    }
+
+
+  }
+
 }

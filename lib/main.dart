@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'package:live_chat/components/pages/landing_page.dart';
 import 'package:live_chat/components/pages/sign_in_page.dart';
+import 'package:live_chat/components/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,9 +20,17 @@ class MyApp extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/': (context) => SignInPage(),
+        '/': (context) => LandingPage(),
+        '/signInPage': (context) => SignInPage(),
+        '/homePage': (context) => HomePage(),
       },
-      onUnknownRoute: (RouteSettings settings) => MaterialPageRoute(builder: (context) => SignInPage()),
+      onUnknownRoute: (RouteSettings settings) {
+        print('Bulunamayan rota tespiti.');
+
+        return MaterialPageRoute(
+            builder: (context) => LandingPage()
+        );
+      },
 
       theme: ThemeData(
         primarySwatch: Colors.amber,
