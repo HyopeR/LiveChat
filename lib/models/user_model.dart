@@ -4,6 +4,10 @@ class UserModel {
 
   String userId;
 
-  UserModel({@required userId});
+  UserModel({@required this.userId});
 
+  @override
+  String toString() {
+    return 'UserModel{userId: $userId}';
+  }
 }

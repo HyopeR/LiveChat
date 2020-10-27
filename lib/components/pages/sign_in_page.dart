@@ -2,17 +2,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:live_chat/components/common/login_button.dart';
+import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/views/user_view.dart';
+import 'package:provider/provider.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends StatefulWidget {
+  @override
+  _SignInPageState createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
+  UserView _userView;
+
   @override
   Widget build(BuildContext context) {
+    _userView = Provider.of<UserView>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign In'),
         elevation: 0,
       ),
 
-      body: Container(
+      body: bodyArea(),
+    );
+  }
+
+  Widget bodyArea() {
+    return _userView.state == UserViewState.Idle
+      ? Container(
         padding: EdgeInsets.all(10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -78,17 +96,17 @@ class SignInPage extends StatelessWidget {
 
           ],
         ),
-      ),
-    );
+      )
+      : Center(child: CircularProgressIndicator());
   }
 
   void visitorLogin(BuildContext context) async {
-    UserCredential userResult = await FirebaseAuth.instance.signInAnonymously();
+    UserModel user = await _userView.signInAnonymously();
 
-    if(userResult.user != null) {
+    if(user != null) {
       Navigator.of(context).pushReplacementNamed(
           '/homePage',
-          arguments: userResult.user
+          arguments: user
       );
     } else {
       print('Hata oluştu.');
@@ -96,5 +114,4 @@ class SignInPage extends StatelessWidget {
 
 
   }
-
 }

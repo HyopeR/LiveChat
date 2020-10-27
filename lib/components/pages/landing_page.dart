@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:live_chat/views/user_view.dart';
+import 'package:provider/provider.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -8,7 +9,7 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
 
-  User _user;
+  UserView _userView;
 
   @override
   void initState() {
@@ -20,6 +21,8 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    _userView = Provider.of<UserView>(context);
+
     return Scaffold(
         
         body: SafeArea(
@@ -35,7 +38,7 @@ class _LandingPageState extends State<LandingPage> {
                     textColor: Colors.amber,
                   ),
                   SizedBox(height: 10),
-                  Text('Live Chat with Flutter', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize),),
+                  Text('Live Chat with Flutter', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize)),
                 ],
               ),
             ),
@@ -45,10 +48,7 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   Future<void> _checkUser(BuildContext context) async {
-    _user = FirebaseAuth.instance.currentUser;
-    // print((_user == null).toString());
-
-    if(_user == null) {
+    if(_userView.user == null) {
       Future.delayed(
           Duration(seconds: 2),
           () {
@@ -63,7 +63,6 @@ class _LandingPageState extends State<LandingPage> {
           () {
             Navigator.of(context).pushReplacementNamed(
               '/homePage',
-              arguments: _user
             );
           }
       );

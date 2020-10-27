@@ -1,12 +1,20 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:live_chat/views/user_view.dart';
+import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
-  User _user;
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  UserView _userView;
 
   @override
   Widget build(BuildContext context) {
-    _user = ModalRoute.of(context).settings.arguments;
+    /// Modal Route yardımıyla gönderilen argünmanı yakalama.
+    // print(ModalRoute.of(context).settings.arguments);
+    _userView = Provider.of<UserView>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -16,19 +24,32 @@ class HomePage extends StatelessWidget {
           IconButton(
             splashRadius: 25,
             icon: Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacementNamed(
-                  '/signInPage',
-              );
-            },
+            onPressed: () => _signOut(),
           )
         ],
       ),
 
-      body: Center(
-        child: Text('Hoş geldiniz. ${_user.uid}'),
+      body: Container(
+        child: _bodyArea(),
       ),
+    );
+  }
+
+  _bodyArea() {
+    if(_userView.state == UserViewState.Idle) {
+      return _userView.user == null
+          ? Container()
+          : Text('Hoş geldiniz. ${_userView.user.userId}');
+    } else {
+      return Center(child: CircularProgressIndicator());
+    }
+  }
+
+  _signOut() async {
+
+    await _userView.signOut();
+    Navigator.of(context).pushReplacementNamed(
+      '/signInPage',
     );
   }
 }
