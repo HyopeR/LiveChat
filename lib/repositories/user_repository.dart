@@ -22,6 +22,11 @@ class UserRepository implements AuthBase{
     return _firebaseAuthService.signOut();
   }
 
+  @override
+  Future<UserModel> signInWithGoogle() {
+    return _firebaseAuthService.signInWithGoogle();
+  }
+
 
 
 }

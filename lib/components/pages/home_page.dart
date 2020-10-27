@@ -19,6 +19,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Ana Sayfa'),
+        elevation: 0,
 
         actions: [
           IconButton(
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _bodyArea() {
+  Widget _bodyArea() {
     if(_userView.state == UserViewState.Idle) {
       return _userView.user == null
           ? Container()

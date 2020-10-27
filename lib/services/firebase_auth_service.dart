@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
 
@@ -6,6 +7,15 @@ class FirebaseAuthService implements AuthBase {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  // İşlevsel fonksiyonlar
+  UserModel _userFromFirebase(User firebaseUser) {
+    if(firebaseUser == null)
+      return null;
+
+    return  UserModel(userId: firebaseUser.uid);
+  }
+
+  // Network fonksiyonlar
   @override
   Future<UserModel> getCurrentUser() async {
     try{
@@ -37,8 +47,9 @@ class FirebaseAuthService implements AuthBase {
 
   @override
   Future<bool> signOut() async {
-    print('signOut');
     try{
+      final _googleSignIn = GoogleSignIn();
+      await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
 
       return true;
@@ -49,11 +60,29 @@ class FirebaseAuthService implements AuthBase {
     }
   }
 
-  UserModel _userFromFirebase(User firebaseUser) {
-    if(firebaseUser == null)
-      return null;
+  @override
+  Future<UserModel> signInWithGoogle() async {
+    GoogleSignIn _googleSignIn = GoogleSignIn();
+    GoogleSignInAccount _googleUser = await _googleSignIn.signIn();
 
-    return  UserModel(userId: firebaseUser.uid);
+    if(_googleUser != null) {
+      GoogleSignInAuthentication _googleAuth = await _googleUser.authentication;
+      if((_googleAuth.idToken != null) && (_googleAuth.accessToken != null)) {
+
+        UserCredential result = await _firebaseAuth.signInWithCredential(GoogleAuthProvider.credential(
+            idToken: _googleAuth.idToken,
+            accessToken: _googleAuth.accessToken)
+        );
+
+        User firebaseUser = result.user;
+        UserModel user = _userFromFirebase(firebaseUser);
+
+        return user;
+
+      } else
+          return null;
+    } else
+        return null;
   }
 
 }

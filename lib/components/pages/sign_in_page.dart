@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:live_chat/components/common/login_button.dart';
@@ -55,7 +54,7 @@ class _SignInPageState extends State<SignInPage> {
               buttonColor: Colors.white,
 
               icon: Image.asset('assets/images/google-logo.png'),
-              onPressed: (){},
+              onPressed: () => googleLogin(),
             ),
 
             LoginButton(
@@ -91,7 +90,7 @@ class _SignInPageState extends State<SignInPage> {
               buttonColor: Colors.orange,
 
               icon: Icon(Icons.person, color: Colors.white, size: 34,),
-              onPressed: () => visitorLogin(context),
+              onPressed: () => visitorLogin(),
             )
 
           ],
@@ -100,7 +99,7 @@ class _SignInPageState extends State<SignInPage> {
       : Center(child: CircularProgressIndicator());
   }
 
-  void visitorLogin(BuildContext context) async {
+  void visitorLogin() async {
     UserModel user = await _userView.signInAnonymously();
 
     if(user != null) {
@@ -108,9 +107,22 @@ class _SignInPageState extends State<SignInPage> {
           '/homePage',
           arguments: user
       );
-    } else {
-      print('Hata oluştu.');
-    }
+    } else
+        print('User nesnesi boş.');
+
+
+  }
+
+  void googleLogin() async {
+    UserModel user = await _userView.signInWithGoogle();
+
+    if(user != null) {
+      Navigator.of(context).pushReplacementNamed(
+          '/homePage',
+          arguments: user
+      );
+    } else
+        print('User nesnesi boş.');
 
 
   }

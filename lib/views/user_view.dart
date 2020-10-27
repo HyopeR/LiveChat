@@ -51,6 +51,15 @@ class UserView with ChangeNotifier implements AuthBase {
     return result;
   }
 
+  @override
+  Future<UserModel> signInWithGoogle() async {
+    state = UserViewState.Busy;
+    _user = await _userRepo.signInWithGoogle();
+    state = UserViewState.Idle;
+
+    return _user;
+  }
+
 
 
 
