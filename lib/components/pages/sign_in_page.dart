@@ -66,7 +66,7 @@ class _SignInPageState extends State<SignInPage> {
               buttonColor: Color(0xFF334D92),
 
               icon: Image.asset('assets/images/facebook-logo.png'),
-              onPressed: (){},
+              onPressed: () => facebookLogin(),
             ),
 
             LoginButton(
@@ -123,6 +123,21 @@ class _SignInPageState extends State<SignInPage> {
       );
     } else
         print('User nesnesi boş.');
+
+
+  }
+
+
+  void facebookLogin() async {
+    UserModel user = await _userView.signInWithFacebook();
+
+    if(user != null) {
+      Navigator.of(context).pushReplacementNamed(
+          '/homePage',
+          arguments: user
+      );
+    } else
+      print('User nesnesi boş.');
 
 
   }

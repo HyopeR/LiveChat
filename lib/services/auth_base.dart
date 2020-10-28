@@ -6,5 +6,5 @@ abstract class AuthBase {
   Future<UserModel> signInAnonymously();
   Future<bool> signOut();
   Future<UserModel> signInWithGoogle();
-
+  Future<UserModel> signInWithFacebook();
 }

@@ -60,6 +60,15 @@ class UserView with ChangeNotifier implements AuthBase {
     return _user;
   }
 
+  @override
+  Future<UserModel> signInWithFacebook() async {
+    state = UserViewState.Busy;
+    _user = await _userRepo.signInWithFacebook();
+    state = UserViewState.Idle;
+
+    return _user;
+  }
+
 
 
 

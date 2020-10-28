@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
@@ -48,9 +49,17 @@ class FirebaseAuthService implements AuthBase {
   @override
   Future<bool> signOut() async {
     try{
+      // Default Logout
+      await _firebaseAuth.signOut();
+
+      // Google Logout
       final _googleSignIn = GoogleSignIn();
       await _googleSignIn.signOut();
-      await _firebaseAuth.signOut();
+
+      // Facebook Logout
+      final _facebookLogin = FacebookLogin();
+      await _facebookLogin.logOut();
+
 
       return true;
     } catch(err) {
@@ -83,6 +92,36 @@ class FirebaseAuthService implements AuthBase {
           return null;
     } else
         return null;
+  }
+
+  @override
+  Future<UserModel> signInWithFacebook() async {
+    FacebookLogin _facebookLogin = FacebookLogin();
+    FacebookLoginResult _faceResult = await _facebookLogin.logIn(['public_profile', 'email']);
+    
+    switch(_faceResult.status) {
+      case FacebookLoginStatus.loggedIn:
+
+        UserCredential result = await _firebaseAuth.signInWithCredential(FacebookAuthProvider.credential(_faceResult.accessToken.token));
+        User firebaseUser = result.user;
+        UserModel user = _userFromFirebase(firebaseUser);
+
+        return user;
+        break;
+
+      case FacebookLoginStatus.cancelledByUser:
+        print('Cancelled by user.');
+        break;
+
+      case FacebookLoginStatus.error:
+        print('Error: ${_faceResult.errorMessage}');
+        break;
+
+      default:
+        break;
+    }
+
+    return null;
   }
 
 }
