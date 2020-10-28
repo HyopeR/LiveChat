@@ -47,7 +47,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   _signOut() async {
-
     await _userView.signOut();
     Navigator.of(context).pushReplacementNamed(
       '/signInPage',
