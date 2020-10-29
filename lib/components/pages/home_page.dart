@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/custom_bottom_navigation.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +10,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   UserView _userView;
+  TabItem _currentTab = TabItem.Users;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,12 @@ class _HomePageState extends State<HomePage> {
     if(_userView.state == UserViewState.Idle) {
       return _userView.user == null
           ? Container()
-          : Text('Hoş geldiniz. ${_userView.user.userId}');
+          : CustomBottomNavigation(
+              currentTab: _currentTab,
+              onSelectedTab: (selectedTab){
+                debugPrint('Seçilen Tab: ${selectedTab.toString()}');
+              }
+          );
     } else {
       return Center(child: CircularProgressIndicator());
     }
