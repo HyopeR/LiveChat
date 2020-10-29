@@ -6,6 +6,13 @@ class UserModel {
 
   UserModel({@required this.userId});
 
+  Map<String, dynamic> toMap() {
+
+    return {
+      'userId': userId
+    };
+  }
+
   @override
   String toString() {
     return 'UserModel{userId: $userId}';
