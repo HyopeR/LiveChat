@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:live_chat/components/common/login_button.dart';
 import 'package:live_chat/components/common/login_form.dart';
+import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/user_view.dart';
 
@@ -44,13 +45,14 @@ class _SignInPageState extends State<SignInPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
 
-                Text(
-                    'Oturum Açma Yöntemleri',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24)
+                TitleArea(
+                  titleText: 'Oturum Açma Yöntemleri',
+                  icon: Icon(
+                    Icons.apps,
+                    size: 18,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
-
-                SizedBox(height: 10),
 
                 LoginButton(
                   buttonText: 'Google ile Oturum Aç',
@@ -168,6 +170,10 @@ class _SignInPageState extends State<SignInPage> {
     UserModel user = _loginFormState.currentState.formType == FormType.Login
       ? await _userView.signInWithEmailAndPassword(email, password)
       : await _userView.createUserEmailAndPassword(email, password);
+
+    if(_userView.emailErrorMessage != null || _userView.passwordErrorMessage != null) {
+      _loginFormState.currentState.changeErrorState(_userView.emailErrorMessage, _userView.passwordErrorMessage);
+    }
 
     if(user != null) {
       Navigator.of(context).pushReplacementNamed(

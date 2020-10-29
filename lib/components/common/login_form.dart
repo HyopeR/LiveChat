@@ -25,6 +25,9 @@ class LoginFormState extends State<LoginForm> {
   String email, password;
   String buttonText;
 
+  String errorEmail;
+  String errorPassword;
+
   var formType = FormType.Login;
   final _formKey = GlobalKey<FormState>();
 
@@ -36,6 +39,13 @@ class LoginFormState extends State<LoginForm> {
     formType == FormType.Login
         ? setState(() => formType = FormType.Register)
         : setState(() => formType = FormType.Login);
+  }
+
+  void changeErrorState(errorEmailMessage, errorPasswordMessage) {
+    setState(() {
+      errorEmail = errorEmailMessage;
+      errorPassword = errorPasswordMessage;
+    });
   }
 
   @override
@@ -81,13 +91,14 @@ class LoginFormState extends State<LoginForm> {
 
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
-                  height: widget.formElementsHeight,
                   child: TextFormField(
                     keyboardType: TextInputType.emailAddress,
 
                     onSaved: (value) => email = value,
 
                     decoration: InputDecoration(
+                        errorText: errorEmail != null ? errorEmail : null,
+                        contentPadding: EdgeInsets.all(10),
                         prefixIcon: Icon(Icons.email),
                         labelText: 'Email',
                         hintText: 'Email giriniz.',
@@ -101,14 +112,15 @@ class LoginFormState extends State<LoginForm> {
 
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
-                  height: widget.formElementsHeight,
                   child: TextFormField(
                     obscureText: true,
 
                     onSaved: (value) => password = value,
 
                     decoration: InputDecoration(
+                        errorText: errorPassword != null ? errorPassword : null,
                         prefixIcon: Icon(Icons.lock),
+                        contentPadding: EdgeInsets.all(10),
                         labelText: 'Şifre',
                         hintText: 'Şifre giriniz.',
                         border: OutlineInputBorder(

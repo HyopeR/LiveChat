@@ -13,6 +13,9 @@ class UserView with ChangeNotifier implements AuthBase {
   UserRepository _userRepo = locator<UserRepository>();
   UserModel _user;
 
+  String emailErrorMessage;
+  String passwordErrorMessage;
+
   UserViewState get state => _state;
   UserModel get user => _user;
 
@@ -71,20 +74,52 @@ class UserView with ChangeNotifier implements AuthBase {
 
   @override
   Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
-    state = UserViewState.Busy;
-    _user = await _userRepo.signInWithEmailAndPassword(email, password);
-    state = UserViewState.Idle;
+    if(_checkEmailAndPassword(email, password)) {
+      state = UserViewState.Busy;
+      _user = await _userRepo.signInWithEmailAndPassword(email, password);
+      state = UserViewState.Idle;
 
-    return _user;
+      return _user;
+    } else {
+      return null;
+    }
   }
 
   @override
   Future<UserModel> createUserEmailAndPassword(String email, String password) async {
-    state = UserViewState.Busy;
-    _user = await _userRepo.createUserEmailAndPassword(email, password);
-    state = UserViewState.Idle;
 
-    return _user;
+    if(_checkEmailAndPassword(email, password)) {
+      state = UserViewState.Busy;
+      _user = await _userRepo.createUserEmailAndPassword(email, password);
+      state = UserViewState.Idle;
+
+      return _user;
+    } else {
+      return null;
+    }
+
+  }
+
+
+  bool _checkEmailAndPassword(String email, String password) {
+    bool result = true;
+    
+    if(!email.contains('@')) {
+      emailErrorMessage = 'Geçersiz email adresi.';
+      result = false;
+    }
+
+    if(password.length < 6){
+      passwordErrorMessage = 'Şifre en az 6 karakter olmalıdır.';
+      result = false;
+    }
+
+    if(result != false) {
+      emailErrorMessage = null;
+      passwordErrorMessage = null;
+    }
+
+    return result;
   }
 
 }
