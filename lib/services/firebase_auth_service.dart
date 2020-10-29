@@ -33,7 +33,6 @@ class FirebaseAuthService implements AuthBase {
 
   @override
   Future<UserModel> signInAnonymously() async {
-    print('signInAnonymously');
     try{
       UserCredential userCredential = await _firebaseAuth.signInAnonymously();
       UserModel user = _userFromFirebase(userCredential.user);
@@ -125,15 +124,31 @@ class FirebaseAuthService implements AuthBase {
   }
 
   @override
-  Future<UserModel> signInWithEmailAndPassword() {
-    // TODO: implement signInWithEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
+    try{
+      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      UserModel user = _userFromFirebase(userCredential.user);
+
+      return user;
+    } catch(err) {
+      print('signInWithEmailAndPassword Error: ${err.toString()}');
+
+      return null;
+    }
   }
 
   @override
-  Future<UserModel> createUserEmailAndPassword() {
-    // TODO: implement createUserEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel> createUserEmailAndPassword(String email, String password) async {
+    try{
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+      UserModel user = _userFromFirebase(userCredential.user);
+
+      return user;
+    } catch(err) {
+      print('createUserEmailAndPassword Error: ${err.toString()}');
+
+      return null;
+    }
   }
 
 }

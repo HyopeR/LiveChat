@@ -70,16 +70,21 @@ class UserView with ChangeNotifier implements AuthBase {
   }
 
   @override
-  Future<UserModel> signInWithEmailAndPassword() {
-    // TODO: implement signInWithEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
+    state = UserViewState.Busy;
+    _user = await _userRepo.signInWithEmailAndPassword(email, password);
+    state = UserViewState.Idle;
+
+    return _user;
   }
 
-
   @override
-  Future<UserModel> createUserEmailAndPassword() {
-    // TODO: implement createUserEmailAndPassword
-    throw UnimplementedError();
+  Future<UserModel> createUserEmailAndPassword(String email, String password) async {
+    state = UserViewState.Busy;
+    _user = await _userRepo.createUserEmailAndPassword(email, password);
+    state = UserViewState.Idle;
+
+    return _user;
   }
 
 }

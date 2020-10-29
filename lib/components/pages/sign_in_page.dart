@@ -160,11 +160,22 @@ class _SignInPageState extends State<SignInPage> {
   }
 
 
-  void emailAndPasswordLogin() {
+  void emailAndPasswordLogin() async {
     _loginFormState.currentState.formSubmit();
     String email = _loginFormState.currentState.email;
     String password = _loginFormState.currentState.password;
 
-    print('$email $password');
+    UserModel user = _loginFormState.currentState.formType == FormType.Login
+      ? await _userView.signInWithEmailAndPassword(email, password)
+      : await _userView.createUserEmailAndPassword(email, password);
+
+    if(user != null) {
+      Navigator.of(context).pushReplacementNamed(
+          '/homePage',
+          arguments: user
+      );
+    } else
+      print('User nesnesi boş.');
+
   }
 }

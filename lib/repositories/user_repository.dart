@@ -33,13 +33,13 @@ class UserRepository implements AuthBase{
   }
 
   @override
-  Future<UserModel> signInWithEmailAndPassword() {
-    return _firebaseAuthService.signInWithEmailAndPassword();
+  Future<UserModel> signInWithEmailAndPassword(String email, String password) {
+    return _firebaseAuthService.signInWithEmailAndPassword(email, password);
   }
 
   @override
-  Future<UserModel> createUserEmailAndPassword() {
-    return _firebaseAuthService.createUserEmailAndPassword();
+  Future<UserModel> createUserEmailAndPassword(String email, String password) {
+    return _firebaseAuthService.createUserEmailAndPassword(email, password);
   }
 
 
