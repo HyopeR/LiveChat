@@ -13,7 +13,7 @@ class FirebaseAuthService implements AuthBase {
     if(firebaseUser == null)
       return null;
 
-    return  UserModel(userId: firebaseUser.uid);
+    return  UserModel(userId: firebaseUser.uid, userEmail: firebaseUser.email);
   }
 
   // Network fonksiyonlar
