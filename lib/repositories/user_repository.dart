@@ -25,13 +25,19 @@ class UserRepository implements AuthBase{
   }
 
   @override
-  Future<UserModel> signInWithGoogle() {
-    return _firebaseAuthService.signInWithGoogle();
+  Future<UserModel> signInWithGoogle() async {
+    UserModel user = await _firebaseAuthService.signInWithGoogle();
+    bool result = await _fireStoreDbService.saveUser(user);
+
+    return result ? user : null;
   }
 
   @override
-  Future<UserModel> signInWithFacebook() {
-    return _firebaseAuthService.signInWithFacebook();
+  Future<UserModel> signInWithFacebook() async {
+    UserModel user = await _firebaseAuthService.signInWithFacebook();
+    bool result = await _fireStoreDbService.saveUser(user);
+
+    return result ? user : null;
   }
 
   @override
