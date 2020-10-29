@@ -32,6 +32,16 @@ class UserRepository implements AuthBase{
     return _firebaseAuthService.signInWithFacebook();
   }
 
+  @override
+  Future<UserModel> signInWithEmailAndPassword() {
+    return _firebaseAuthService.signInWithEmailAndPassword();
+  }
+
+  @override
+  Future<UserModel> createUserEmailAndPassword() {
+    return _firebaseAuthService.createUserEmailAndPassword();
+  }
+
 
 
 }

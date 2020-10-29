@@ -15,6 +15,9 @@ class _SignInPageState extends State<SignInPage> {
   UserView _userView;
   bool showForm = false;
 
+  GlobalKey<LoginFormState> _loginFormState = GlobalKey();
+
+
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
@@ -86,7 +89,12 @@ class _SignInPageState extends State<SignInPage> {
                 ),
 
                 showForm
-                    ? LoginForm()
+                    ? LoginForm(
+                        key: _loginFormState,
+                        formElementsRadius: 16,
+                        formElementsHeight: 50,
+                        onPressed: () => emailAndPasswordLogin(),
+                    )
                     : Container(),
 
                 LoginButton(
@@ -149,6 +157,14 @@ class _SignInPageState extends State<SignInPage> {
     } else
       print('User nesnesi boş.');
 
+  }
 
+
+  void emailAndPasswordLogin() {
+    _loginFormState.currentState.formSubmit();
+    String email = _loginFormState.currentState.email;
+    String password = _loginFormState.currentState.password;
+
+    print('$email $password');
   }
 }

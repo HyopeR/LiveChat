@@ -124,4 +124,16 @@ class FirebaseAuthService implements AuthBase {
     return null;
   }
 
+  @override
+  Future<UserModel> signInWithEmailAndPassword() {
+    // TODO: implement signInWithEmailAndPassword
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UserModel> createUserEmailAndPassword() {
+    // TODO: implement createUserEmailAndPassword
+    throw UnimplementedError();
+  }
+
 }
