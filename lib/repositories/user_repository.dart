@@ -72,22 +72,32 @@ class UserRepository implements AuthBase{
     return user;
   }
 
+  Future<UserModel> controllerUser(String email, String password) async {
+    UserModel user = await _firebaseAuthService.signInWithEmailAndPassword(email, password);
+    return user;
+  }
+
   @override
   Future<UserModel> createUserEmailAndPassword(String email, String password) async {
+
     UserModel user = await _firebaseAuthService.createUserEmailAndPassword(email, password);
 
-    bool result;
-    Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
+    if(user != null) {
+      bool result;
+      Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
 
-    if(checkUser['check']){
-      result = await _fireStoreDbService.saveUser(user);
-      user = await _fireStoreDbService.readUser(user.userId);
-    } else {
-      result = true;
-      user = checkUser['user'];
-    }
+      if(!checkUser['check']){
+        result = await _fireStoreDbService.saveUser(user);
+        user = await _fireStoreDbService.readUser(user.userId);
+      } else {
+        result = true;
+        user = checkUser['user'];
+      }
 
-    return result ? user : null;
+      return result ? user : null;
+    } else
+      return null;
+
   }
 
 

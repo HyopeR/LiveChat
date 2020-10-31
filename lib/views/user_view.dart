@@ -15,6 +15,7 @@ class UserView with ChangeNotifier implements AuthBase {
 
   String emailErrorMessage;
   String passwordErrorMessage;
+  String userErrorMessage;
 
   UserViewState get state => _state;
   UserModel get user => _user;
@@ -77,11 +78,20 @@ class UserView with ChangeNotifier implements AuthBase {
   @override
   Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
     if(_checkEmailAndPassword(email, password)) {
-      state = UserViewState.Busy;
-      _user = await _userRepo.signInWithEmailAndPassword(email, password);
-      state = UserViewState.Idle;
+      userErrorMessage = null;
 
-      return _user;
+      try{
+        _user = await _userRepo.signInWithEmailAndPassword(email, password);
+        return _user;
+      }catch(err) {
+        state = UserViewState.Busy;
+        userErrorMessage = 'Bu email adresi bulunamadı. Kayıt olun.';
+        return null;
+      }finally{
+        state = UserViewState.Idle;
+      }
+
+
     } else {
       return null;
     }
@@ -91,11 +101,22 @@ class UserView with ChangeNotifier implements AuthBase {
   Future<UserModel> createUserEmailAndPassword(String email, String password) async {
 
     if(_checkEmailAndPassword(email, password)) {
-      state = UserViewState.Busy;
-      _user = await _userRepo.createUserEmailAndPassword(email, password);
-      state = UserViewState.Idle;
+      userErrorMessage = null;
+      UserModel result = await _userRepo.controllerUser(email, password);
 
-      return _user;
+      if(result != null) {
+        state = UserViewState.Busy;
+        userErrorMessage = 'Bu email adresi zaten kayıtlı. Giriş yapın.';
+        state = UserViewState.Idle;
+        return null;
+      }else {
+        state = UserViewState.Busy;
+        _user = await _userRepo.createUserEmailAndPassword(email, password);
+        state = UserViewState.Idle;
+        return _user;
+      }
+
+
     } else {
       return null;
     }
@@ -109,17 +130,15 @@ class UserView with ChangeNotifier implements AuthBase {
     if(!email.contains('@')) {
       emailErrorMessage = 'Geçersiz email adresi.';
       result = false;
-    }
+    }else
+      emailErrorMessage = null;
+
 
     if(password.length < 6){
       passwordErrorMessage = 'Şifre en az 6 karakter olmalıdır.';
       result = false;
-    }
-
-    if(result != false) {
-      emailErrorMessage = null;
+    }else
       passwordErrorMessage = null;
-    }
 
     return result;
   }

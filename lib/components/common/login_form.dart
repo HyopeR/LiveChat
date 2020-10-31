@@ -27,6 +27,7 @@ class LoginFormState extends State<LoginForm> {
 
   String errorEmail;
   String errorPassword;
+  String errorUser;
 
   var formType = FormType.Login;
   final _formKey = GlobalKey<FormState>();
@@ -41,10 +42,11 @@ class LoginFormState extends State<LoginForm> {
         : setState(() => formType = FormType.Login);
   }
 
-  void changeErrorState(errorEmailMessage, errorPasswordMessage) {
+  void changeErrorState(errorEmailMessage, errorPasswordMessage, errorUserMessage) {
     setState(() {
       errorEmail = errorEmailMessage;
       errorPassword = errorPasswordMessage;
+      errorUser = errorUserMessage;
     });
   }
 
@@ -80,19 +82,38 @@ class LoginFormState extends State<LoginForm> {
               mainAxisSize: MainAxisSize.min,
               children: [
 
-                Container(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    splashRadius: 25,
-                    icon: formType == FormType.Login ? Icon(Icons.article) : Icon(Icons.login),
-                    onPressed: () => changeFormType(),
-                  ),
-                ),
+               Container(
+                 child: Row(
+                   children: [
+
+                     Expanded(
+                       flex: 5,
+                       child: Container(
+                         child: Text(errorUser != null ? errorUser : ' '),
+                       ),
+                     ),
+
+
+                     Expanded(
+                       flex: 1,
+                       child: Container(
+                         alignment: Alignment.topRight,
+                         child: IconButton(
+                           splashRadius: 25,
+                           icon: formType == FormType.Login ? Icon(Icons.article) : Icon(Icons.login),
+                           onPressed: () => changeFormType(),
+                         ),
+                       ),
+                     ),
+
+                   ],
+                 ),
+               ),
 
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
                   child: TextFormField(
-                    initialValue: 'hello@hotmail.com',
+                    initialValue: 'hello2@hotmail.com',
                     keyboardType: TextInputType.emailAddress,
 
                     onSaved: (value) => email = value,

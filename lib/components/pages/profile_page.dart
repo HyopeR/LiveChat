@@ -25,7 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
       ),
       body: Center(
-        child: Text('${_userView.user.userName}'),
+        child: Text('${_userView.user.userEmail}'),
       ),
     );
   }

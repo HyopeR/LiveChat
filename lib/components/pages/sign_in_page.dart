@@ -171,8 +171,13 @@ class _SignInPageState extends State<SignInPage> {
       ? await _userView.signInWithEmailAndPassword(email, password)
       : await _userView.createUserEmailAndPassword(email, password);
 
-    if(_userView.emailErrorMessage != null || _userView.passwordErrorMessage != null) {
-      _loginFormState.currentState.changeErrorState(_userView.emailErrorMessage, _userView.passwordErrorMessage);
+    if(_userView.emailErrorMessage != null || _userView.passwordErrorMessage != null || _userView.userErrorMessage != null) {
+
+      _loginFormState.currentState.changeErrorState(
+          _userView.emailErrorMessage,
+          _userView.passwordErrorMessage,
+          _userView.userErrorMessage,
+      );
     }
 
     if(user != null) {
