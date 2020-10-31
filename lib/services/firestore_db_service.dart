@@ -24,4 +24,15 @@ class FireStoreDbService implements DbBase {
     return readUser;
   }
 
+  @override
+  Future<Map<String, dynamic>> checkUser(String userId) async {
+    DocumentSnapshot response =  await _fireStore.doc('users/$userId').get();
+    bool checkUser = response.data().isEmpty;
+    if(response.data().isEmpty)
+      return {'check': checkUser, 'user': null};
+    else
+      return {'check': checkUser, 'user': UserModel.fromMap(response.data())};
+
+  }
+
 }

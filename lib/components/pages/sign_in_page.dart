@@ -108,7 +108,7 @@ class _SignInPageState extends State<SignInPage> {
                   buttonColor: Colors.grey,
 
                   icon: Icon(Icons.person, color: Colors.white, size: 34,),
-                  onPressed: () => visitorLogin(),
+                  // onPressed: () => visitorLogin(),
                 )
 
               ],

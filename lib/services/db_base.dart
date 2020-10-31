@@ -4,5 +4,6 @@ abstract class DbBase {
 
   Future<bool> saveUser(UserModel user);
   Future<UserModel> readUser(String userId);
+  Future<Map<String, dynamic>> checkUser(String userId);
 
 }

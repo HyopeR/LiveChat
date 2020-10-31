@@ -11,7 +11,7 @@ class UserRepository implements AuthBase{
 
   @override
   Future<UserModel> getCurrentUser() async {
-    UserModel user = await  _firebaseAuthService.getCurrentUser();
+    UserModel user = await _firebaseAuthService.getCurrentUser();
     if(user != null)
       user = await _fireStoreDbService.readUser(user.userId);
 
@@ -31,8 +31,17 @@ class UserRepository implements AuthBase{
   @override
   Future<UserModel> signInWithGoogle() async {
     UserModel user = await _firebaseAuthService.signInWithGoogle();
-    bool result = await _fireStoreDbService.saveUser(user);
-    user = await _fireStoreDbService.readUser(user.userId);
+
+    bool result;
+    Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
+
+    if(checkUser['check']){
+      result = await _fireStoreDbService.saveUser(user);
+      user = await _fireStoreDbService.readUser(user.userId);
+    } else {
+      result = true;
+      user = checkUser['user'];
+    }
 
     return result ? user : null;
   }
@@ -40,8 +49,17 @@ class UserRepository implements AuthBase{
   @override
   Future<UserModel> signInWithFacebook() async {
     UserModel user = await _firebaseAuthService.signInWithFacebook();
-    bool result = await _fireStoreDbService.saveUser(user);
-    user = await _fireStoreDbService.readUser(user.userId);
+
+    bool result;
+    Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
+
+    if(checkUser['check']){
+      result = await _fireStoreDbService.saveUser(user);
+      user = await _fireStoreDbService.readUser(user.userId);
+    } else {
+      result = true;
+      user = checkUser['user'];
+    }
 
     return result ? user : null;
   }
@@ -57,8 +75,17 @@ class UserRepository implements AuthBase{
   @override
   Future<UserModel> createUserEmailAndPassword(String email, String password) async {
     UserModel user = await _firebaseAuthService.createUserEmailAndPassword(email, password);
-    bool result = await _fireStoreDbService.saveUser(user);
-    user = await _fireStoreDbService.readUser(user.userId);
+
+    bool result;
+    Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
+
+    if(checkUser['check']){
+      result = await _fireStoreDbService.saveUser(user);
+      user = await _fireStoreDbService.readUser(user.userId);
+    } else {
+      result = true;
+      user = checkUser['user'];
+    }
 
     return result ? user : null;
   }
