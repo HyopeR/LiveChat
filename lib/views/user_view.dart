@@ -85,7 +85,7 @@ class UserView with ChangeNotifier implements AuthBase {
         return _user;
       }catch(err) {
         state = UserViewState.Busy;
-        userErrorMessage = 'Bu email adresi bulunamadı. Kayıt olun.';
+        userErrorMessage = 'Bu kullanıcı bulunamadı. Bilgilerinizi kontrol edin.';
         return null;
       }finally{
         state = UserViewState.Idle;
