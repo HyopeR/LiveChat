@@ -30,6 +30,7 @@ class CustomBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Custom Bottom: ' + Navigator.of(context).toString());
     return CupertinoTabScaffold(
 
       tabBar: CupertinoTabBar(

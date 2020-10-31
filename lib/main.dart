@@ -5,6 +5,7 @@ import 'package:live_chat/components/pages/landing_page.dart';
 import 'package:live_chat/components/pages/sign_in_page.dart';
 import 'package:live_chat/components/pages/home_page.dart';
 import 'package:live_chat/locator.dart';
+import 'package:live_chat/services/navigation_service.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Live Chat',
 
+        navigatorKey: locator<NavigationService>().navigatorKey,
         initialRoute: '/',
         routes: {
           '/': (context) => LandingPage(),

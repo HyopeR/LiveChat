@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/locator.dart';
+import 'package:live_chat/services/navigation_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:live_chat/components/common/login_button.dart';
@@ -13,6 +15,7 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  NavigationService _navigationService = locator<NavigationService>();
   UserView _userView;
   bool showForm = false;
 
@@ -123,10 +126,7 @@ class _SignInPageState extends State<SignInPage> {
     UserModel user = await _userView.signInAnonymously();
 
     if(user != null) {
-      Navigator.of(context).pushReplacementNamed(
-          '/homePage',
-          arguments: user
-      );
+      _navigationService.pushReplacementNamed('/homePage');
     } else
         print('User nesnesi boş.');
 
@@ -137,10 +137,7 @@ class _SignInPageState extends State<SignInPage> {
     UserModel user = await _userView.signInWithGoogle();
 
     if(user != null) {
-      Navigator.of(context).pushReplacementNamed(
-          '/homePage',
-          arguments: user
-      );
+      _navigationService.pushReplacementNamed('/homePage');
     } else
         print('User nesnesi boş.');
 
@@ -152,10 +149,7 @@ class _SignInPageState extends State<SignInPage> {
     UserModel user = await _userView.signInWithFacebook();
 
     if(user != null) {
-      Navigator.of(context).pushReplacementNamed(
-          '/homePage',
-          arguments: user
-      );
+      _navigationService.pushReplacementNamed('/homePage');
     } else
       print('User nesnesi boş.');
 
@@ -176,10 +170,7 @@ class _SignInPageState extends State<SignInPage> {
     }
 
     if(user != null) {
-      Navigator.of(context).pushReplacementNamed(
-          '/homePage',
-          arguments: user
-      );
+      _navigationService.pushReplacementNamed('/homePage');
     } else
       print('User nesnesi boş.');
 

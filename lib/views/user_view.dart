@@ -30,8 +30,9 @@ class UserView with ChangeNotifier implements AuthBase {
 
   @override
   Future<UserModel> getCurrentUser() async {
+    state = UserViewState.Busy;
     _user = await _userRepo.getCurrentUser();
-    print(_user.toString());
+    state = UserViewState.Idle;
     return _user;
   }
 
