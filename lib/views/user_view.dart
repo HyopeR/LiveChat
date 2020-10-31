@@ -48,6 +48,7 @@ class UserView with ChangeNotifier implements AuthBase {
   @override
   Future<bool> signOut() async {
     state = UserViewState.Busy;
+
     _user = null;
     bool result = await _userRepo.signOut();
     state = UserViewState.Idle;

@@ -25,12 +25,12 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
       ),
       body: Center(
-        child: Text('Profile Page'),
+        child: Text('${_userView.user.userName}'),
       ),
     );
   }
 
-  _signOut() {
+  _signOut() async {
     _userView.signOut();
     Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
   }

@@ -92,6 +92,7 @@ class LoginFormState extends State<LoginForm> {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
                   child: TextFormField(
+                    initialValue: 'hello@hotmail.com',
                     keyboardType: TextInputType.emailAddress,
 
                     onSaved: (value) => email = value,
@@ -113,6 +114,7 @@ class LoginFormState extends State<LoginForm> {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
                   child: TextFormField(
+                    initialValue: '123123aa',
                     obscureText: true,
 
                     onSaved: (value) => password = value,

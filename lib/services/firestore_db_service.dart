@@ -4,18 +4,24 @@ import 'package:live_chat/services/db_base.dart';
 
 class FireStoreDbService implements DbBase {
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
   @override
   Future<bool> saveUser(UserModel user) async {
 
-    await _firestore.collection('users').doc(user.userId).set(user.toMap());
-    
-    DocumentSnapshot response =  await _firestore.doc('users/${user.userId}').get();
-    UserModel readUser = UserModel.fromMap(response.data());
-    print('Okunan User: ${readUser.toString()}');
+    await _fireStore.collection('users').doc(user.userId).set(user.toMap());
 
     return true;
+  }
+
+  @override
+  Future<UserModel> readUser(String userId) async {
+
+    // DocumentSnapshot response = await _fireStore.collection('users').doc(userId).get();
+    DocumentSnapshot response =  await _fireStore.doc('users/$userId').get();
+    UserModel readUser = UserModel.fromMap(response.data());
+
+    return readUser;
   }
 
 }

@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   Widget _bodyArea() {
     if(_userView.state == UserViewState.Idle) {
       if(_userView.user == null) {
-        return Container();
+        return _busyArea();
       } else {
         return CustomBottomNavigation(
             currentTab: _currentTab,
@@ -60,7 +60,29 @@ class _HomePageState extends State<HomePage> {
         );
       }
     } else {
-      return Center(child: CircularProgressIndicator());
+      return _busyArea();
     }
+  }
+
+  Widget _busyArea() {
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          color: Colors.black38.withOpacity(0.5),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('İşlem yapılıyor...'),
+                SizedBox(height: 20),
+                CircularProgressIndicator()
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

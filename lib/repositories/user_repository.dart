@@ -10,8 +10,12 @@ class UserRepository implements AuthBase{
   FireStoreDbService _fireStoreDbService = locator<FireStoreDbService>();
 
   @override
-  Future<UserModel> getCurrentUser() {
-    return _firebaseAuthService.getCurrentUser();
+  Future<UserModel> getCurrentUser() async {
+    UserModel user = await  _firebaseAuthService.getCurrentUser();
+    if(user != null)
+      user = await _fireStoreDbService.readUser(user.userId);
+
+    return user;
   }
 
   @override
@@ -28,6 +32,7 @@ class UserRepository implements AuthBase{
   Future<UserModel> signInWithGoogle() async {
     UserModel user = await _firebaseAuthService.signInWithGoogle();
     bool result = await _fireStoreDbService.saveUser(user);
+    user = await _fireStoreDbService.readUser(user.userId);
 
     return result ? user : null;
   }
@@ -36,19 +41,24 @@ class UserRepository implements AuthBase{
   Future<UserModel> signInWithFacebook() async {
     UserModel user = await _firebaseAuthService.signInWithFacebook();
     bool result = await _fireStoreDbService.saveUser(user);
+    user = await _fireStoreDbService.readUser(user.userId);
 
     return result ? user : null;
   }
 
   @override
-  Future<UserModel> signInWithEmailAndPassword(String email, String password) {
-    return _firebaseAuthService.signInWithEmailAndPassword(email, password);
+  Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
+    UserModel user = await _firebaseAuthService.signInWithEmailAndPassword(email, password);
+    user = await _fireStoreDbService.readUser(user.userId);
+
+    return user;
   }
 
   @override
   Future<UserModel> createUserEmailAndPassword(String email, String password) async {
     UserModel user = await _firebaseAuthService.createUserEmailAndPassword(email, password);
     bool result = await _fireStoreDbService.saveUser(user);
+    user = await _fireStoreDbService.readUser(user.userId);
 
     return result ? user : null;
   }
