@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:live_chat/locator.dart';
-import 'package:live_chat/services/navigation_service.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +10,6 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
 
   UserView _userView;
-  NavigationService _navigationService = locator<NavigationService>();
 
   @override
   void initState() {
@@ -55,14 +52,18 @@ class _LandingPageState extends State<LandingPage> {
       Future.delayed(
           Duration(seconds: 2),
           () {
-            _navigationService.pushReplacementNamed('/signInPage');
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+              '/signInPage',
+            );
           }
       );
     } else {
       Future.delayed(
           Duration(seconds: 2),
           () {
-            _navigationService.pushReplacementNamed('/homePage');
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+              '/homePage',
+            );
           }
       );
     }

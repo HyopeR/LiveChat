@@ -20,12 +20,14 @@ class CustomBottomNavigation extends StatelessWidget {
   final TabItem currentTab;
   final ValueChanged<TabItem> onSelectedTab;
   final Map<TabItem, Widget> pageCreator;
+  final Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys;
 
   const CustomBottomNavigation({
     Key key,
     @required this.currentTab,
     @required this.onSelectedTab,
-    @required this.pageCreator
+    @required this.pageCreator,
+    @required this.navigatorKeys
   }) : super(key: key);
 
   @override
@@ -47,6 +49,7 @@ class CustomBottomNavigation extends StatelessWidget {
         final showItem = TabItem.values[index];
 
         return CupertinoTabView(
+          navigatorKey: navigatorKeys[showItem],
           builder: (context) => pageCreator[showItem],
         );
       },

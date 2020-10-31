@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:live_chat/locator.dart';
-import 'package:live_chat/services/navigation_service.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +8,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  NavigationService _navigationService = locator<NavigationService>();
   UserView _userView;
 
   @override
@@ -35,6 +32,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   _signOut() {
     _userView.signOut();
-    _navigationService.pushReplacementNamed('/signInPage');
+    Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
   }
 }

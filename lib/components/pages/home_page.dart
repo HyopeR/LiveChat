@@ -14,6 +14,11 @@ class _HomePageState extends State<HomePage> {
   UserView _userView;
   TabItem _currentTab = TabItem.Users;
 
+  Map<TabItem, GlobalKey<NavigatorState>> tabNavigatorKeys = {
+    TabItem.Users : GlobalKey<NavigatorState>(),
+    TabItem.Profile : GlobalKey<NavigatorState>(),
+  };
+
   Map<TabItem, Widget> tabPagesCreator() {
     return {
       TabItem.Users: UsersPage(),
@@ -25,8 +30,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
 
-    return Container(
-        child: _bodyArea(),
+    return WillPopScope(
+      onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
+      child: Container(
+          child: _bodyArea(),
+      ),
     );
   }
 
@@ -38,10 +46,16 @@ class _HomePageState extends State<HomePage> {
         return CustomBottomNavigation(
             currentTab: _currentTab,
             pageCreator: tabPagesCreator(),
+            navigatorKeys: tabNavigatorKeys,
             onSelectedTab: (selectedTab){
-              setState(() {
-                _currentTab = selectedTab;
-              });
+
+              // Eğer ilerlenmiş bi rotada aynı rota seçilirse başlangıcına dönmesi için kontrol.
+              if(selectedTab == _currentTab)
+                tabNavigatorKeys[selectedTab].currentState.popUntil((route) => route.isFirst);
+              else
+                setState(() {
+                  _currentTab = selectedTab;
+                });
             }
         );
       }
