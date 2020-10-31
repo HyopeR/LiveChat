@@ -49,7 +49,7 @@ class _SignInPageState extends State<SignInPage> {
                   titleText: 'Oturum Açma Yöntemleri',
                   icon: Icon(
                     Icons.apps,
-                    size: 18,
+                    size: 24,
                     color: Theme.of(context).primaryColor,
                   ),
                 ),

@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
             navigatorKeys: tabNavigatorKeys,
             onSelectedTab: (selectedTab){
 
-              // Eğer ilerlenmiş bi rotada aynı rota seçilirse başlangıcına dönmesi için kontrol.
+              /// Eğer ilerlenmiş bi rotada aynı rota seçilirse başlangıcına dönmesi için kontrol.
               if(selectedTab == _currentTab)
                 tabNavigatorKeys[selectedTab].currentState.popUntil((route) => route.isFirst);
               else

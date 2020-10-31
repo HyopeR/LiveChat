@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/alert_dialog_widget.dart';
+import 'package:live_chat/components/common/login_button.dart';
+import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -11,38 +13,133 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
 
+  TextEditingController _controllerUserName;
+  bool showUserData = true;
+  bool showForm = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerUserName = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controllerUserName.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
+    _controllerUserName.text = _userView.user.userName;
 
     return Scaffold(
       appBar: AppBar(
-          title: Text('Profile'),
-          actions: [
-            FlatButton(
-                onPressed: () => _signOutControl(),
-                child: Icon(Icons.logout)
-            )
-          ],
+        title: Text('Profile'),
+        actions: [
+          FlatButton(
+              onPressed: () => _signOutControl(), child: Icon(Icons.logout))
+        ],
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Container(
+          padding: EdgeInsets.all(10),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
-              Text('${_userView.user.userEmail}'),
-              RaisedButton(
-                child: Text('Show Alert Dialog'),
-                onPressed: () {
+              TitleArea(
+                titleText: 'Bilgiler',
+                icon: Icon(
+                  Icons.person,
+                  size: 24,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              Container(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey.withOpacity(0.3),
+                              ),
+                              child: Image.network(
+                                _userView.user.userProfilePhotoUrl,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              child: IconButton(
+                                  splashRadius: 25,
+                                  icon: Icon(
+                                      !showForm ? Icons.edit : Icons.close),
+                                  onPressed: () {
+                                    setState(() {
+                                      showForm = !showForm;
+                                    });
+                                  }),
+                            )
+                          ],
+                        )),
+                    Expanded(
+                        flex: 4,
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            children: showUserData
+                                ? _userDataWrite()
+                                : [Center(child: CircularProgressIndicator())],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+              showForm
+                  ? Container(
+                      child: Column(
+                        children: [
 
-                  AlertDialogWidget(
-                      alertTitle: 'Example Alert Dialog',
-                      alertContent: 'Platform Responsive Android / Ios',
-                      complateActionText: 'Tamam'
-                  ).show(context);
+                          TitleArea(
+                            titleText: 'Bilgileri Güncelle',
+                            icon: Icon(
+                              Icons.insert_drive_file,
+                              size: 24,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
 
-                }
-              )
+                          TextFormField(
+                            controller: _controllerUserName,
+                            decoration: InputDecoration(
+                              labelText: 'Username',
+                              hintText: 'Enter username',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)
+                                )
+                            ),
+                          ),
+                          LoginButton(
+                              buttonText: 'Değişiklikleri Kaydet',
+                              buttonRadius: 10,
+                              buttonHeight: 40,
+                              textColor: Colors.black,
+                              buttonColor: Theme.of(context).primaryColor,
+                              onPressed: () {
+                                _updateUserName();
+                              }
+                          ),
+                        ],
+                      ),
+                    )
+                  : Container(),
             ],
           ),
         ),
@@ -50,20 +147,73 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  List<Widget> _userDataWrite() {
+    List<Widget> usersData = [];
+
+    _userView.user.toMap().forEach((key, value) {
+      if (key != 'userProfilePhotoUrl' && key != 'userId')
+        usersData.add(Container(
+          margin: EdgeInsets.symmetric(vertical: 3),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey.withOpacity(0.3),
+                  ),
+                  child: Text('$key:'),
+                ),
+              ),
+              Expanded(
+                  flex: 4,
+                  child: Container(
+                    margin: EdgeInsets.only(left: 3),
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                    alignment: Alignment.centerLeft,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey.withOpacity(0.3),
+                    ),
+                    child: Text(value.toString()),
+                  )),
+            ],
+          ),
+        ));
+    });
+
+    return usersData;
+  }
+
+  void _updateUserName() {
+    if(_userView.user.userName != _controllerUserName.text) {
+      // _userView.updateUserName(_controllerUserName.text);
+    } else {
+      AlertDialogWidget(
+        alertTitle: 'Hata',
+        alertContent: 'Değişiklik yapmadınız.',
+        complateActionText: 'Tamam',
+      ).show(context);
+    }
+  }
+
   Future _signOutControl() async {
     AlertDialogWidget(
-        alertTitle: 'Çıkış',
-        alertContent: 'Çıkmak istediğinizden emin misiniz?',
-        complateActionText: 'Evet',
-        cancelActionText: 'Vazgeç',
+      alertTitle: 'Çıkış',
+      alertContent: 'Çıkmak istediğinizden emin misiniz?',
+      complateActionText: 'Evet',
+      cancelActionText: 'Vazgeç',
     ).show(context).then((value) {
-      if(value)
-        _signOut();
+      if (value) _signOut();
     });
   }
 
   _signOut() async {
     _userView.signOut();
-    Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
+    Navigator.of(context, rootNavigator: true)
+        .pushReplacementNamed('/signInPage');
   }
 }

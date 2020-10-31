@@ -21,7 +21,7 @@ class TitleArea extends StatelessWidget {
                     ? icon
                     : Icon(
                         Icons.brightness_1,
-                        size: 18,
+                        size: 24,
                         color: Theme.of(context).primaryColor,
                       ),
 
