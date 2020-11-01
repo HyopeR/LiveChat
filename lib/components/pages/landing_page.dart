@@ -15,7 +15,7 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _checkUser(context);
+      _checkUser();
     });
   }
 
@@ -47,12 +47,14 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Future<void> _checkUser(BuildContext context) async {
+  Future<void> _checkUser() async {
+    await _userView.getCurrentUser();
+
     if(_userView.user == null) {
       Future.delayed(
           Duration(seconds: 2),
           () {
-            Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+            Navigator.of(context).pushReplacementNamed(
               '/signInPage',
             );
           }
@@ -61,7 +63,7 @@ class _LandingPageState extends State<LandingPage> {
       Future.delayed(
           Duration(seconds: 2),
           () {
-            Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+            Navigator.of(context).pushReplacementNamed(
               '/homePage',
             );
           }

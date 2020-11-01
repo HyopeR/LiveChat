@@ -26,10 +26,6 @@ class UserView with ChangeNotifier implements AuthBase {
     notifyListeners();
   }
 
-  UserView() {
-    getCurrentUser();
-  }
-
   @override
   Future<UserModel> getCurrentUser() async {
     state = UserViewState.Busy;

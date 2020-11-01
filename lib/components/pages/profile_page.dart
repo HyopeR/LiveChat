@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/alert_dialog_widget.dart';
+import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/login_button.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/views/user_view.dart';
@@ -12,6 +16,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
+
+  File _profilePhoto;
 
   TextEditingController _controllerUserName;
   String detailUpdate;
@@ -34,7 +40,8 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
-    showUserData ? _controllerUserName.text = _userView.user.userName : null;
+
+    if (showUserData) _controllerUserName.text = _userView.user.userName;
 
     return Scaffold(
       appBar: AppBar(
@@ -68,48 +75,32 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             GestureDetector(
                               onTap: () {
-
                                 showModalBottomSheet(
-                                  
-                                  context: context,
-                                  builder: (context) {
-
-                                    return SafeArea(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-
-                                          ListTile(
-                                            leading: Icon(Icons.camera_alt),
-                                            title: Text('Kamera Kullan'),
-                                            onTap: () => photoFromCamera(),
-                                          ),
-
-                                          ListTile(
-                                            leading: Icon(Icons.image),
-                                            title: Text('Geleriden Seç'),
-                                            onTap: () => photoFromGallery(),
-                                          )
-
-                                        ],
-                                      ),
-                                    );
-
-                                  }
-                                );
-
+                                    context: context,
+                                    builder: (context) {
+                                      return SafeArea(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ListTile(
+                                              leading: Icon(Icons.camera_alt),
+                                              title: Text('Kamera Kullan'),
+                                              onTap: () => photoFromCamera(),
+                                            ),
+                                            ListTile(
+                                              leading: Icon(Icons.image),
+                                              title: Text('Geleriden Seç'),
+                                              onTap: () => photoFromGallery(),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    });
                               },
-
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.withOpacity(0.3),
-                                ),
-                                child: Image.network(
-                                  _userView.user.userProfilePhotoUrl,
-                                  fit: BoxFit.contain,
-                                ),
+                              child: ImageWidget(
+                                imageUrl: _userView.user.userProfilePhotoUrl,
+                                backgroundShape: BoxShape.circle,
+                                backgroundColor: Colors.grey.withOpacity(0.3),
                               ),
                             ),
                             Container(
@@ -143,7 +134,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? Container(
                       child: Column(
                         children: [
-
                           TitleArea(
                             titleText: 'Bilgileri Güncelle',
                             icon: Icon(
@@ -152,34 +142,27 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: Theme.of(context).primaryColor,
                             ),
                           ),
-
                           detailUpdate != null
-                            ? Container(
-                              margin: EdgeInsets.only(bottom: 20),
-                              alignment: Alignment.centerLeft,
-                              child: Text(detailUpdate)
-                            )
-                            : Container(),
-
+                              ? Container(
+                                  margin: EdgeInsets.only(bottom: 20),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(detailUpdate))
+                              : Container(),
                           TextFormField(
                             controller: _controllerUserName,
                             decoration: InputDecoration(
-                              labelText: 'Username',
-                              hintText: 'Enter username',
+                                labelText: 'Username',
+                                hintText: 'Enter username',
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)
-                                )
-                            ),
+                                    borderRadius: BorderRadius.circular(10))),
                           ),
                           LoginButton(
-                              buttonText: 'Değişiklikleri Kaydet',
-                              buttonRadius: 10,
-                              buttonHeight: 40,
-                              textColor: Colors.black,
-                              buttonColor: Theme.of(context).primaryColor,
-                              onPressed: () {
-                                _updateUserName();
-                              }
+                            buttonText: 'Değişiklikleri Kaydet',
+                            buttonRadius: 10,
+                            buttonHeight: 40,
+                            textColor: Colors.black,
+                            buttonColor: Theme.of(context).primaryColor,
+                            onPressed: () => _updateUserName(),
                           ),
                         ],
                       ),
@@ -233,20 +216,31 @@ class _ProfilePageState extends State<ProfilePage> {
     return usersData;
   }
 
-  void photoFromCamera() {
-
+  void photoFromCamera() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    if (pickedFile.path != null)
+      setState(() {
+        _profilePhoto = File(pickedFile.path);
+      });
   }
 
-  void photoFromGallery() {
-
+  void photoFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile.path != null)
+      setState(() {
+        _profilePhoto = File(pickedFile.path);
+      });
   }
 
   void _updateUserName() async {
-    if(_userView.user.userName != _controllerUserName.text) {
+    if (_userView.user.userName != _controllerUserName.text) {
       setState(() => showUserData = false);
-      bool updatedUserName = await _userView.updateUserName(_userView.user.userId, _controllerUserName.text);
+      bool updatedUserName = await _userView.updateUserName(
+          _userView.user.userId, _controllerUserName.text);
 
-      if(updatedUserName) {
+      if (updatedUserName) {
         setState(() {
           showUserData = true;
           detailUpdate = 'Username güncellendi.';
@@ -257,8 +251,6 @@ class _ProfilePageState extends State<ProfilePage> {
           detailUpdate = 'Bu username zaten kullanılıyor.';
         });
       }
-
-
     } else {
       AlertDialogWidget(
         alertTitle: 'Hata',

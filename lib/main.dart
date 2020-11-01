@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<UserView>.value(value: UserView()),
+        ChangeNotifierProvider(create: (context) => UserView()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
