@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:live_chat/components/common/alert_container_widget.dart';
 import 'package:live_chat/components/common/alert_dialog_widget.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/login_button.dart';
@@ -16,11 +17,12 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
+  GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
 
   File _profilePhoto;
 
   TextEditingController _controllerUserName;
-  String detailUpdate;
+  String updateControllerUserName;
 
   bool showUserData = true;
   bool showUserProfilePhoto = true;
@@ -52,136 +54,147 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () => _signOutControl(), child: Icon(Icons.logout))
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              TitleArea(
-                titleText: 'Bilgiler',
-                icon: Icon(
-                  Icons.person,
-                  size: 24,
-                  color: Theme.of(context).primaryColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                TitleArea(
+                  titleText: 'Bilgiler',
+                  icon: Icon(
+                    Icons.person,
+                    size: 24,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
-              ),
-              Container(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                        flex: 1,
+                Container(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                        context: context,
+                                        builder: (context) {
+                                          return SafeArea(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ListTile(
+                                                  leading:
+                                                      Icon(Icons.camera_alt),
+                                                  title: Text('Kamera Kullan'),
+                                                  onTap: () =>
+                                                      photoFromCamera(),
+                                                ),
+                                                ListTile(
+                                                  leading: Icon(Icons.image),
+                                                  title: Text('Geleriden Seç'),
+                                                  onTap: () =>
+                                                      photoFromGallery(),
+                                                )
+                                              ],
+                                            ),
+                                          );
+                                        });
+                                  },
+                                  child: showUserProfilePhoto
+                                      ? ImageWidget(
+                                          imageUrl: _userView.user.userProfilePhotoUrl,
+                                          backgroundShape: BoxShape.circle,
+                                          backgroundColor:
+                                              Colors.grey.withOpacity(0.3),
+                                        )
+                                      : ImageWidget(
+                                          imageLoading: true,
+                                          backgroundShape: BoxShape.circle,
+                                          backgroundColor:
+                                              Colors.grey.withOpacity(0.3),
+                                        )),
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                child: IconButton(
+                                    splashRadius: 25,
+                                    icon: Icon(
+                                        !showForm ? Icons.edit : Icons.close),
+                                    onPressed: () {
+                                      setState(() {
+                                        showForm = !showForm;
+                                      });
+                                    }),
+                              )
+                            ],
+                          )),
+                      Expanded(
+                          flex: 4,
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              children: showUserData
+                                  ? _userDataWrite()
+                                  : [
+                                      Center(child: CircularProgressIndicator())
+                                    ],
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+
+                AlertContainerWidget(
+                  key: _alertContainerWidgetState,
+                  areaText: 'Uyarı',
+                ),
+
+                showForm
+                    ? Container(
                         child: Column(
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                showModalBottomSheet(
-                                    context: context,
-                                    builder: (context) {
-                                      return SafeArea(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ListTile(
-                                              leading: Icon(Icons.camera_alt),
-                                              title: Text('Kamera Kullan'),
-                                              onTap: () => photoFromCamera(),
-                                            ),
-                                            ListTile(
-                                              leading: Icon(Icons.image),
-                                              title: Text('Geleriden Seç'),
-                                              onTap: () => photoFromGallery(),
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                    });
+                            TitleArea(
+                              titleText: 'Bilgileri Güncelle',
+                              icon: Icon(
+                                Icons.insert_drive_file,
+                                size: 24,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            updateControllerUserName != null
+                                ? Container(
+                                    margin: EdgeInsets.only(bottom: 20),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(updateControllerUserName))
+                                : Container(),
+                            TextFormField(
+                              controller: _controllerUserName,
+                              decoration: InputDecoration(
+                                  labelText: 'Username',
+                                  hintText: 'Enter username',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                            ),
+                            LoginButton(
+                              buttonText: 'Değişiklikleri Kaydet',
+                              buttonRadius: 10,
+                              buttonHeight: 40,
+                              textColor: Colors.black,
+                              buttonColor: Theme.of(context).primaryColor,
+                              onPressed: () async {
+                                _updateUserName();
+                                _updateProfilePhoto();
                               },
-                              child: showUserProfilePhoto
-                              ?
-                                ImageWidget(
-                                  imageUrl: _userView.user.userProfilePhotoUrl,
-                                  backgroundShape: BoxShape.circle,
-                                  backgroundColor: Colors.grey.withOpacity(0.3),
-                                )
-
-                              :
-                                  ImageWidget(
-                                    imageLoading: true,
-                                    backgroundShape: BoxShape.circle,
-                                    backgroundColor: Colors.grey.withOpacity(0.3),
-                                  )
                             ),
-                            Container(
-                              margin: EdgeInsets.only(top: 10),
-                              child: IconButton(
-                                  splashRadius: 25,
-                                  icon: Icon(
-                                      !showForm ? Icons.edit : Icons.close),
-                                  onPressed: () {
-                                    setState(() {
-                                      showForm = !showForm;
-                                    });
-                                  }),
-                            )
                           ],
-                        )),
-                    Expanded(
-                        flex: 4,
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            children: showUserData
-                                ? _userDataWrite()
-                                : [Center(child: CircularProgressIndicator())],
-                          ),
-                        )),
-                  ],
-                ),
-              ),
-              showForm
-                  ? Container(
-                      child: Column(
-                        children: [
-                          TitleArea(
-                            titleText: 'Bilgileri Güncelle',
-                            icon: Icon(
-                              Icons.insert_drive_file,
-                              size: 24,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                          detailUpdate != null
-                              ? Container(
-                                  margin: EdgeInsets.only(bottom: 20),
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(detailUpdate))
-                              : Container(),
-                          TextFormField(
-                            controller: _controllerUserName,
-                            decoration: InputDecoration(
-                                labelText: 'Username',
-                                hintText: 'Enter username',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10))),
-                          ),
-                          LoginButton(
-                            buttonText: 'Değişiklikleri Kaydet',
-                            buttonRadius: 10,
-                            buttonHeight: 40,
-                            textColor: Colors.black,
-                            buttonColor: Theme.of(context).primaryColor,
-                            onPressed: () {
-                              _updateUserName();
-                              _updateProfilePhoto();
-                            },
-                          ),
-                        ],
-                      ),
-                    )
-                  : Container(),
-            ],
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
           ),
         ),
       ),
@@ -256,12 +269,12 @@ class _ProfilePageState extends State<ProfilePage> {
       if (updatedUserName) {
         setState(() {
           showUserData = true;
-          detailUpdate = 'Username güncellendi.';
+          updateControllerUserName = 'Username güncellendi.';
         });
       } else {
         setState(() {
           showUserData = true;
-          detailUpdate = 'Bu username zaten kullanılıyor.';
+          updateControllerUserName = 'Bu username zaten kullanılıyor.';
         });
       }
     }
@@ -277,9 +290,11 @@ class _ProfilePageState extends State<ProfilePage> {
           _profilePhoto = null;
           showUserProfilePhoto = true;
         });
+
+        _alertContainerWidgetState.currentState.showAlert('Profil güncelleme başarılı.');
       }
     }
-}
+  }
 
   Future _signOutControl() async {
     AlertDialogWidget(

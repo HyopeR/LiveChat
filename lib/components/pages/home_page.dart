@@ -28,9 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     _userView = Provider.of<UserView>(context);
-    print('HOME BUILD:' + _userView.user.toString());
 
     return WillPopScope(
       onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
