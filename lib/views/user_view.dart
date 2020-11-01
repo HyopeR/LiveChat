@@ -143,4 +143,10 @@ class UserView with ChangeNotifier implements AuthBase {
     return result;
   }
 
+  Future<bool> updateUserName(String userId, String newUserName) async {
+    bool result = await _userRepo.updateUserName(userId, newUserName);
+
+    return result;
+  }
+
 }

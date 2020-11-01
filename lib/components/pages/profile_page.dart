@@ -14,6 +14,8 @@ class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
 
   TextEditingController _controllerUserName;
+  String detailUpdate;
+
   bool showUserData = true;
   bool showForm = false;
 
@@ -32,7 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
-    _controllerUserName.text = _userView.user.userName;
+    showUserData ? _controllerUserName.text = _userView.user.userName : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -116,6 +118,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
 
+                          detailUpdate != null
+                            ? Container(
+                              margin: EdgeInsets.only(bottom: 20),
+                              alignment: Alignment.centerLeft,
+                              child: Text(detailUpdate)
+                            )
+                            : Container(),
+
                           TextFormField(
                             controller: _controllerUserName,
                             decoration: InputDecoration(
@@ -188,9 +198,25 @@ class _ProfilePageState extends State<ProfilePage> {
     return usersData;
   }
 
-  void _updateUserName() {
+  void _updateUserName() async {
     if(_userView.user.userName != _controllerUserName.text) {
-      // _userView.updateUserName(_controllerUserName.text);
+      setState(() => showUserData = false);
+      bool updatedUserName = await _userView.updateUserName(_userView.user.userId, _controllerUserName.text);
+
+      if(updatedUserName) {
+        _userView.user.userName = _controllerUserName.text;
+        setState(() {
+          showUserData = true;
+          detailUpdate = 'Username güncellendi.';
+        });
+      } else {
+        setState(() {
+          showUserData = true;
+          detailUpdate = 'Bu username zaten kullanılıyor.';
+        });
+      }
+
+
     } else {
       AlertDialogWidget(
         alertTitle: 'Hata',

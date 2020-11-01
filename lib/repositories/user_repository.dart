@@ -100,6 +100,10 @@ class UserRepository implements AuthBase{
 
   }
 
+  Future<bool> updateUserName(String userId, String newUserName) async {
+    return _fireStoreDbService.updateUserName(userId, newUserName);
+  }
+
 
 
 }

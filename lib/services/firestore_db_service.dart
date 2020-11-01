@@ -37,4 +37,17 @@ class FireStoreDbService implements DbBase {
 
   }
 
+  @override
+  Future<bool> updateUserName(String userId, String newUserName) async {
+    QuerySnapshot response =  await _fireStore.collection('users').where('userName', isEqualTo: newUserName).get();
+    if(response.docs.length >= 1) {
+      return false;
+    } else {
+      
+      await _fireStore.collection('users').doc(userId).update({'userName': newUserName});
+      return true;
+    }
+    
+  }
+
 }
