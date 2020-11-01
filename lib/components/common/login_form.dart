@@ -9,13 +9,17 @@ class LoginForm extends StatefulWidget {
   final double formElementsRadius;
   final VoidCallback onPressed;
 
+  final bool topArrowActive;
+  final Color buttonColor;
+
   const LoginForm({
     Key key,
     this.formElementsHeight : 50,
     this.formElementsRadius : 16,
+    this.topArrowActive : false,
+    this.buttonColor: Colors.amber,
     this.onPressed,
   }) : super(key: key);
-
 
   @override
   LoginFormState createState() => LoginFormState();
@@ -57,15 +61,17 @@ class LoginFormState extends State<LoginForm> {
 
     return Stack(
       children: [
-        Positioned(
-          top: -24,
-          left: 0,
-          child: Icon(
-            Icons.arrow_drop_up_outlined,
-            size: 75,
-            color: Colors.black38,
-          ),
-        ),
+        widget.topArrowActive
+            ? Positioned(
+              top: -24,
+              left: 0,
+              child: Icon(
+                Icons.arrow_drop_up_outlined,
+                size: 75,
+                color: Colors.black38,
+              ),
+            )
+            : Container(),
 
         Container(
           margin: EdgeInsets.only(top: 20),
@@ -158,7 +164,7 @@ class LoginFormState extends State<LoginForm> {
                     height: widget.formElementsHeight,
                     width: double.infinity,
                     child: RaisedButton(
-                      color: Theme.of(context).accentColor,
+                      color: widget.buttonColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(widget.formElementsRadius)
                       ),

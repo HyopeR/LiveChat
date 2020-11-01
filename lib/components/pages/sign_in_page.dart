@@ -95,6 +95,8 @@ class _SignInPageState extends State<SignInPage> {
                         key: _loginFormState,
                         formElementsRadius: 16,
                         formElementsHeight: 50,
+                        topArrowActive: true,
+                        buttonColor: Theme.of(context).primaryColor,
                         onPressed: () => emailAndPasswordLogin(),
                     )
                     : Container(),

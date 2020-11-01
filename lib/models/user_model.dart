@@ -17,7 +17,6 @@ class UserModel {
   UserModel({@required this.userId, @required this.userEmail, });
 
   Map<String, dynamic> toMap() {
-    print(FieldValue.serverTimestamp());
 
     return {
       'userId': userId,

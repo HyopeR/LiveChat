@@ -42,7 +42,7 @@ class UserRepository implements AuthBase{
     bool result;
     Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
 
-    if(checkUser['check']){
+    if(!checkUser['check']){
       result = await _fireStoreDbService.saveUser(user);
       user = await _fireStoreDbService.readUser(user.userId);
     } else {
@@ -60,7 +60,7 @@ class UserRepository implements AuthBase{
     bool result;
     Map<String, dynamic> checkUser = await _fireStoreDbService.checkUser(user.userId);
 
-    if(checkUser['check']){
+    if(!checkUser['check']){
       result = await _fireStoreDbService.saveUser(user);
       user = await _fireStoreDbService.readUser(user.userId);
     } else {
