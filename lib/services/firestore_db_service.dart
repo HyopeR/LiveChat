@@ -44,7 +44,10 @@ class FireStoreDbService implements DbBase {
       return false;
     } else {
       
-      await _fireStore.collection('users').doc(userId).update({'userName': newUserName});
+      await _fireStore.collection('users').doc(userId).update({
+        'userName': newUserName,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
       return true;
     }
     

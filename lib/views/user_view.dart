@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
@@ -145,6 +146,10 @@ class UserView with ChangeNotifier implements AuthBase {
 
   Future<bool> updateUserName(String userId, String newUserName) async {
     bool result = await _userRepo.updateUserName(userId, newUserName);
+
+    if(result) {
+      _user.userName = newUserName;
+    }
 
     return result;
   }

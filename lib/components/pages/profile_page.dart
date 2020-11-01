@@ -66,15 +66,50 @@ class _ProfilePageState extends State<ProfilePage> {
                         flex: 1,
                         child: Column(
                           children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey.withOpacity(0.3),
-                              ),
-                              child: Image.network(
-                                _userView.user.userProfilePhotoUrl,
-                                fit: BoxFit.contain,
+                            GestureDetector(
+                              onTap: () {
+
+                                showModalBottomSheet(
+                                  
+                                  context: context,
+                                  builder: (context) {
+
+                                    return SafeArea(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+
+                                          ListTile(
+                                            leading: Icon(Icons.camera_alt),
+                                            title: Text('Kamera Kullan'),
+                                            onTap: () => photoFromCamera(),
+                                          ),
+
+                                          ListTile(
+                                            leading: Icon(Icons.image),
+                                            title: Text('Geleriden Seç'),
+                                            onTap: () => photoFromGallery(),
+                                          )
+
+                                        ],
+                                      ),
+                                    );
+
+                                  }
+                                );
+
+                              },
+
+                              child: Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.withOpacity(0.3),
+                                ),
+                                child: Image.network(
+                                  _userView.user.userProfilePhotoUrl,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                             Container(
@@ -198,13 +233,20 @@ class _ProfilePageState extends State<ProfilePage> {
     return usersData;
   }
 
+  void photoFromCamera() {
+
+  }
+
+  void photoFromGallery() {
+
+  }
+
   void _updateUserName() async {
     if(_userView.user.userName != _controllerUserName.text) {
       setState(() => showUserData = false);
       bool updatedUserName = await _userView.updateUserName(_userView.user.userId, _controllerUserName.text);
 
       if(updatedUserName) {
-        _userView.user.userName = _controllerUserName.text;
         setState(() {
           showUserData = true;
           detailUpdate = 'Username güncellendi.';
