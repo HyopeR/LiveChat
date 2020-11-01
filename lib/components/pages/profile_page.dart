@@ -23,7 +23,8 @@ class _ProfilePageState extends State<ProfilePage> {
   String detailUpdate;
 
   bool showUserData = true;
-  bool showForm = false;
+  bool showUserProfilePhoto = true;
+  bool showForm = true;
 
   @override
   void initState() {
@@ -97,11 +98,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                       );
                                     });
                               },
-                              child: ImageWidget(
-                                imageUrl: _userView.user.userProfilePhotoUrl,
-                                backgroundShape: BoxShape.circle,
-                                backgroundColor: Colors.grey.withOpacity(0.3),
-                              ),
+                              child: showUserProfilePhoto
+                              ?
+                                ImageWidget(
+                                  imageUrl: _userView.user.userProfilePhotoUrl,
+                                  backgroundShape: BoxShape.circle,
+                                  backgroundColor: Colors.grey.withOpacity(0.3),
+                                )
+
+                              :
+                                  ImageWidget(
+                                    imageLoading: true,
+                                    backgroundShape: BoxShape.circle,
+                                    backgroundColor: Colors.grey.withOpacity(0.3),
+                                  )
                             ),
                             Container(
                               margin: EdgeInsets.only(top: 10),
@@ -162,7 +172,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             buttonHeight: 40,
                             textColor: Colors.black,
                             buttonColor: Theme.of(context).primaryColor,
-                            onPressed: () => _updateUserName(),
+                            onPressed: () {
+                              _updateUserName();
+                              _updateProfilePhoto();
+                            },
                           ),
                         ],
                       ),
@@ -251,14 +264,22 @@ class _ProfilePageState extends State<ProfilePage> {
           detailUpdate = 'Bu username zaten kullanılıyor.';
         });
       }
-    } else {
-      AlertDialogWidget(
-        alertTitle: 'Hata',
-        alertContent: 'Değişiklik yapmadınız.',
-        complateActionText: 'Tamam',
-      ).show(context);
     }
   }
+
+  void _updateProfilePhoto() async {
+    if (_profilePhoto != null) {
+      setState(() => showUserProfilePhoto = false);
+      var uploadFile = await _userView.uploadFile(_userView.user.userId, 'Profile_Photo', _profilePhoto);
+
+      if (uploadFile != null) {
+        setState(() {
+          _profilePhoto = null;
+          showUserProfilePhoto = true;
+        });
+      }
+    }
+}
 
   Future _signOutControl() async {
     AlertDialogWidget(

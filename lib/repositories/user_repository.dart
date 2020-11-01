@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:live_chat/locator.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
 import 'package:live_chat/services/firebase_auth_service.dart';
+import 'package:live_chat/services/firebase_storage_service.dart';
 import 'package:live_chat/services/firestore_db_service.dart';
 
 class UserRepository implements AuthBase{
 
   FirebaseAuthService _firebaseAuthService = locator<FirebaseAuthService>();
   FireStoreDbService _fireStoreDbService = locator<FireStoreDbService>();
+  FirebaseStorageService _firebaseStorageService = locator<FirebaseStorageService>();
 
   @override
   Future<UserModel> getCurrentUser() async {
@@ -105,6 +109,14 @@ class UserRepository implements AuthBase{
 
   Future<bool> updateUserName(String userId, String newUserName) async {
     return _fireStoreDbService.updateUserName(userId, newUserName);
+  }
+
+  Future<String> uploadFile(String userId, String fileType, File file) async {
+
+    String fileUrl = await _firebaseStorageService.uploadFile(userId, fileType, file);
+    bool fileUploadComplete = await _fireStoreDbService.updateProfilePhoto(userId, fileUrl);
+
+    return fileUploadComplete ? fileUrl : null;
   }
 
 

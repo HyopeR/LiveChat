@@ -6,5 +6,6 @@ abstract class DbBase {
   Future<UserModel> readUser(String userId);
   Future<Map<String, dynamic>> checkUser(String userId);
   Future<bool> updateUserName(String userId, String userName);
+  Future<bool> updateProfilePhoto(String userId, String photoUrl);
 
 }

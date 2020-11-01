@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -148,6 +150,16 @@ class UserView with ChangeNotifier implements AuthBase {
     }
 
     return result;
+  }
+
+  Future<String> uploadFile(String userId, String fileType, File file) async {
+    String fileUrl = await _userRepo.uploadFile(userId, fileType, file);
+
+    if(fileUrl != null) {
+      _user.userProfilePhotoUrl = fileUrl;
+    }
+
+    return fileUrl;
   }
 
 }

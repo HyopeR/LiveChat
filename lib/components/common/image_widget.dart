@@ -5,6 +5,7 @@ class ImageWidget extends StatelessWidget {
   final double imageHeight;
   final BoxFit imageFit;
   final String imageUrl;
+  final bool imageLoading;
 
   final double backgroundPadding;
   final BoxShape backgroundShape;
@@ -15,7 +16,8 @@ class ImageWidget extends StatelessWidget {
     this.imageWidth : 100,
     this.imageHeight : 100,
     this.imageFit : BoxFit.contain,
-    @required this.imageUrl,
+    this.imageUrl,
+    this.imageLoading : false,
     this.backgroundPadding : 5,
     this.backgroundShape : BoxShape.rectangle,
     this.backgroundColor: Colors.transparent
@@ -32,15 +34,22 @@ class ImageWidget extends StatelessWidget {
         shape: backgroundShape,
         color: backgroundColor,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-            shape: backgroundShape,
-            image: DecorationImage(
+      child: !imageLoading
+          ? Container(
+            decoration: BoxDecoration(
+              shape: backgroundShape,
+              image: DecorationImage(
                 fit: imageFit,
                 image: NetworkImage(imageUrl)
-            )
-        ),
-      ),
+              )
+            ),
+          )
+          : Container(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+      ,
     );
   }
 }
