@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ImageWidget extends StatelessWidget {
+class ImageWidget extends StatefulWidget {
   final double imageWidth;
   final double imageHeight;
   final BoxFit imageFit;
   final String imageUrl;
-  final bool imageLoading;
 
   final double backgroundPadding;
   final BoxShape backgroundShape;
@@ -17,30 +16,48 @@ class ImageWidget extends StatelessWidget {
     this.imageHeight : 100,
     this.imageFit : BoxFit.contain,
     this.imageUrl,
-    this.imageLoading : false,
     this.backgroundPadding : 5,
     this.backgroundShape : BoxShape.rectangle,
     this.backgroundColor: Colors.transparent
   }) : super(key: key);
 
+  @override
+  ImageWidgetState createState() => ImageWidgetState();
+}
+
+class ImageWidgetState extends State<ImageWidget> {
+
+  bool imageLoading = false;
+
+  loadingStart() {
+    setState(() {
+      imageLoading = true;
+    });
+  }
+
+  loadingFinish() {
+    setState(() {
+      imageLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: imageWidth,
-      height: imageHeight,
-      padding: EdgeInsets.all(backgroundPadding),
+      width: widget.imageWidth,
+      height: widget.imageHeight,
+      padding: EdgeInsets.all(widget.backgroundPadding),
       decoration: BoxDecoration(
-        shape: backgroundShape,
-        color: backgroundColor,
+        shape: widget.backgroundShape,
+        color: widget.backgroundColor,
       ),
       child: !imageLoading
           ? Container(
             decoration: BoxDecoration(
-              shape: backgroundShape,
+              shape: widget.backgroundShape,
               image: DecorationImage(
-                fit: imageFit,
-                image: NetworkImage(imageUrl)
+                fit: widget.imageFit,
+                image: NetworkImage(widget.imageUrl)
               )
             ),
           )

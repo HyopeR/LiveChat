@@ -18,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
+  GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
 
   File _profilePhoto;
 
@@ -104,19 +105,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                           );
                                         });
                                   },
-                                  child: showUserProfilePhoto
-                                      ? ImageWidget(
-                                          imageUrl: _userView.user.userProfilePhotoUrl,
-                                          backgroundShape: BoxShape.circle,
-                                          backgroundColor:
-                                              Colors.grey.withOpacity(0.3),
-                                        )
-                                      : ImageWidget(
-                                          imageLoading: true,
-                                          backgroundShape: BoxShape.circle,
-                                          backgroundColor:
-                                              Colors.grey.withOpacity(0.3),
-                                        )),
+                                  child: ImageWidget(
+                                    key: _imageWidgetState,
+                                    imageUrl: _userView.user.userProfilePhotoUrl,
+                                    backgroundShape: BoxShape.circle,
+                                    backgroundColor: Colors.grey.withOpacity(0.3),
+                                  )
+                              ),
                               Container(
                                 margin: EdgeInsets.only(top: 10),
                                 child: IconButton(
@@ -283,6 +278,8 @@ class _ProfilePageState extends State<ProfilePage> {
   void _updateProfilePhoto() async {
     if (_profilePhoto != null) {
       setState(() => showUserProfilePhoto = false);
+      _imageWidgetState.currentState.loadingStart();
+
       var uploadFile = await _userView.uploadFile(_userView.user.userId, 'Profile_Photo', _profilePhoto);
 
       if (uploadFile != null) {
@@ -290,6 +287,8 @@ class _ProfilePageState extends State<ProfilePage> {
           _profilePhoto = null;
           showUserProfilePhoto = true;
         });
+
+        _imageWidgetState.currentState.loadingFinish();
 
         _alertContainerWidgetState.currentState.showAlert('Profil güncelleme başarılı.');
       }
