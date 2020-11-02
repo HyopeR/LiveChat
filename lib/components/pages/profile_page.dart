@@ -130,7 +130,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               AlertContainerWidget(
                   key: _alertContainerWidgetState,
-                  areaText: 'Profil güncelleme başarılı.',
               ),
               showForm
                   ? ContainerColumn(
@@ -161,7 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             bool updatePhoto = await _updateProfilePhoto();
 
                             if(updateName || updatePhoto)
-                              _alertContainerWidgetState.currentState.showAlert();
+                              _alertContainerWidgetState.currentState.showAlertAddText('Profil güncelleme başarılı.');
                           },
                         ),
                       ],
@@ -218,15 +217,19 @@ class _ProfilePageState extends State<ProfilePage> {
   void photoFromCamera() async {
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.camera);
-    if (pickedFile.path != null)
+    if (pickedFile.path != null) {
       _profilePhoto = File(pickedFile.path);
+      _alertContainerWidgetState.currentState.showAlertAddText('Resim eklendi. Değişiklikleri kaydedin.');
+    }
   }
 
   void photoFromGallery() async {
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    if (pickedFile.path != null)
+    if (pickedFile.path != null) {
       _profilePhoto = File(pickedFile.path);
+      _alertContainerWidgetState.currentState.showAlertAddText('Resim eklendi. Değişiklikleri kaydedin.');
+    }
   }
 
   Future<bool> _updateUserName() async {
