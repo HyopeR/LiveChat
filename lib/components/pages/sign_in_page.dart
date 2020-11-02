@@ -47,11 +47,7 @@ class _SignInPageState extends State<SignInPage> {
 
                 TitleArea(
                   titleText: 'Oturum Açma Yöntemleri',
-                  icon: Icon(
-                    Icons.apps,
-                    size: 24,
-                    color: Theme.of(context).primaryColor,
-                  ),
+                  icon: Icons.apps,
                 ),
 
                 LoginButton(

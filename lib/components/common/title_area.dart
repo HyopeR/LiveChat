@@ -3,32 +3,52 @@ import 'package:flutter/material.dart';
 class TitleArea extends StatelessWidget {
 
   final String titleText;
-  final Widget icon;
+  final EdgeInsets margin;
+  final EdgeInsets padding;
 
-  const TitleArea({Key key, this.titleText, this.icon}) : super(key: key);
+  final IconData icon;
+  final double iconSize;
+  final Color iconColor;
+
+  final double textSize;
+  final Color textColor;
+  final FontWeight textFontWeight;
+
+
+  const TitleArea({
+    Key key,
+    this.titleText,
+    this.margin,
+    this.padding,
+
+    this.icon : Icons.brightness_1,
+    this.iconSize : 24,
+    this.iconColor : Colors.amber,
+
+    this.textSize : 22,
+    this.textColor : Colors.black,
+    this.textFontWeight : FontWeight.w500
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      padding: EdgeInsets.symmetric(vertical: 10),
+      margin: margin != null ? margin : EdgeInsets.symmetric(vertical: 5),
+      padding: padding != null ? padding :  EdgeInsets.symmetric(vertical: 10),
       child: Container(
         child: Column(
           children: [
             Row(
               children: [
-                icon != null
-                    ? icon
-                    : Icon(
-                        Icons.brightness_1,
-                        size: 24,
-                        color: Theme.of(context).primaryColor,
-                      ),
-
+                Icon(
+                  icon,
+                  size: iconSize,
+                  color: iconColor,
+                ),
                 SizedBox(width: 5),
                 Text(
                     titleText,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)
+                    style: TextStyle(fontSize: textSize, fontWeight: textFontWeight, color: textColor)
                 )
               ],
             ),

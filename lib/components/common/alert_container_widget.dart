@@ -22,7 +22,7 @@ class AlertContainerWidget extends StatefulWidget {
     this.areaHeight : 40,
     this.areaRadius : 10,
     this.areaColor : Colors.amber,
-    @required this.areaText,
+    this.areaText : '',
 
     this.iconSize : 24,
     this.textSize : 16,
@@ -43,9 +43,15 @@ class AlertContainerWidgetState extends State<AlertContainerWidget> {
   bool showedAlert = false;
   String areaText;
 
-  showAlert(String text) {
+  showAlertAddText(String text) {
     setState(() {
       areaText = text;
+      showedAlert = true;
+    });
+  }
+
+  showAlert() {
+    setState(() {
       showedAlert = true;
     });
   }

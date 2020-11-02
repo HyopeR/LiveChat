@@ -9,13 +9,13 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
 
   final String alertTitle;
   final String alertContent;
-  final String complateActionText;
+  final String completeActionText;
   final String cancelActionText;
 
   AlertDialogWidget({
     @required this.alertTitle,
     @required this.alertContent,
-    @required this.complateActionText,
+    @required this.completeActionText,
     this.cancelActionText
   });
 
@@ -58,7 +58,7 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
         ));
 
       buttons.add(FlatButton(
-        child: Text(complateActionText),
+        child: Text(completeActionText),
         onPressed: () {
           Navigator.of(context).pop(true);
         },
@@ -75,7 +75,7 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
         ));
 
       buttons.add(CupertinoDialogAction(
-        child: Text(complateActionText),
+        child: Text(completeActionText),
         onPressed: () {
           Navigator.of(context).pop(true);
         },

@@ -64,11 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               TitleArea(
                 titleText: 'Bilgiler',
-                icon: Icon(
-                  Icons.person,
-                  size: 24,
-                  color: Theme.of(context).primaryColor,
-                ),
+                icon: Icons.person,
               ),
               ContainerRow(
                 children: [
@@ -105,18 +101,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                 imageUrl: _userView.user.userProfilePhotoUrl,
                                 backgroundShape: BoxShape.circle,
                                 backgroundColor: Colors.grey.withOpacity(0.3),
-                              )),
+                              )
+                          ),
                           Container(
                             margin: EdgeInsets.only(top: 10),
                             child: IconButton(
+                                icon: Icon(!showForm ? Icons.edit : Icons.close),
                                 splashRadius: 25,
-                                icon:
-                                    Icon(!showForm ? Icons.edit : Icons.close),
                                 onPressed: () {
                                   setState(() {
                                     showForm = !showForm;
                                   });
-                                }),
+                                }
+                            ),
                           )
                         ],
                       )),
@@ -132,8 +129,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               AlertContainerWidget(
-                key: _alertContainerWidgetState,
-                areaText: 'Uyarı',
+                  key: _alertContainerWidgetState,
+                  areaText: 'Profil güncelleme başarılı.',
               ),
               showForm
                   ? ContainerColumn(
@@ -141,21 +138,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         TitleArea(
                           titleText: 'Bilgileri Güncelle',
-                          icon: Icon(
-                            Icons.insert_drive_file,
-                            size: 24,
-                            color: Theme.of(context).primaryColor,
-                          ),
+                          icon: Icons.insert_drive_file
                         ),
-                        updateControllerUserName != null
-                            ? Container(
-                                margin: EdgeInsets.only(bottom: 20),
-                                alignment: Alignment.centerLeft,
-                                child: Text(updateControllerUserName))
-                            : Container(),
                         TextFormField(
                           controller: _controllerUserName,
                           decoration: InputDecoration(
+                              errorText: updateControllerUserName != null ? updateControllerUserName : null,
                               labelText: 'Username',
                               hintText: 'Enter username',
                               border: OutlineInputBorder(
@@ -169,8 +157,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           textColor: Colors.black,
                           buttonColor: Theme.of(context).primaryColor,
                           onPressed: () async {
-                            _updateUserName();
-                            _updateProfilePhoto();
+                            bool updateName = await _updateUserName();
+                            bool updatePhoto = await _updateProfilePhoto();
+
+                            if(updateName || updatePhoto)
+                              _alertContainerWidgetState.currentState.showAlert();
                           },
                         ),
                       ],
@@ -242,27 +233,29 @@ class _ProfilePageState extends State<ProfilePage> {
       });
   }
 
-  void _updateUserName() async {
+  Future<bool> _updateUserName() async {
     if (_userView.user.userName != _controllerUserName.text) {
       setState(() => showUserData = false);
-      bool updatedUserName = await _userView.updateUserName(
-          _userView.user.userId, _controllerUserName.text);
+      bool updatedUserName = await _userView.updateUserName(_userView.user.userId, _controllerUserName.text);
 
       if (updatedUserName) {
         setState(() {
           showUserData = true;
-          updateControllerUserName = 'Username güncellendi.';
+          updateControllerUserName = null;
         });
+        return true;
       } else {
         setState(() {
           showUserData = true;
           updateControllerUserName = 'Bu username zaten kullanılıyor.';
         });
+        return false;
       }
-    }
+    } else
+      return false;
   }
 
-  void _updateProfilePhoto() async {
+  Future<bool> _updateProfilePhoto() async {
     if (_profilePhoto != null) {
       setState(() => showUserProfilePhoto = false);
       _imageWidgetState.currentState.loadingStart();
@@ -275,20 +268,20 @@ class _ProfilePageState extends State<ProfilePage> {
           _profilePhoto = null;
           showUserProfilePhoto = true;
         });
-
         _imageWidgetState.currentState.loadingFinish();
 
-        _alertContainerWidgetState.currentState
-            .showAlert('Profil güncelleme başarılı.');
-      }
-    }
+        return true;
+      } else
+        return false;
+    } else
+      return false;
   }
 
   Future _signOutControl() async {
     AlertDialogWidget(
       alertTitle: 'Çıkış',
       alertContent: 'Çıkmak istediğinizden emin misiniz?',
-      complateActionText: 'Evet',
+      completeActionText: 'Evet',
       cancelActionText: 'Vazgeç',
     ).show(context).then((value) {
       if (value) _signOut();
