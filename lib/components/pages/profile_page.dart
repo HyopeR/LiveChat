@@ -219,18 +219,14 @@ class _ProfilePageState extends State<ProfilePage> {
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     if (pickedFile.path != null)
-      setState(() {
-        _profilePhoto = File(pickedFile.path);
-      });
+      _profilePhoto = File(pickedFile.path);
   }
 
   void photoFromGallery() async {
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     if (pickedFile.path != null)
-      setState(() {
-        _profilePhoto = File(pickedFile.path);
-      });
+      _profilePhoto = File(pickedFile.path);
   }
 
   Future<bool> _updateUserName() async {
