@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/alert_container_widget.dart';
 import 'package:live_chat/components/common/alert_dialog_widget.dart';
+import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/login_button.dart';
 import 'package:live_chat/components/common/title_area.dart';
@@ -57,139 +59,124 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
+          child: ContainerColumn(
             padding: EdgeInsets.all(10),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                TitleArea(
-                  titleText: 'Bilgiler',
-                  icon: Icon(
-                    Icons.person,
-                    size: 24,
-                    color: Theme.of(context).primaryColor,
-                  ),
+            children: [
+              TitleArea(
+                titleText: 'Bilgiler',
+                icon: Icon(
+                  Icons.person,
+                  size: 24,
+                  color: Theme.of(context).primaryColor,
                 ),
-                Container(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                          flex: 1,
-                          child: Column(
-                            children: [
-                              GestureDetector(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        context: context,
-                                        builder: (context) {
-                                          return SafeArea(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                ListTile(
-                                                  leading:
-                                                      Icon(Icons.camera_alt),
-                                                  title: Text('Kamera Kullan'),
-                                                  onTap: () =>
-                                                      photoFromCamera(),
-                                                ),
-                                                ListTile(
-                                                  leading: Icon(Icons.image),
-                                                  title: Text('Geleriden Seç'),
-                                                  onTap: () =>
-                                                      photoFromGallery(),
-                                                )
-                                              ],
+              ),
+              ContainerRow(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) {
+                                      return SafeArea(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ListTile(
+                                              leading: Icon(Icons.camera_alt),
+                                              title: Text('Kamera Kullan'),
+                                              onTap: () => photoFromCamera(),
                                             ),
-                                          );
-                                        });
-                                  },
-                                  child: ImageWidget(
-                                    key: _imageWidgetState,
-                                    imageUrl: _userView.user.userProfilePhotoUrl,
-                                    backgroundShape: BoxShape.circle,
-                                    backgroundColor: Colors.grey.withOpacity(0.3),
-                                  )
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(top: 10),
-                                child: IconButton(
-                                    splashRadius: 25,
-                                    icon: Icon(
-                                        !showForm ? Icons.edit : Icons.close),
-                                    onPressed: () {
-                                      setState(() {
-                                        showForm = !showForm;
-                                      });
-                                    }),
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 4,
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                              children: showUserData
-                                  ? _userDataWrite()
-                                  : [
-                                      Center(child: CircularProgressIndicator())
-                                    ],
-                            ),
-                          )),
-                    ],
-                  ),
-                ),
-
-                AlertContainerWidget(
-                  key: _alertContainerWidgetState,
-                  areaText: 'Uyarı',
-                ),
-
-                showForm
-                    ? Container(
-                        child: Column(
-                          children: [
-                            TitleArea(
-                              titleText: 'Bilgileri Güncelle',
-                              icon: Icon(
-                                Icons.insert_drive_file,
-                                size: 24,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                            updateControllerUserName != null
-                                ? Container(
-                                    margin: EdgeInsets.only(bottom: 20),
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(updateControllerUserName))
-                                : Container(),
-                            TextFormField(
-                              controller: _controllerUserName,
-                              decoration: InputDecoration(
-                                  labelText: 'Username',
-                                  hintText: 'Enter username',
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                            ),
-                            LoginButton(
-                              buttonText: 'Değişiklikleri Kaydet',
-                              buttonRadius: 10,
-                              buttonHeight: 40,
-                              textColor: Colors.black,
-                              buttonColor: Theme.of(context).primaryColor,
-                              onPressed: () async {
-                                _updateUserName();
-                                _updateProfilePhoto();
+                                            ListTile(
+                                              leading: Icon(Icons.image),
+                                              title: Text('Geleriden Seç'),
+                                              onTap: () => photoFromGallery(),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    });
                               },
-                            ),
-                          ],
+                              child: ImageWidget(
+                                key: _imageWidgetState,
+                                imageUrl: _userView.user.userProfilePhotoUrl,
+                                backgroundShape: BoxShape.circle,
+                                backgroundColor: Colors.grey.withOpacity(0.3),
+                              )),
+                          Container(
+                            margin: EdgeInsets.only(top: 10),
+                            child: IconButton(
+                                splashRadius: 25,
+                                icon:
+                                    Icon(!showForm ? Icons.edit : Icons.close),
+                                onPressed: () {
+                                  setState(() {
+                                    showForm = !showForm;
+                                  });
+                                }),
+                          )
+                        ],
+                      )),
+                  Expanded(
+                    flex: 4,
+                    child: ContainerColumn(
+                      padding: EdgeInsets.all(10),
+                      children: showUserData
+                          ? _userDataWrite()
+                          : [Center(child: CircularProgressIndicator())],
+                    ),
+                  ),
+                ],
+              ),
+              AlertContainerWidget(
+                key: _alertContainerWidgetState,
+                areaText: 'Uyarı',
+              ),
+              showForm
+                  ? ContainerColumn(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TitleArea(
+                          titleText: 'Bilgileri Güncelle',
+                          icon: Icon(
+                            Icons.insert_drive_file,
+                            size: 24,
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
-                      )
-                    : Container(),
-              ],
-            ),
+                        updateControllerUserName != null
+                            ? Container(
+                                margin: EdgeInsets.only(bottom: 20),
+                                alignment: Alignment.centerLeft,
+                                child: Text(updateControllerUserName))
+                            : Container(),
+                        TextFormField(
+                          controller: _controllerUserName,
+                          decoration: InputDecoration(
+                              labelText: 'Username',
+                              hintText: 'Enter username',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        ),
+                        LoginButton(
+                          margin: EdgeInsets.symmetric(vertical: 10),
+                          buttonText: 'Değişiklikleri Kaydet',
+                          buttonRadius: 10,
+                          buttonHeight: 40,
+                          textColor: Colors.black,
+                          buttonColor: Theme.of(context).primaryColor,
+                          onPressed: () async {
+                            _updateUserName();
+                            _updateProfilePhoto();
+                          },
+                        ),
+                      ],
+                    )
+                  : Container(),
+            ],
           ),
         ),
       ),
@@ -201,9 +188,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
     _userView.user.toMap().forEach((key, value) {
       if (key != 'userProfilePhotoUrl' && key != 'userId')
-        usersData.add(Container(
-          margin: EdgeInsets.symmetric(vertical: 3),
-          child: Row(
+        usersData.add(
+          ContainerRow(
+            margin: EdgeInsets.symmetric(vertical: 3),
             children: [
               Expanded(
                 flex: 2,
@@ -231,7 +218,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   )),
             ],
           ),
-        ));
+        );
     });
 
     return usersData;
@@ -280,7 +267,8 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() => showUserProfilePhoto = false);
       _imageWidgetState.currentState.loadingStart();
 
-      var uploadFile = await _userView.uploadFile(_userView.user.userId, 'Profile_Photo', _profilePhoto);
+      var uploadFile = await _userView.uploadFile(
+          _userView.user.userId, 'Profile_Photo', _profilePhoto);
 
       if (uploadFile != null) {
         setState(() {
@@ -290,7 +278,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
         _imageWidgetState.currentState.loadingFinish();
 
-        _alertContainerWidgetState.currentState.showAlert('Profil güncelleme başarılı.');
+        _alertContainerWidgetState.currentState
+            .showAlert('Profil güncelleme başarılı.');
       }
     }
   }

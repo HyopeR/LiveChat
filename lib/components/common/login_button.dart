@@ -8,12 +8,14 @@ class LoginButton extends StatelessWidget {
   final double buttonRadius;
   final double buttonHeight;
   final Widget icon;
+  final EdgeInsets margin;
+  final EdgeInsets padding;
 
   final VoidCallback onPressed;
 
   // Varsayılan değerleri : ile belirtiyoruz.
-  const LoginButton(
-      {Key key,
+  const LoginButton({
+      Key key,
       @required this.buttonText,
       this.buttonColor: Colors.blue,
       this.textColor: Colors.white,
@@ -21,7 +23,10 @@ class LoginButton extends StatelessWidget {
       this.buttonRadius: 16,
       this.buttonHeight: 50,
       this.icon,
-      this.onPressed})
+      this.onPressed,
+      this.margin,
+      this.padding : EdgeInsets.zero
+      })
 
       // Assert kısmı herhangi bir kullanımda hata çıkarsa uyarı verir.
       : assert(buttonText != null),
@@ -30,8 +35,10 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
+      margin: margin == null ? EdgeInsets.symmetric(vertical: 5) : margin,
+      padding: padding,
       height: buttonHeight,
+
       child: RaisedButton(
           color: buttonColor,
           shape: RoundedRectangleBorder(
