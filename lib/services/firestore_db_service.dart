@@ -38,6 +38,17 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
+  Future<bool> checkUserWithEmail(String userEmail) async {
+    QuerySnapshot response =  await _fireStore.collection('users').where('userEmail', isEqualTo: userEmail).get();
+
+    if(response.docs.length >= 1) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @override
   Future<bool> updateUserName(String userId, String newUserName) async {
     QuerySnapshot response =  await _fireStore.collection('users').where('userName', isEqualTo: newUserName).get();
     if(response.docs.length >= 1) {
@@ -61,5 +72,6 @@ class FireStoreDbService implements DbBase {
 
     return true;
   }
+
 
 }

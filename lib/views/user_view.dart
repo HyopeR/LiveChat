@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
@@ -30,48 +29,91 @@ class UserView with ChangeNotifier implements AuthBase {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    state = UserViewState.Busy;
-    _user = await _userRepo.getCurrentUser();
-    state = UserViewState.Idle;
-    return _user;
+    try{
+      state = UserViewState.Busy;
+      _user = await _userRepo.getCurrentUser();
+      return _user;
+    }catch(err) {
+
+      print('getCurrentUser Error: ${err.toString()}');
+      return null;
+
+    } finally {
+      state = UserViewState.Idle;
+    }
+
   }
 
   @override
   Future<UserModel> signInAnonymously() async {
-    state = UserViewState.Busy;
-    _user = await _userRepo.signInAnonymously();
-    state = UserViewState.Idle;
 
-    return _user;
+    try{
+      state = UserViewState.Busy;
+      _user = await _userRepo.signInAnonymously();
+      return _user;
+    }catch(err) {
+
+      print('signInAnonymously Error: ${err.toString()}');
+      return null;
+
+    } finally {
+      state = UserViewState.Idle;
+    }
   }
 
   @override
   Future<bool> signOut() async {
-    state = UserViewState.Busy;
 
-    _user = null;
-    bool result = await _userRepo.signOut();
-    state = UserViewState.Idle;
+    try{
+      state = UserViewState.Busy;
+      _user = null;
+      bool result = await _userRepo.signOut();
+      return result;
 
-    return result;
+    }catch(err) {
+
+      print('signOut Error: ${err.toString()}');
+      return null;
+
+    } finally {
+      state = UserViewState.Idle;
+    }
   }
 
   @override
   Future<UserModel> signInWithGoogle() async {
-    state = UserViewState.Busy;
-    _user = await _userRepo.signInWithGoogle();
-    state = UserViewState.Idle;
 
-    return _user;
+    try{
+      state = UserViewState.Busy;
+      _user = await _userRepo.signInWithGoogle();
+      return _user;
+
+    }catch(err) {
+
+      print('signInWithGoogle Error: ${err.toString()}');
+      return null;
+
+    } finally {
+      state = UserViewState.Idle;
+    }
   }
 
   @override
   Future<UserModel> signInWithFacebook() async {
-    state = UserViewState.Busy;
-    _user = await _userRepo.signInWithFacebook();
-    state = UserViewState.Idle;
 
-    return _user;
+    try{
+      state = UserViewState.Busy;
+      _user = await _userRepo.signInWithFacebook();
+      return _user;
+
+    }catch(err) {
+
+      print('signInWithFacebook Error: ${err.toString()}');
+      return null;
+
+    } finally {
+      state = UserViewState.Idle;
+    }
   }
 
   @override
@@ -83,7 +125,8 @@ class UserView with ChangeNotifier implements AuthBase {
         _user = await _userRepo.signInWithEmailAndPassword(email, password);
         return _user;
       }catch(err) {
-        state = UserViewState.Busy;
+
+        print('signInWithEmailAndPassword Error: ${err.toString()}');
         userErrorMessage = 'Bu kullanıcı bulunamadı. Bilgilerinizi kontrol edin.';
         return null;
       }finally{
@@ -101,25 +144,27 @@ class UserView with ChangeNotifier implements AuthBase {
 
     if(_checkEmailAndPassword(email, password)) {
       userErrorMessage = null;
-      UserModel result = await _userRepo.controllerUser(email, password);
+      try{
 
-      if(result != null) {
-        state = UserViewState.Busy;
-        userErrorMessage = 'Bu email adresi zaten kayıtlı. Giriş yapın.';
-        state = UserViewState.Idle;
-        return null;
-      }else {
-        state = UserViewState.Busy;
-        _user = await _userRepo.createUserEmailAndPassword(email, password);
-        state = UserViewState.Idle;
+        bool result = await _userRepo.controllerUser(email);
+        if(result) {
+          _user = await _userRepo.createUserEmailAndPassword(email, password);
+        } else {
+          userErrorMessage = 'Bu email adresi zaten kayıtlı. Giriş yapın.';
+        }
+
         return _user;
-      }
+      }catch(err) {
+        print('createUserEmailAndPassword Error: ${err.toString()}');
+        return null;
 
+      } finally {
+        state = UserViewState.Idle;
+      }
 
     } else {
       return null;
     }
-
   }
 
 
@@ -143,23 +188,42 @@ class UserView with ChangeNotifier implements AuthBase {
   }
 
   Future<bool> updateUserName(String userId, String newUserName) async {
-    bool result = await _userRepo.updateUserName(userId, newUserName);
 
-    if(result) {
-      _user.userName = newUserName;
+    try{
+
+      bool result = await _userRepo.updateUserName(userId, newUserName);
+
+      if(result) {
+        _user.userName = newUserName;
+      }
+
+      return result;
+
+    }catch(err) {
+
+      print('updateUserName Error: ${err.toString()}');
+      return null;
     }
 
-    return result;
   }
 
   Future<String> uploadFile(String userId, String fileType, File file) async {
-    String fileUrl = await _userRepo.uploadFile(userId, fileType, file);
 
-    if(fileUrl != null) {
-      _user.userProfilePhotoUrl = fileUrl;
+    try{
+      String fileUrl = await _userRepo.uploadFile(userId, fileType, file);
+
+      if(fileUrl != null) {
+        _user.userProfilePhotoUrl = fileUrl;
+      }
+
+      return fileUrl;
+
+    }catch(err) {
+
+      print('uploadFile Error: ${err.toString()}');
+      return null;
     }
 
-    return fileUrl;
   }
 
 }

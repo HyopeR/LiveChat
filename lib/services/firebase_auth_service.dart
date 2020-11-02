@@ -19,53 +19,33 @@ class FirebaseAuthService implements AuthBase {
   // Network fonksiyonlar
   @override
   Future<UserModel> getCurrentUser() async {
-    try{
-      User firebaseUser = _firebaseAuth.currentUser;
-      UserModel user = _userFromFirebase(firebaseUser);
+    User firebaseUser = _firebaseAuth.currentUser;
+    UserModel user = _userFromFirebase(firebaseUser);
 
-      return user;
-    }catch(err) {
-      print('Current User Hata: ${err.toString()}');
-
-      return null;
-    }
+    return user;
   }
 
   @override
   Future<UserModel> signInAnonymously() async {
-    try{
-      UserCredential userCredential = await _firebaseAuth.signInAnonymously();
-      UserModel user = _userFromFirebase(userCredential.user);
+    UserCredential userCredential = await _firebaseAuth.signInAnonymously();
+    UserModel user = _userFromFirebase(userCredential.user);
 
-      return user;
-    } catch(err) {
-      print('Sign In Anonymously Hata: ${err.toString()}');
-
-      return null;
-    }
+    return user;
   }
 
   @override
   Future<bool> signOut() async {
-    try{
-      // Default Logout
-      await _firebaseAuth.signOut();
+    await _firebaseAuth.signOut();
 
-      // Google Logout
-      final _googleSignIn = GoogleSignIn();
-      await _googleSignIn.signOut();
+    // Google Logout
+    final _googleSignIn = GoogleSignIn();
+    await _googleSignIn.signOut();
 
-      // Facebook Logout
-      final _facebookLogin = FacebookLogin();
-      await _facebookLogin.logOut();
+    // Facebook Logout
+    final _facebookLogin = FacebookLogin();
+    await _facebookLogin.logOut();
 
-
-      return true;
-    } catch(err) {
-      print('Sign Out Hata: ${err.toString()}');
-
-      return null;
-    }
+    return true;
   }
 
   @override
@@ -125,16 +105,10 @@ class FirebaseAuthService implements AuthBase {
 
   @override
   Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
-    try{
-      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      UserModel user = _userFromFirebase(userCredential.user);
+    UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+    UserModel user = _userFromFirebase(userCredential.user);
 
-      return user;
-    } catch(err) {
-      print('signInWithEmailAndPassword Error: ${err.toString()}');
-
-      return null;
-    }
+    return user;
   }
 
   @override
@@ -143,16 +117,6 @@ class FirebaseAuthService implements AuthBase {
     UserModel user = _userFromFirebase(userCredential.user);
 
     return user;
-    // try{
-    //   UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-    //   UserModel user = _userFromFirebase(userCredential.user);
-    //
-    //   return user;
-    // } catch(err) {
-    //   print('createUserEmailAndPassword Error: ${err.toString()}');
-    //
-    //   return null;
-    // }
   }
 
 }

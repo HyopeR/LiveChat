@@ -79,9 +79,11 @@ class UserRepository implements AuthBase{
     return user;
   }
 
-  Future<UserModel> controllerUser(String email, String password) async {
-    UserModel user = await _firebaseAuthService.signInWithEmailAndPassword(email, password);
-    return user;
+  Future<bool> controllerUser(String email) async {
+
+    bool result = await _fireStoreDbService.checkUserWithEmail(email);
+    return result;
+
   }
 
   @override
