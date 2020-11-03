@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:live_chat/locator.dart';
+import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
 import 'package:live_chat/services/firebase_auth_service.dart';
@@ -123,6 +124,10 @@ class UserRepository implements AuthBase{
 
   Future<List<UserModel>> getAllUsers() async {
     return _fireStoreDbService.getAllUsers();
+  }
+
+  Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId) {
+    return _fireStoreDbService.getMessages(currentUserId, chatUserId);
   }
 
 

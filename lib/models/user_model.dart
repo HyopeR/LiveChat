@@ -14,7 +14,7 @@ class UserModel {
   DateTime createdAt;
   DateTime updatedAt;
 
-  UserModel({@required this.userId, @required this.userEmail, });
+  UserModel({@required this.userId, @required this.userEmail});
 
   Map<String, dynamic> toMap() {
 

@@ -1,15 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/db_base.dart';
 
 class FireStoreDbService implements DbBase {
-
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
   @override
   Future<bool> saveUser(UserModel user) async {
-
     await _fireStore.collection('users').doc(user.userId).set(user.toMap());
 
     return true;
@@ -17,9 +16,8 @@ class FireStoreDbService implements DbBase {
 
   @override
   Future<UserModel> readUser(String userId) async {
-
     // DocumentSnapshot response = await _fireStore.collection('users').doc(userId).get();
-    DocumentSnapshot response =  await _fireStore.doc('users/$userId').get();
+    DocumentSnapshot response = await _fireStore.doc('users/$userId').get();
     UserModel readUser = UserModel.fromMap(response.data());
 
     return readUser;
@@ -27,22 +25,24 @@ class FireStoreDbService implements DbBase {
 
   @override
   Future<Map<String, dynamic>> checkUser(String userId) async {
-    DocumentSnapshot response =  await _fireStore.doc('users/$userId').get();
+    DocumentSnapshot response = await _fireStore.doc('users/$userId').get();
     bool checkUser = response.data() == null ? false : true;
 
-    if(!checkUser){
+    if (!checkUser) {
       return {'check': checkUser};
     } else {
       return {'check': checkUser, 'user': UserModel.fromMap(response.data())};
     }
-
   }
 
   @override
   Future<bool> checkUserWithEmail(String userEmail) async {
-    QuerySnapshot response =  await _fireStore.collection('users').where('userEmail', isEqualTo: userEmail).get();
+    QuerySnapshot response = await _fireStore
+        .collection('users')
+        .where('userEmail', isEqualTo: userEmail)
+        .get();
 
-    if(response.docs.length >= 1) {
+    if (response.docs.length >= 1) {
       return false;
     } else {
       return true;
@@ -51,18 +51,19 @@ class FireStoreDbService implements DbBase {
 
   @override
   Future<bool> updateUserName(String userId, String newUserName) async {
-    QuerySnapshot response =  await _fireStore.collection('users').where('userName', isEqualTo: newUserName).get();
-    if(response.docs.length >= 1) {
+    QuerySnapshot response = await _fireStore
+        .collection('users')
+        .where('userName', isEqualTo: newUserName)
+        .get();
+    if (response.docs.length >= 1) {
       return false;
     } else {
-      
       await _fireStore.collection('users').doc(userId).update({
         'userName': newUserName,
         'updatedAt': FieldValue.serverTimestamp(),
       });
       return true;
     }
-    
   }
 
   @override
@@ -77,10 +78,23 @@ class FireStoreDbService implements DbBase {
   @override
   Future<List<UserModel>> getAllUsers() async {
     QuerySnapshot usersQuery = await _fireStore.collection('users').get();
-    List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
+    List<UserModel> users =
+        usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
 
     return users;
   }
 
+  @override
+  Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId) {
+    var messagesQuery = _fireStore
+        .collection('chat')
+        .doc(currentUserId + '--' + chatUserId)
+        .collection('messages')
+        .orderBy('date')
+        .snapshots();
 
+    return messagesQuery.map((messages) => messages.docs
+        .map((message) => ChatModel.fromMap(message.data()))
+        .toList());
+  }
 }
