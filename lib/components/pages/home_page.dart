@@ -30,10 +30,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
 
-    return WillPopScope(
-      onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
-      child: Container(
-          child: _bodyArea(),
+    return SafeArea(
+      child: WillPopScope(
+        onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
+        child: Container(
+            child: _bodyArea(),
+        ),
       ),
     );
   }

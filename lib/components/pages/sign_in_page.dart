@@ -35,83 +35,85 @@ class _SignInPageState extends State<SignInPage> {
 
   Widget bodyArea() {
     return _userView.state == UserViewState.Idle
-      ? Container(
-        padding: EdgeInsets.all(10),
-        child: ListView(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+      ? SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: ListView(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
 
-                TitleArea(
-                  titleText: 'Oturum Açma Yöntemleri',
-                  icon: Icons.apps,
-                ),
+                  TitleArea(
+                    titleText: 'Oturum Açma Yöntemleri',
+                    icon: Icons.apps,
+                  ),
 
-                LoginButton(
-                  buttonText: 'Google ile Oturum Aç',
-                  textColor: Colors.black,
-                  textSize: Theme.of(context).textTheme.headline6.fontSize,
+                  LoginButton(
+                    buttonText: 'Google ile Oturum Aç',
+                    textColor: Colors.black,
+                    textSize: Theme.of(context).textTheme.headline6.fontSize,
 
-                  buttonRadius: 16,
-                  buttonColor: Colors.white,
+                    buttonRadius: 16,
+                    buttonColor: Colors.white,
 
-                  icon: Image.asset('assets/images/google-logo.png'),
-                  onPressed: () => googleLogin(),
-                ),
+                    icon: Image.asset('assets/images/google-logo.png'),
+                    onPressed: () => googleLogin(),
+                  ),
 
-                LoginButton(
-                  buttonText: 'Facebook ile Oturum Aç',
-                  textColor: Colors.white,
-                  textSize: Theme.of(context).textTheme.headline6.fontSize,
+                  LoginButton(
+                    buttonText: 'Facebook ile Oturum Aç',
+                    textColor: Colors.white,
+                    textSize: Theme.of(context).textTheme.headline6.fontSize,
 
-                  buttonRadius: 16,
-                  buttonColor: Color(0xFF334D92),
+                    buttonRadius: 16,
+                    buttonColor: Color(0xFF334D92),
 
-                  icon: Image.asset('assets/images/facebook-logo.png'),
-                  onPressed: () => facebookLogin(),
-                ),
+                    icon: Image.asset('assets/images/facebook-logo.png'),
+                    onPressed: () => facebookLogin(),
+                  ),
 
-                LoginButton(
-                  buttonText: 'Email ve Şifre ile Oturum Aç',
-                  textColor: Colors.white,
-                  textSize: Theme.of(context).textTheme.headline6.fontSize,
+                  LoginButton(
+                    buttonText: 'Email ve Şifre ile Oturum Aç',
+                    textColor: Colors.white,
+                    textSize: Theme.of(context).textTheme.headline6.fontSize,
 
-                  buttonRadius: 16,
-                  buttonColor: Colors.orange,
+                    buttonRadius: 16,
+                    buttonColor: Colors.orange,
 
-                  icon: Icon(Icons.email, color: Colors.white, size: 34,),
-                  onPressed: () => setState(() => showForm = !showForm),
-                ),
+                    icon: Icon(Icons.email, color: Colors.white, size: 34,),
+                    onPressed: () => setState(() => showForm = !showForm),
+                  ),
 
-                showForm
-                    ? LoginForm(
-                        key: _loginFormState,
-                        formElementsRadius: 16,
-                        formElementsHeight: 50,
-                        topArrowActive: true,
-                        buttonColor: Theme.of(context).primaryColor,
-                        onPressed: () => emailAndPasswordLogin(),
-                    )
-                    : Container(),
+                  showForm
+                      ? LoginForm(
+                          key: _loginFormState,
+                          formElementsRadius: 16,
+                          formElementsHeight: 50,
+                          topArrowActive: true,
+                          buttonColor: Theme.of(context).primaryColor,
+                          onPressed: () => emailAndPasswordLogin(),
+                      )
+                      : Container(),
 
-                LoginButton(
-                  buttonText: 'Misafir olarak Oturum Aç',
-                  textColor: Colors.white,
-                  textSize: Theme.of(context).textTheme.headline6.fontSize,
+                  LoginButton(
+                    buttonText: 'Misafir olarak Oturum Aç',
+                    textColor: Colors.white,
+                    textSize: Theme.of(context).textTheme.headline6.fontSize,
 
-                  buttonRadius: 16,
-                  buttonColor: Colors.grey,
+                    buttonRadius: 16,
+                    buttonColor: Colors.grey,
 
-                  icon: Icon(Icons.person, color: Colors.white, size: 34,),
-                  // onPressed: () => visitorLogin(),
-                )
+                    icon: Icon(Icons.person, color: Colors.white, size: 34,),
+                    // onPressed: () => visitorLogin(),
+                  )
 
-              ],
-            )
-          ],
+                ],
+              )
+            ],
+          ),
         ),
       )
       : Center(child: CircularProgressIndicator());
