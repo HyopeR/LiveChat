@@ -4,14 +4,14 @@ class ChatModel {
 
   String senderId;
   String receiverId;
-  bool fromWho;
+  bool fromMe;
   String message;
   DateTime date;
 
   ChatModel({
     this.senderId,
     this.receiverId,
-    this.fromWho,
+    this.fromMe,
     this.message,
     this.date
   });
@@ -21,7 +21,7 @@ class ChatModel {
     return {
       'senderId': senderId,
       'receiverId': receiverId,
-      'fromWho': fromWho,
+      'fromMe': fromMe,
       'message': message,
       'date': date ?? FieldValue.serverTimestamp(),
     };
@@ -30,7 +30,7 @@ class ChatModel {
   ChatModel.fromMap(Map<String, dynamic> map) :
         senderId = map['senderId'],
         receiverId = map['receiverId'],
-        fromWho = map['fromWho'],
+        fromMe = map['fromMe'],
         message = map['message'],
         date = (map['date'] as Timestamp).toDate();
 
@@ -40,7 +40,7 @@ class ChatModel {
     return 'ChatModel{'
         'senderId: $senderId, '
         'receiverId: $receiverId, '
-        'fromWho: $fromWho, '
+        'fromMe: $fromMe, '
         'message: $message, '
         'date: $date}';
   }

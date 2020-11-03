@@ -238,15 +238,4 @@ class UserView with ChangeNotifier implements AuthBase {
     }
   }
 
-  Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId) {
-
-    try{
-      return _userRepo.getMessages(currentUserId, chatUserId);
-    }catch(err) {
-      print('getMessages Error: ${err.toString()}');
-      return null;
-    }
-
-  }
-
 }

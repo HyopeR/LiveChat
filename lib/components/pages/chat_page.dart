@@ -4,6 +4,7 @@ import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -18,12 +19,12 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  UserView _userView;
+  ChatView _chatView;
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-    _userView = Provider.of<UserView>(context);
+    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
         appBar: AppBar(
@@ -35,7 +36,7 @@ class _ChatPageState extends State<ChatPage> {
             children: [
               Expanded(
                 child: StreamBuilder<List<ChatModel>>(
-                  stream: _userView.getMessages(widget.currentUser.userId, widget.chatUser.userId),
+                  stream: _chatView.getMessages(widget.currentUser.userId, widget.chatUser.userId),
                   builder: (context, streamData){
 
                     List<ChatModel> messages = streamData.data;

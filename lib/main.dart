@@ -5,6 +5,7 @@ import 'package:live_chat/components/pages/landing_page.dart';
 import 'package:live_chat/components/pages/sign_in_page.dart';
 import 'package:live_chat/components/pages/home_page.dart';
 import 'package:live_chat/locator.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => UserView()),
+        ChangeNotifierProvider(create: (context) => ChatView()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
