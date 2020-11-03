@@ -226,4 +226,15 @@ class UserView with ChangeNotifier implements AuthBase {
 
   }
 
+  Future<List<UserModel>> getAllUsers() async {
+    try{
+      List<UserModel> users = await _userRepo.getAllUsers();
+      return users;
+
+    }catch(err) {
+      print('getAllUsers Error: ${err.toString()}');
+      return null;
+    }
+  }
+
 }

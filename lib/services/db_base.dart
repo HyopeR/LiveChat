@@ -8,5 +8,5 @@ abstract class DbBase {
   Future<bool> checkUserWithEmail(String userEmail);
   Future<bool> updateUserName(String userId, String userName);
   Future<bool> updateProfilePhoto(String userId, String photoUrl);
-
+  Future<List<UserModel>> getAllUsers();
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/db_base.dart';
 
@@ -71,6 +72,14 @@ class FireStoreDbService implements DbBase {
     });
 
     return true;
+  }
+
+  @override
+  Future<List<UserModel>> getAllUsers() async {
+    QuerySnapshot usersQuery = await _fireStore.collection('users').get();
+    List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
+
+    return users;
   }
 
 
