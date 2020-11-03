@@ -10,6 +10,10 @@ class ChatRepository {
     return _fireStoreDbService.getMessages(currentUserId, chatUserId);
   }
 
+  Future<bool> saveMessage(ChatModel message) async {
+    return _fireStoreDbService.saveMessage(message);
+  }
+
 
 
 }

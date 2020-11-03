@@ -32,4 +32,13 @@ class ChatView with ChangeNotifier {
 
   }
 
+  Future<bool> saveMessage(ChatModel message) async {
+    try{
+      return _chatRepo.saveMessage(message);
+    }catch(err) {
+      print('saveMessage Error: ${err.toString()}');
+      return null;
+    }
+  }
+
 }

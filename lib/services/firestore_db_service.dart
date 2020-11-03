@@ -87,7 +87,7 @@ class FireStoreDbService implements DbBase {
   @override
   Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId) {
     var messagesQuery = _fireStore
-        .collection('chat')
+        .collection('chats')
         .doc(currentUserId + '--' + chatUserId)
         .collection('messages')
         .orderBy('date')
@@ -96,5 +96,27 @@ class FireStoreDbService implements DbBase {
     return messagesQuery.map((messages) => messages.docs
         .map((message) => ChatModel.fromMap(message.data()))
         .toList());
+  }
+
+  Future<bool> saveMessage(ChatModel message) async {
+
+    String messageId = _fireStore.collection('chats').doc().id;
+    String _senderDocumentId = message.senderId + '--' + message.receiverId;
+    String _receiverDocumentId = message.receiverId + '--' + message.senderId;
+
+    Map<String, dynamic> messageMap = message.toMap();
+
+    await _fireStore.collection('chats').doc(_senderDocumentId)
+        .collection('messages')
+        .doc(messageId)
+        .set(messageMap);
+
+    messageMap.update('fromMe', (value) => false);
+    await _fireStore.collection('chats').doc(_receiverDocumentId)
+        .collection('messages')
+        .doc(messageId)
+        .set(messageMap);
+
+    return true;
   }
 }

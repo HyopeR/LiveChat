@@ -11,4 +11,5 @@ abstract class DbBase {
   Future<bool> updateProfilePhoto(String userId, String photoUrl);
   Future<List<UserModel>> getAllUsers();
   Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId);
+  Future<bool> saveMessage(ChatModel message);
 }
