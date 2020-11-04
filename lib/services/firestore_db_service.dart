@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/db_base.dart';
 
@@ -85,7 +85,7 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId) {
+  Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
     var messagesQuery = _fireStore
         .collection('chats')
         .doc(currentUserId + '--' + chatUserId)
@@ -94,11 +94,11 @@ class FireStoreDbService implements DbBase {
         .snapshots();
 
     return messagesQuery.map((messages) => messages.docs
-        .map((message) => ChatModel.fromMap(message.data()))
+        .map((message) => MessageModel.fromMap(message.data()))
         .toList());
   }
 
-  Future<bool> saveMessage(ChatModel message) async {
+  Future<bool> saveMessage(MessageModel message) async {
 
     String messageId = _fireStore.collection('chats').doc().id;
     String _senderDocumentId = message.senderId + '--' + message.receiverId;
@@ -111,11 +111,27 @@ class FireStoreDbService implements DbBase {
         .doc(messageId)
         .set(messageMap);
 
+    await _fireStore.collection('chats').doc(_senderDocumentId).set({
+      'speaker': message.senderId,
+      'interlocutor': message.receiverId,
+      'lastMessage': message.message,
+      'seenNotification': false,
+      'createdAt': FieldValue.serverTimestamp()
+    });
+
     messageMap.update('fromMe', (value) => false);
     await _fireStore.collection('chats').doc(_receiverDocumentId)
         .collection('messages')
         .doc(messageId)
         .set(messageMap);
+
+    await _fireStore.collection('chats').doc(_receiverDocumentId).set({
+      'speaker': message.receiverId,
+      'interlocutor': message.senderId,
+      'lastMessage': message.message,
+      'seenNotification': false,
+      'createdAt': FieldValue.serverTimestamp()
+    });
 
     return true;
   }

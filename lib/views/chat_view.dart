@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/repositories/chat_repository.dart';
 
@@ -21,7 +21,7 @@ class ChatView with ChangeNotifier {
     notifyListeners();
   }
 
-  Stream<List<ChatModel>> getMessages(String currentUserId, String chatUserId) {
+  Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
 
     try{
       return _chatRepo.getMessages(currentUserId, chatUserId);
@@ -32,7 +32,7 @@ class ChatView with ChangeNotifier {
 
   }
 
-  Future<bool> saveMessage(ChatModel message) async {
+  Future<bool> saveMessage(MessageModel message) async {
     try{
       return _chatRepo.saveMessage(message);
     }catch(err) {

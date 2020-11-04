@@ -2,46 +2,51 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatModel {
 
-  String senderId;
-  String receiverId;
-  bool fromMe;
-  String message;
-  Timestamp date;
+  String speaker;
+  String interlocutor;
+  String lastMessage;
+  bool seenNotification;
+  Timestamp createdAt;
+  Timestamp seenAt;
 
   ChatModel({
-    this.senderId,
-    this.receiverId,
-    this.fromMe,
-    this.message,
-    this.date
+    this.speaker,
+    this.interlocutor,
+    this.lastMessage,
+    this.seenNotification,
+    this.createdAt,
+    this.seenAt
   });
 
 
   Map<String, dynamic> toMap() {
     return {
-      'senderId': senderId,
-      'receiverId': receiverId,
-      'fromMe': fromMe,
-      'message': message,
-      'date': date ?? FieldValue.serverTimestamp(),
+      'speaker': speaker,
+      'interlocutor': interlocutor,
+      'lastMessage': lastMessage,
+      'seenNotification': seenNotification,
+      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
+      'seenAt': seenAt ?? FieldValue.serverTimestamp(),
     };
   }
 
   ChatModel.fromMap(Map<String, dynamic> map) :
-        senderId = map['senderId'],
-        receiverId = map['receiverId'],
-        fromMe = map['fromMe'],
-        message = map['message'],
-        date = map['date'];
+        speaker = map['speaker'],
+        interlocutor = map['interlocutor'],
+        lastMessage = map['lastMessage'],
+        seenNotification = map['seenNotification'],
+        createdAt = map['createdAt'],
+        seenAt = map['seenAt'];
 
 
   @override
   String toString() {
     return 'ChatModel{'
-        'senderId: $senderId, '
-        'receiverId: $receiverId, '
-        'fromMe: $fromMe, '
-        'message: $message, '
-        'date: $date}';
+        'speaker: $speaker, '
+        'interlocutor: $interlocutor, '
+        'lastMessage: $lastMessage, '
+        'seenNotification: $seenNotification, '
+        'createdAt: $createdAt, '
+        'seenAt: $seenAt}';
   }
 }

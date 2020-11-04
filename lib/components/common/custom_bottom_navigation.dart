@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-enum TabItem { Users, Profile }
+enum TabItem { Users, Chats, Profile }
 class TabItemData {
 
   final String label;
@@ -11,6 +11,7 @@ class TabItemData {
 
   static Map<TabItem, TabItemData> allTabs = {
     TabItem.Users : TabItemData('Users', Icons.people),
+    TabItem.Chats : TabItemData('Chats', Icons.chat),
     TabItem.Profile : TabItemData('Profile', Icons.person),
   };
 }
@@ -38,6 +39,7 @@ class CustomBottomNavigation extends StatelessWidget {
       tabBar: CupertinoTabBar(
         items: [
           _createNavigationItem(TabItem.Users),
+          _createNavigationItem(TabItem.Chats),
           _createNavigationItem(TabItem.Profile)
         ],
 

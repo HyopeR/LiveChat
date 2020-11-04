@@ -7,7 +7,7 @@ import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
@@ -60,11 +60,11 @@ class _ChatPageState extends State<ChatPage> {
             padding: EdgeInsets.all(10),
             children: [
               Expanded(
-                  child: StreamBuilder<List<ChatModel>>(
+                  child: StreamBuilder<List<MessageModel>>(
                 stream: _chatView.getMessages(
                     widget.currentUser.userId, widget.chatUser.userId),
                 builder: (context, streamData) {
-                  List<ChatModel> messages = streamData.data;
+                  List<MessageModel> messages = streamData.data;
 
                   if (streamData.hasData) {
                     if (messages.isNotEmpty)
@@ -96,7 +96,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void saveMessage() async {
     if (_messageCreatorState.currentState.controller.text.trim().length > 0) {
-      ChatModel savingMessage = ChatModel(
+      MessageModel savingMessage = MessageModel(
         senderId: widget.currentUser.userId,
         receiverId: widget.chatUser.userId,
         fromMe: true,
@@ -112,7 +112,7 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Widget createMessageBubble(ChatModel message) {
+  Widget createMessageBubble(MessageModel message) {
     bool _fromMe = message.fromMe;
 
     if (_fromMe)

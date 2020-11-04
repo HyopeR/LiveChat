@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/message_model.dart';
 
 class MessageBubble extends StatelessWidget {
 
-  final ChatModel message;
+  final MessageModel message;
   final Color color;
   final bool fromMe;
 
@@ -39,10 +39,9 @@ class MessageBubble extends StatelessWidget {
                 child: Text(message.message)
             ),
 
-            Text(
-                showClock(message.date ?? Timestamp(1,1)),
-                style: TextStyle(color: Colors.black54)
-            )
+            message.date != null
+                ? Text(showClock(message.date), style: TextStyle(color: Colors.black54))
+                : Text('')
           ],
         ),
       ],
@@ -50,16 +49,8 @@ class MessageBubble extends StatelessWidget {
   }
 
   String showClock(Timestamp date) {
-
-    try{
-      var formatter = DateFormat.Hm();
-      var clock = formatter.format(date.toDate());
-      return clock;
-    }catch(err) {
-
-      print('Error showClock: ${err.toString()}');
-      return null;
-    }
-
+    var formatter = DateFormat.Hm();
+    var clock = formatter.format(date.toDate());
+    return clock;
   }
 }

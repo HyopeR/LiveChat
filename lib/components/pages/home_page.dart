@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/custom_bottom_navigation.dart';
+import 'package:live_chat/components/pages/chats_page.dart';
 import 'package:live_chat/components/pages/profile_page.dart';
 import 'package:live_chat/components/pages/users_page.dart';
 import 'package:live_chat/views/user_view.dart';
@@ -16,12 +17,14 @@ class _HomePageState extends State<HomePage> {
 
   Map<TabItem, GlobalKey<NavigatorState>> tabNavigatorKeys = {
     TabItem.Users : GlobalKey<NavigatorState>(),
+    TabItem.Chats : GlobalKey<NavigatorState>(),
     TabItem.Profile : GlobalKey<NavigatorState>(),
   };
 
   Map<TabItem, Widget> tabPagesCreator() {
     return {
       TabItem.Users: UsersPage(),
+      TabItem.Chats: ChatsPage(),
       TabItem.Profile: ProfilePage(),
     };
   }
