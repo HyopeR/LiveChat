@@ -6,7 +6,7 @@ class ChatModel {
   String receiverId;
   bool fromMe;
   String message;
-  DateTime date;
+  Timestamp date;
 
   ChatModel({
     this.senderId,
@@ -32,7 +32,7 @@ class ChatModel {
         receiverId = map['receiverId'],
         fromMe = map['fromMe'],
         message = map['message'],
-        date = (map['date'] as Timestamp).toDate();
+        date = map['date'];
 
 
   @override

@@ -4,6 +4,8 @@ import 'package:live_chat/components/common/container_row.dart';
 class MessageCreatorWidget extends StatefulWidget {
 
   final double height;
+  final EdgeInsets margin;
+  final EdgeInsets padding;
 
   final String hintText;
   final Color textAreaColor;
@@ -18,7 +20,9 @@ class MessageCreatorWidget extends StatefulWidget {
 
   const MessageCreatorWidget({
     Key key,
-    this.height: 50,
+    this.height : 50,
+    this.margin : EdgeInsets.zero,
+    this.padding : EdgeInsets.zero,
     this.hintText : '',
     this.textAreaColor : Colors.transparent,
     this.textAreaRadius : 10,
@@ -41,6 +45,10 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   Widget build(BuildContext context) {
     return ContainerRow(
       height: widget.height,
+
+      margin: widget.margin,
+      padding: widget.padding,
+
       children: [
 
         Expanded(

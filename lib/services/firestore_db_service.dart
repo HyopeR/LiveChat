@@ -90,7 +90,7 @@ class FireStoreDbService implements DbBase {
         .collection('chats')
         .doc(currentUserId + '--' + chatUserId)
         .collection('messages')
-        .orderBy('date')
+        .orderBy('date', descending: true)
         .snapshots();
 
     return messagesQuery.map((messages) => messages.docs

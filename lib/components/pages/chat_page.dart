@@ -23,6 +23,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   ChatView _chatView;
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
+  ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +64,11 @@ class _ChatPageState extends State<ChatPage> {
                 builder: (context, streamData) {
                   List<ChatModel> messages = streamData.data;
 
-                  print((messages != null).toString());
-
-                  if (messages != null) {
+                  if (streamData.hasData) {
                     if (messages.isNotEmpty)
                       return ListView.builder(
+                          reverse: true,
+                          controller: _scrollController,
                           itemCount: messages.length,
                           itemBuilder: (context, index) {
                             return createTalkingBalloon(messages[index]);
@@ -79,6 +80,8 @@ class _ChatPageState extends State<ChatPage> {
                 },
               )),
               MessageCreatorWidget(
+                margin: EdgeInsets.only(top: 10),
+
                 key: _messageCreatorState,
                 hintText: 'Bir mesaj yazın.',
                 textAreaColor: Colors.grey.shade300.withOpacity(0.8),
@@ -100,12 +103,20 @@ class _ChatPageState extends State<ChatPage> {
       );
 
       bool result = await _chatView.saveMessage(savingMessage);
-      if (result) _messageCreatorState.currentState.controller.clear();
+      if (result) {
+        _messageCreatorState.currentState.controller.clear();
+        _scrollController.animateTo(
+            0,
+            duration: Duration(microseconds: 50),
+            curve: Curves.easeOut
+        );
+      }
     }
   }
 
   Widget createTalkingBalloon(ChatModel message) {
-    Color _outgoingMessageColor = Theme.of(context).primaryColor.withOpacity(0.8);
+    Color _outgoingMessageColor =
+        Theme.of(context).primaryColor.withOpacity(0.8);
     Color _incomingMessageColor = Colors.grey.shade300.withOpacity(0.8);
     bool _fromMe = message.fromMe;
 
