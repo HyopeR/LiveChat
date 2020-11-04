@@ -35,8 +35,8 @@ class _ChatsPageState extends State<ChatsPage> {
 
                   TitleArea(titleText: 'Konuşmalarım', icon: Icons.chat),
                   Expanded(
-                    child: FutureBuilder<List<ChatModel>>(
-                      future: _chatView.getAllChats(_userView.user.userId),
+                    child: StreamBuilder<List<ChatModel>>(
+                      stream: _chatView.getAllChats(_userView.user.userId),
                       builder: (context, streamData) {
 
                         List<ChatModel> chats = streamData.data;
@@ -47,6 +47,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                 itemCount: chats.length,
                                 itemBuilder: (context, index) {
                                   ChatModel currentChat = chats[index];
+                                  UserModel currentInterlocutor = _chatView.selectChatUser(currentChat.interlocutor);
 
                                   return GestureDetector(
                                     onTap: () {
@@ -54,20 +55,20 @@ class _ChatsPageState extends State<ChatsPage> {
                                       Navigator.of(context, rootNavigator: true)
                                           .push(MaterialPageRoute(builder: (context) => ChatPage(
                                           currentUser: _userView.user,
-                                          chatUser: _chatView.selectChatUser(currentChat.interlocutor),
+                                          chatUser: currentInterlocutor,
                                       )));
 
                                     },
 
                                     child: ListTile(
                                       leading: ImageWidget(
-                                        imageUrl: currentChat.interlocutorProfilePhotoUrl,
+                                        imageUrl: currentInterlocutor.userProfilePhotoUrl,
                                         imageWidth: 75,
                                         imageHeight: 75,
                                         backgroundShape: BoxShape.circle,
                                         backgroundColor: Colors.grey.withOpacity(0.3),
                                       ),
-                                      title: Text(currentChat.interlocutorUserName),
+                                      title: Text(currentInterlocutor.userName),
                                       subtitle: Text(currentChat.lastMessage),
                                     ),
                                   );

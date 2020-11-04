@@ -13,6 +13,7 @@ class ChatView with ChangeNotifier {
   UserViewState _state = UserViewState.Idle;
   ChatRepository _chatRepo = locator<ChatRepository>();
 
+  List<UserModel> _users;
   List<ChatModel> _chats;
 
   List<ChatModel> get chats => _chats;
@@ -24,19 +25,23 @@ class ChatView with ChangeNotifier {
   }
 
   selectChatUser(String userId) {
-    return _chatRepo.findUserFromList(userId);
+    return _users.map((user) {
+        if(user.userId == userId)
+          return user;
+      }).toList()[0];
   }
 
   Future<List<UserModel>> getAllUsers() async {
     try{
-      return  _chatRepo.getAllUsers();
+      _users = await _chatRepo.getAllUsers();
+      return _users;
     }catch(err) {
       print('getAllUsers Error: ${err.toString()}');
       return null;
     }
   }
 
-  Future<List<ChatModel>> getAllChats(String userId) async {
+  Stream<List<ChatModel>> getAllChats(String userId) {
 
     try{
       return _chatRepo.getAllChats(userId);
@@ -47,7 +52,6 @@ class ChatView with ChangeNotifier {
     }
 
   }
-
 
   Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
 

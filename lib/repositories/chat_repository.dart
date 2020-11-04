@@ -14,28 +14,8 @@ class ChatRepository {
     return _users;
   }
 
-  Future<List<ChatModel>> getAllChats(String userId) async {
-    List<ChatModel> chats = await _fireStoreDbService.getAllChats(userId);
-
-    for(var chat in chats) {
-      UserModel interlocutor = findUserFromList(chat.interlocutor);
-      if(interlocutor != null) {
-        chat.interlocutorProfilePhotoUrl = interlocutor.userProfilePhotoUrl;
-        chat.interlocutorUserName = interlocutor.userName;
-        chat.interlocutorEmail = interlocutor.userEmail;
-      }
-    }
-
-    return chats;
-  }
-
-  UserModel findUserFromList(String findUserId) {
-    var findUser = _users.map((user) {
-      if(user.userId == findUserId)
-        return user;
-    }).toList();
-
-    return findUser[0];
+  Stream<List<ChatModel>> getAllChats(String userId) {
+    return _fireStoreDbService.getAllChats(userId);
   }
 
   Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {

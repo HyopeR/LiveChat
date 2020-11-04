@@ -86,14 +86,15 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Future<List<ChatModel>> getAllChats(String userId) async {
-    QuerySnapshot chatsQuery = await _fireStore.collection('chats')
+  Stream<List<ChatModel>> getAllChats(String userId) {
+    var chatsQuery =  _fireStore.collection('chats')
         .where('speaker', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
-        .get();
+        .snapshots();
 
-    List<ChatModel> chats = chatsQuery.docs.map((chat) => ChatModel.fromMap(chat.data())).toList();
-    return chats;
+    return chatsQuery.map((chats) => chats.docs
+        .map((chat) => ChatModel.fromMap(chat.data()))
+        .toList());
   }
 
 

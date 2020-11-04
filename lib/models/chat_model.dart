@@ -7,7 +7,6 @@ class ChatModel {
   String interlocutor;
   String interlocutorProfilePhotoUrl;
   String interlocutorUserName;
-  String interlocutorEmail;
 
   String lastMessage;
   bool seenNotification;
@@ -50,7 +49,6 @@ class ChatModel {
         'interlocutor: $interlocutor, '
         'interlocutorProfilePhotoUrl: $interlocutorProfilePhotoUrl, '
         'interlocutorUserName: $interlocutorUserName, '
-        'interlocutorEmail: $interlocutorEmail, '
         'lastMessage: $lastMessage, '
         'seenNotification: $seenNotification, '
         'createdAt: $createdAt, '
