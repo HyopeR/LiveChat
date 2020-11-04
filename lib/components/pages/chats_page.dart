@@ -47,12 +47,9 @@ class _ChatsPageState extends State<ChatsPage> {
                             return ListView.builder(
                                 itemCount: chats.length,
                                 itemBuilder: (context, index) {
-                                  print('ListView Builder Area');
 
                                   ChatModel currentChat = chats[index];
                                   UserModel currentInterlocutor = _chatView.selectChatUser(currentChat.interlocutor);
-
-                                  print('Current Interlocutor: ' + currentInterlocutor.toString());
 
                                   return GestureDetector(
                                     onTap: () {
@@ -75,12 +72,26 @@ class _ChatsPageState extends State<ChatsPage> {
                                           ),
 
                                         title: Text(currentInterlocutor.userName),
-                                        subtitle: Text(currentChat.lastMessage.length < 45 ? currentChat.lastMessage : currentChat.lastMessage.substring(0, 41) + '...'),
+                                        subtitle: Text(currentChat.lastMessage.length < 45
+                                            ? currentChat.lastMessage
+                                            : currentChat.lastMessage.substring(0, 41) + '...'
+                                        ),
                                     ),
                                   );
                                 });
                           else
-                            return Center(child: Text('Kaydedilmiş konuşma yok.'));
+                            return SizedBox.expand(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.chat, size: 100),
+                                  Text(
+                                    'Kaydedilmiş konuşma yok.',
+                                    textAlign: TextAlign.center,
+                                  )
+                                ],
+                              ),
+                            );
                         } else
                           return Container();
 
