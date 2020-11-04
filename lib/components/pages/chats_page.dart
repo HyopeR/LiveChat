@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
@@ -50,6 +51,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                   ChatModel currentChat = chats[index];
                                   UserModel currentInterlocutor = _chatView.selectChatUser(currentChat.interlocutor);
+                                  Map<String, String> dates = showDate(currentChat.createdAt);
 
                                   return GestureDetector(
                                     onTap: () {
@@ -71,10 +73,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                             backgroundColor: Colors.grey.withOpacity(0.3),
                                           ),
 
+                                        trailing: currentChat.createdAt != null
+                                            ? Text(dates['date'] + '\n' + dates['clock'], textAlign: TextAlign.right,)
+                                            : Container(),
+
                                         title: Text(currentInterlocutor.userName),
-                                        subtitle: Text(currentChat.lastMessage.length < 45
+                                        subtitle: Text(currentChat.lastMessage.length < 35
                                             ? currentChat.lastMessage
-                                            : currentChat.lastMessage.substring(0, 41) + '...'
+                                            : currentChat.lastMessage.substring(0, 31) + '...'
                                         ),
                                     ),
                                   );
@@ -103,5 +109,17 @@ class _ChatsPageState extends State<ChatsPage> {
             )
         )
     );
+  }
+
+  Map<String, String> showDate(Timestamp date) {
+    var formatterDate = DateFormat.yMd();
+    var formatterClock = DateFormat.Hm();
+
+    Map<String, String> dates = {
+      'date': formatterDate.format(date.toDate()),
+      'clock': formatterClock.format(date.toDate()),
+    };
+
+    return dates;
   }
 }
