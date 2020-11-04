@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
+import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/user_model.dart';
@@ -71,7 +73,7 @@ class _ChatPageState extends State<ChatPage> {
                           controller: _scrollController,
                           itemCount: messages.length,
                           itemBuilder: (context, index) {
-                            return createTalkingBalloon(messages[index]);
+                            return createMessageBubble(messages[index]);
                           });
                     else
                       return Center(child: Text('Bir konuşma başlat'));
@@ -81,7 +83,6 @@ class _ChatPageState extends State<ChatPage> {
               )),
               MessageCreatorWidget(
                 margin: EdgeInsets.only(top: 10),
-
                 key: _messageCreatorState,
                 hintText: 'Bir mesaj yazın.',
                 textAreaColor: Colors.grey.shade300.withOpacity(0.8),
@@ -105,60 +106,26 @@ class _ChatPageState extends State<ChatPage> {
       bool result = await _chatView.saveMessage(savingMessage);
       if (result) {
         _messageCreatorState.currentState.controller.clear();
-        _scrollController.animateTo(
-            0,
-            duration: Duration(microseconds: 50),
-            curve: Curves.easeOut
-        );
+        _scrollController.animateTo(0,
+            duration: Duration(microseconds: 50), curve: Curves.easeOut);
       }
     }
   }
 
-  Widget createTalkingBalloon(ChatModel message) {
-    Color _outgoingMessageColor =
-        Theme.of(context).primaryColor.withOpacity(0.8);
-    Color _incomingMessageColor = Colors.grey.shade300.withOpacity(0.8);
+  Widget createMessageBubble(ChatModel message) {
     bool _fromMe = message.fromMe;
 
     if (_fromMe)
-      return ContainerColumn(
-        margin: EdgeInsets.only(top: 5),
-        alignment: Alignment.centerRight,
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: () {},
-            child: Material(
-              elevation: 0,
-              borderRadius: BorderRadius.circular(10),
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Text(message.message),
-              ),
-              color: _outgoingMessageColor,
-            ),
-          ),
-        ],
+      return MessageBubble(
+        message: message,
+        color: Theme.of(context).primaryColor.withOpacity(0.8),
+        fromMe: message.fromMe,
       );
     else
-      return ContainerColumn(
-        margin: EdgeInsets.only(top: 5),
-        alignment: Alignment.centerLeft,
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: () {},
-            child: Material(
-              elevation: 0,
-              borderRadius: BorderRadius.circular(10),
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Text(message.message),
-              ),
-              color: _incomingMessageColor,
-            ),
-          ),
-        ],
+      return MessageBubble(
+        message: message,
+        color: Colors.grey.shade300.withOpacity(0.8),
+        fromMe: message.fromMe,
       );
   }
 }

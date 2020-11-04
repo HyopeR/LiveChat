@@ -7,6 +7,7 @@ class ContainerColumn extends StatelessWidget {
   final EdgeInsets margin;
   final double height;
   final double width;
+  final BoxDecoration decoration;
 
   final List<Widget> children;
   final MainAxisAlignment mainAxisAlignment;
@@ -15,12 +16,13 @@ class ContainerColumn extends StatelessWidget {
 
   const ContainerColumn({
     Key key,
-    this.alignment : Alignment.topLeft,
+    this.alignment,
     this.color : Colors.transparent,
     this.padding : EdgeInsets.zero,
     this.margin : EdgeInsets.zero,
     this.height,
     this.width,
+    this.decoration,
     this.children,
     this.mainAxisAlignment : MainAxisAlignment.start,
     this.mainAxisSize  : MainAxisSize.max,
@@ -31,7 +33,10 @@ class ContainerColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: alignment,
-      color: color,
+      decoration: decoration != null
+          ? decoration : color != null
+          ? BoxDecoration(color: color) : null,
+
       padding: padding,
       margin: margin,
       height: height,
