@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       child: WillPopScope(
         onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
         child: Container(
-            child: _bodyArea(),
+          child: _bodyArea(),
         ),
       ),
     );

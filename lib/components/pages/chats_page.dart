@@ -40,14 +40,19 @@ class _ChatsPageState extends State<ChatsPage> {
                       builder: (context, streamData) {
 
                         List<ChatModel> chats = streamData.data;
+                        print('Stream Builder Area');
 
                         if (streamData.hasData) {
                           if (chats.isNotEmpty)
                             return ListView.builder(
                                 itemCount: chats.length,
                                 itemBuilder: (context, index) {
+                                  print('ListView Builder Area');
+
                                   ChatModel currentChat = chats[index];
                                   UserModel currentInterlocutor = _chatView.selectChatUser(currentChat.interlocutor);
+
+                                  print('Current Interlocutor: ' + currentInterlocutor.toString());
 
                                   return GestureDetector(
                                     onTap: () {
@@ -62,14 +67,15 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                     child: ListTile(
                                       leading: ImageWidget(
-                                        imageUrl: currentInterlocutor.userProfilePhotoUrl,
-                                        imageWidth: 75,
-                                        imageHeight: 75,
-                                        backgroundShape: BoxShape.circle,
-                                        backgroundColor: Colors.grey.withOpacity(0.3),
-                                      ),
-                                      title: Text(currentInterlocutor.userName),
-                                      subtitle: Text(currentChat.lastMessage),
+                                            imageUrl: currentInterlocutor.userProfilePhotoUrl,
+                                            imageWidth: 75,
+                                            imageHeight: 75,
+                                            backgroundShape: BoxShape.circle,
+                                            backgroundColor: Colors.grey.withOpacity(0.3),
+                                          ),
+
+                                        title: Text(currentInterlocutor.userName),
+                                        subtitle: Text(currentChat.lastMessage.length < 45 ? currentChat.lastMessage : currentChat.lastMessage.substring(0, 41) + '...'),
                                     ),
                                   );
                                 });

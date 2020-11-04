@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
-import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/repositories/user_repository.dart';
 import 'package:live_chat/services/auth_base.dart';

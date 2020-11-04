@@ -5,30 +5,18 @@ import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/repositories/chat_repository.dart';
-
-enum UserViewState { Idle, Busy }
-
 class ChatView with ChangeNotifier {
 
-  UserViewState _state = UserViewState.Idle;
   ChatRepository _chatRepo = locator<ChatRepository>();
 
   List<UserModel> _users;
   List<ChatModel> _chats;
 
   List<ChatModel> get chats => _chats;
-  UserViewState get state => _state;
-
-  set state(UserViewState value) {
-    _state = value;
-    notifyListeners();
-  }
 
   selectChatUser(String userId) {
-    return _users.map((user) {
-        if(user.userId == userId)
-          return user;
-      }).toList()[0];
+    UserModel user = _users.where((user) => user.userId == userId).first;
+    return user;
   }
 
   Future<List<UserModel>> getAllUsers() async {

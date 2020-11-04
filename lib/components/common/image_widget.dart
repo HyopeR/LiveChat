@@ -26,7 +26,6 @@ class ImageWidget extends StatefulWidget {
 }
 
 class ImageWidgetState extends State<ImageWidget> {
-
   bool imageLoading = false;
 
   loadingStart() {

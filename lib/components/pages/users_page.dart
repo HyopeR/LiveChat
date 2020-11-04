@@ -34,45 +34,54 @@ class _UsersPageState extends State<UsersPage> {
             TitleArea(titleText: 'Tüm Kullanıcılar', icon: Icons.people),
             Expanded(
               child: FutureBuilder<List<UserModel>>(
-                future: getAllUsers(),
+                future: _chatView.getAllUsers(),
                 builder: (context, futureResult) {
 
                   if(futureResult.hasData) {
                     List<UserModel> users = futureResult.data;
 
                     if(users.length > 0)
-                      return ListView.builder(
-                          itemCount: users.length,
-                          itemBuilder: (context, index) {
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          await Future.delayed(Duration(seconds: 2), () {
+                            setState(() {
 
-                            UserModel currentUser = users[index];
+                            });
+                          });
+                        },
+                        child: ListView.builder(
+                            itemCount: users.length,
+                            itemBuilder: (context, index) {
 
-                            if(currentUser.userId != _userView.user.userId)
-                              return GestureDetector(
+                              UserModel currentUser = users[index];
 
-                                onTap: () {
-                                  
-                                  Navigator.of(context, rootNavigator: true)
-                                      .push(MaterialPageRoute(builder: (context) => ChatPage(currentUser: _userView.user, chatUser: currentUser)));
-                                  
-                                },
+                              if(currentUser.userId != _userView.user.userId)
+                                return GestureDetector(
 
-                                child: ListTile(
-                                  leading: ImageWidget(
-                                    imageUrl: currentUser.userProfilePhotoUrl,
-                                    imageWidth: 75,
-                                    imageHeight: 75,
-                                    backgroundShape: BoxShape.circle,
-                                    backgroundColor: Colors.grey.withOpacity(0.3),
+                                  onTap: () {
+                                    
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(MaterialPageRoute(builder: (context) => ChatPage(currentUser: _userView.user, chatUser: currentUser)));
+                                    
+                                  },
+
+                                  child: ListTile(
+                                    leading: ImageWidget(
+                                      imageUrl: currentUser.userProfilePhotoUrl,
+                                      imageWidth: 75,
+                                      imageHeight: 75,
+                                      backgroundShape: BoxShape.circle,
+                                      backgroundColor: Colors.grey.withOpacity(0.3),
+                                    ),
+                                    title: Text(currentUser.userName),
+                                    subtitle: Text(currentUser.userEmail),
                                   ),
-                                  title: Text(currentUser.userName),
-                                  subtitle: Text(currentUser.userEmail),
-                                ),
-                              );
-                            else
-                              return Container();
+                                );
+                              else
+                                return Container();
 
-                          }
+                            }
+                        ),
                       );
                     else
                       return Center(child: Text('Kayıtlı kullanıcı bulunmamaktadır.'));
@@ -87,11 +96,5 @@ class _UsersPageState extends State<UsersPage> {
         ),
       )
     );
-  }
-
-  Future<List<UserModel>> getAllUsers() async {
-    List<UserModel> users = await _chatView.getAllUsers();
-
-    return users;
   }
 }
