@@ -4,6 +4,7 @@ import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
 import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -14,10 +15,12 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   UserView _userView;
+  ChatView _chatView;
 
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
+    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -87,8 +90,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<List<UserModel>> getAllUsers() async {
-    List<UserModel> users = await _userView.getAllUsers();
-    print(users);
+    List<UserModel> users = await _chatView.getAllUsers();
 
     return users;
   }

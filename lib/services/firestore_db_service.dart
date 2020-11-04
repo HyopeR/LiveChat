@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/db_base.dart';
@@ -83,6 +84,18 @@ class FireStoreDbService implements DbBase {
 
     return users;
   }
+
+  @override
+  Future<List<ChatModel>> getAllChats(String userId) async {
+    QuerySnapshot chatsQuery = await _fireStore.collection('chats')
+        .where('speaker', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    List<ChatModel> chats = chatsQuery.docs.map((chat) => ChatModel.fromMap(chat.data())).toList();
+    return chats;
+  }
+
 
   @override
   Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {

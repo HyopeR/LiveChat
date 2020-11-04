@@ -122,14 +122,4 @@ class UserRepository implements AuthBase{
     return fileUploadComplete ? fileUrl : null;
   }
 
-  Future<List<UserModel>> getAllUsers() async {
-    return _fireStoreDbService.getAllUsers();
-  }
-
-  Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
-    return _fireStoreDbService.getMessages(currentUserId, chatUserId);
-  }
-
-
-
 }

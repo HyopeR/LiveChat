@@ -3,7 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChatModel {
 
   String speaker;
+
   String interlocutor;
+  String interlocutorProfilePhotoUrl;
+  String interlocutorUserName;
+  String interlocutorEmail;
+
   String lastMessage;
   bool seenNotification;
   Timestamp createdAt;
@@ -38,12 +43,14 @@ class ChatModel {
         createdAt = map['createdAt'],
         seenAt = map['seenAt'];
 
-
   @override
   String toString() {
     return 'ChatModel{'
         'speaker: $speaker, '
         'interlocutor: $interlocutor, '
+        'interlocutorProfilePhotoUrl: $interlocutorProfilePhotoUrl, '
+        'interlocutorUserName: $interlocutorUserName, '
+        'interlocutorEmail: $interlocutorEmail, '
         'lastMessage: $lastMessage, '
         'seenNotification: $seenNotification, '
         'createdAt: $createdAt, '
