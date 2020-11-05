@@ -195,6 +195,7 @@ class UserView with ChangeNotifier implements AuthBase {
 
       if(result) {
         _user.userName = newUserName;
+        _user.updatedAt = DateTime.now();
       }
 
       return result;
@@ -214,6 +215,7 @@ class UserView with ChangeNotifier implements AuthBase {
 
       if(fileUrl != null) {
         _user.userProfilePhotoUrl = fileUrl;
+        _user.updatedAt = DateTime.now();
       }
 
       return fileUrl;

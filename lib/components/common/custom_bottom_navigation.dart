@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/container_column.dart';
 
 enum TabItem { Users, Chats, Profile }
 class TabItemData {
@@ -48,6 +49,14 @@ class CustomBottomNavigationState extends State<CustomBottomNavigation> {
 
       controller: tabController,
       tabBar: CupertinoTabBar(
+        // backgroundColor: Color(0xFFf7fbf7),
+        backgroundColor: Colors.grey.shade300.withOpacity(0.8),
+
+        inactiveColor: Colors.black54,
+
+        border: Border(bottom: BorderSide(color: Colors.transparent)),
+        iconSize: 28,
+
         items: [
           _createNavigationItem(TabItem.Users),
           _createNavigationItem(TabItem.Chats),
@@ -72,12 +81,18 @@ class CustomBottomNavigationState extends State<CustomBottomNavigation> {
   }
 
   BottomNavigationBarItem _createNavigationItem(TabItem tabItem) {
-
     final createdCurrentTab = TabItemData.allTabs[tabItem];
-
     return BottomNavigationBarItem(
-      label: createdCurrentTab.label,
-      icon: Icon(createdCurrentTab.icon),
+
+      icon: SizedBox.expand(
+        child: ContainerColumn(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(createdCurrentTab.icon),
+            Text(createdCurrentTab.label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),)
+          ],
+        ),
+      ),
     );
   }
 }

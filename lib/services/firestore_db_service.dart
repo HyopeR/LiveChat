@@ -70,6 +70,7 @@ class FireStoreDbService implements DbBase {
   Future<bool> updateProfilePhoto(String userId, String fileUrl) async {
     await _fireStore.collection('users').doc(userId).update({
       'userProfilePhotoUrl': fileUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
     return true;
