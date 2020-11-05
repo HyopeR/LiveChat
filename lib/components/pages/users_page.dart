@@ -47,25 +47,20 @@ class _UsersPageState extends State<UsersPage> {
                               itemBuilder: (context, index) {
                                 UserModel currentUser = users[index];
 
-                                if ((currentUser.userId !=
-                                    _userView.user.userId))
+                                if ((currentUser.userId != _userView.user.userId))
                                   return GestureDetector(
                                     onTap: () {
                                       Navigator.of(context, rootNavigator: true)
-                                          .push(MaterialPageRoute(
-                                              builder: (context) => ChatPage(
-                                                  currentUser: _userView.user,
-                                                  chatUser: currentUser)));
+                                          .push(MaterialPageRoute(builder: (context) =>
+                                          ChatPage(currentUser: _userView.user, chatUser: currentUser)));
                                     },
                                     child: ListTile(
                                       leading: ImageWidget(
-                                        imageUrl:
-                                            currentUser.userProfilePhotoUrl,
+                                        imageUrl: currentUser.userProfilePhotoUrl,
                                         imageWidth: 75,
                                         imageHeight: 75,
                                         backgroundShape: BoxShape.circle,
-                                        backgroundColor:
-                                            Colors.grey.withOpacity(0.3),
+                                        backgroundColor: Colors.grey.withOpacity(0.3),
                                       ),
                                       title: Text(currentUser.userName),
                                       subtitle: Text(currentUser.userEmail),

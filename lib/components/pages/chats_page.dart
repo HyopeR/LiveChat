@@ -77,9 +77,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                             : Container(),
 
                                         title: Text(currentInterlocutor.userName),
-                                        subtitle: Text(currentChat.lastMessage.length < 35
+                                        subtitle: Text(currentChat.lastMessage.length < 25
                                             ? currentChat.lastMessage
-                                            : currentChat.lastMessage.substring(0, 31) + '...'
+                                            : currentChat.lastMessage.substring(0, 21) + '...'
                                         ),
                                     ),
                                   );
