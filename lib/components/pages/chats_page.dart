@@ -41,7 +41,6 @@ class _ChatsPageState extends State<ChatsPage> {
                       builder: (context, streamData) {
 
                         List<ChatModel> chats = streamData.data;
-                        print('Stream Builder Area');
 
                         if (streamData.hasData) {
                           if (chats.isNotEmpty)

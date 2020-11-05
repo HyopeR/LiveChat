@@ -38,6 +38,8 @@ dependencies:
   firebase_storage: ^4.0.1
   intl: ^0.16.1
 
+  swipedetector: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -5,6 +5,7 @@ import 'package:live_chat/components/pages/profile_page.dart';
 import 'package:live_chat/components/pages/users_page.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
+import 'package:swipedetector/swipedetector.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,7 +13,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  GlobalKey<CustomBottomNavigationState> _customBottomNavigationState = GlobalKey();
   UserView _userView;
+
+  List tabsKeys = TabItem.values;
   TabItem _currentTab = TabItem.Users;
 
   Map<TabItem, GlobalKey<NavigatorState>> tabNavigatorKeys = {
@@ -48,24 +52,65 @@ class _HomePageState extends State<HomePage> {
       if(_userView.user == null) {
         return _busyArea();
       } else {
-        return CustomBottomNavigation(
-            currentTab: _currentTab,
-            pageCreator: tabPagesCreator(),
-            navigatorKeys: tabNavigatorKeys,
-            onSelectedTab: (selectedTab){
+        return SwipeDetector(
+          onSwipeLeft: () {
+            swipeTab('leftSwipe');
+          },
 
-              /// Eğer ilerlenmiş bi rotada aynı rota seçilirse başlangıcına dönmesi için kontrol.
-              if(selectedTab == _currentTab)
-                tabNavigatorKeys[selectedTab].currentState.popUntil((route) => route.isFirst);
-              else
-                setState(() {
-                  _currentTab = selectedTab;
-                });
-            }
+          onSwipeRight: () {
+            swipeTab('rightSwipe');
+          },
+
+          child: CustomBottomNavigation(
+              key: _customBottomNavigationState,
+              pageCreator: tabPagesCreator(),
+              navigatorKeys: tabNavigatorKeys,
+              onSelectedTab: (selectedTab){
+
+                /// Eğer ilerlenmiş bi rotada aynı rota seçilirse başlangıcına dönmesi için kontrol.
+                if(selectedTab == _currentTab)
+                  tabNavigatorKeys[selectedTab].currentState.popUntil((route) => route.isFirst);
+                else
+                  setState(() {
+                    _currentTab = selectedTab;
+                  });
+              }
+          ),
         );
       }
     } else {
       return _busyArea();
+    }
+  }
+
+  swipeTab(String swipeType) {
+    switch(swipeType) {
+
+      case('rightSwipe'):
+        if(_customBottomNavigationState.currentState.tabController.index > 0) {
+          int targetIndex = _customBottomNavigationState.currentState.tabController.index - 1;
+          _customBottomNavigationState.currentState.tabController.index = targetIndex;
+
+          setState(() {
+            _currentTab = tabsKeys[targetIndex];
+          });
+        }
+        break;
+
+      case('leftSwipe'):
+        if(_customBottomNavigationState.currentState.tabController.index < 2) {
+          int targetIndex = _customBottomNavigationState.currentState.tabController.index + 1;
+          _customBottomNavigationState.currentState.tabController.index = targetIndex;
+
+          setState(() {
+            _currentTab = tabsKeys[targetIndex];
+          });
+        }
+        break;
+
+      default:
+        break;
+
     }
   }
 

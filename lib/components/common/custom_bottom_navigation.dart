@@ -16,54 +16,65 @@ class TabItemData {
   };
 }
 
-class CustomBottomNavigation extends StatelessWidget {
+class CustomBottomNavigation extends StatefulWidget {
 
-  final TabItem currentTab;
   final ValueChanged<TabItem> onSelectedTab;
   final Map<TabItem, Widget> pageCreator;
   final Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys;
 
   const CustomBottomNavigation({
     Key key,
-    @required this.currentTab,
     @required this.onSelectedTab,
     @required this.pageCreator,
     @required this.navigatorKeys
   }) : super(key: key);
 
   @override
+  CustomBottomNavigationState createState() => CustomBottomNavigationState();
+}
+
+class CustomBottomNavigationState extends State<CustomBottomNavigation> {
+  CupertinoTabController tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = CupertinoTabController(initialIndex: 0);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print('Custom Bottom: ' + Navigator.of(context).toString());
     return CupertinoTabScaffold(
 
+      controller: tabController,
       tabBar: CupertinoTabBar(
         items: [
           _createNavigationItem(TabItem.Users),
           _createNavigationItem(TabItem.Chats),
-          _createNavigationItem(TabItem.Profile)
+          _createNavigationItem(TabItem.Profile),
         ],
 
-        onTap: (index) => onSelectedTab(TabItem.values[index]),
+        onTap: (index) {
+          widget.onSelectedTab(TabItem.values[index]);
+        },
       ),
 
       tabBuilder: (context, index) {
-
         final showItem = TabItem.values[index];
 
         return CupertinoTabView(
-          navigatorKey: navigatorKeys[showItem],
-          builder: (context) => pageCreator[showItem],
+          navigatorKey: widget.navigatorKeys[showItem],
+          builder: (context) => widget.pageCreator[showItem],
         );
       },
 
     );
   }
 
-
   BottomNavigationBarItem _createNavigationItem(TabItem tabItem) {
-    
+
     final createdCurrentTab = TabItemData.allTabs[tabItem];
-    
+
     return BottomNavigationBarItem(
       label: createdCurrentTab.label,
       icon: Icon(createdCurrentTab.icon),
