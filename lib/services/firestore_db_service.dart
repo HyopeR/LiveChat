@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';

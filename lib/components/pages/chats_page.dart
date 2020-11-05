@@ -20,6 +20,8 @@ class _ChatsPageState extends State<ChatsPage> {
   UserView _userView;
   ChatView _chatView;
 
+  DateTime currentDate = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
@@ -50,7 +52,9 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                   ChatModel currentChat = chats[index];
                                   UserModel currentInterlocutor = _chatView.selectChatUser(currentChat.interlocutor);
-                                  Map<String, String> dates = showDate(currentChat.createdAt);
+                                  Map<String, String> dates = currentChat.createdAt != null
+                                      ? showDate(currentChat.createdAt)
+                                      : null;
 
                                   return GestureDetector(
                                     onTap: () {
@@ -72,9 +76,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                             backgroundColor: Colors.grey.withOpacity(0.3),
                                           ),
 
-                                        trailing: currentChat.createdAt != null
-                                            ? Text(dates['date'] + '\n' + dates['clock'], textAlign: TextAlign.right,)
-                                            : Container(),
+                                        trailing: dates != null
+                                                    ? Text(dates['date'] + '\n' + dates['clock'], textAlign: TextAlign.right,)
+                                                    : Text(' '),
 
                                         title: Text(currentInterlocutor.userName),
                                         subtitle: Text(currentChat.lastMessage.length < 25
@@ -111,14 +115,30 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   Map<String, String> showDate(Timestamp date) {
+    DateTime serverDate = date.toDate();
+    int differenceDay = currentDate.difference(serverDate).inDays;
+
     var formatterDate = DateFormat.yMd();
     var formatterClock = DateFormat.Hm();
 
     Map<String, String> dates = {
-      'date': formatterDate.format(date.toDate()),
-      'clock': formatterClock.format(date.toDate()),
+      'date': '',
+      'clock': formatterClock.format(serverDate),
     };
 
-    return dates;
+    switch(differenceDay) {
+      case(0):
+        dates.update('date', (value) => 'Bugün');
+        return dates;
+
+      case(1):
+        dates.update('date', (value) => 'Dün');
+        return dates;
+
+      default:
+        dates.update('date', (value) => formatterDate.format(serverDate));
+        return dates;
+
+    }
   }
 }

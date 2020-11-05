@@ -67,13 +67,17 @@ class _ChatPageState extends State<ChatPage> {
 
                   if (streamData.hasData) {
                     if (messages.isNotEmpty)
-                      return ListView.builder(
-                          reverse: true,
-                          controller: _scrollController,
-                          itemCount: messages.length,
-                          itemBuilder: (context, index) {
-                            return createMessageBubble(messages[index]);
-                          });
+                      return Align(
+                        alignment: Alignment.topCenter,
+                        child: ListView.builder(
+                            reverse: true,
+                            shrinkWrap: true,
+                            controller: _scrollController,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              return createMessageBubble(messages[index]);
+                            }),
+                      );
                     else
                       return Center(child: Text('Bir konuşma başlat'));
                   } else
@@ -100,6 +104,7 @@ class _ChatPageState extends State<ChatPage> {
         receiverId: widget.chatUser.userId,
         fromMe: true,
         message: _messageCreatorState.currentState.controller.text,
+        messageType: 'Text',
       );
 
       bool result = await _chatView.saveMessage(savingMessage);

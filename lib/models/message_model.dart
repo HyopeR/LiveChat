@@ -6,6 +6,7 @@ class MessageModel {
   String receiverId;
   bool fromMe;
   String message;
+  String messageType;
   Timestamp date;
 
   MessageModel({
@@ -13,6 +14,7 @@ class MessageModel {
     this.receiverId,
     this.fromMe,
     this.message,
+    this.messageType,
     this.date
   });
 
@@ -23,6 +25,7 @@ class MessageModel {
       'receiverId': receiverId,
       'fromMe': fromMe,
       'message': message,
+      'messageType': messageType,
       'date': date ?? FieldValue.serverTimestamp(),
     };
   }
@@ -32,6 +35,7 @@ class MessageModel {
         receiverId = map['receiverId'],
         fromMe = map['fromMe'],
         message = map['message'],
+        messageType = map['messageType'],
         date = map['date'];
 
 
@@ -42,6 +46,7 @@ class MessageModel {
         'receiverId: $receiverId, '
         'fromMe: $fromMe, '
         'message: $message, '
+        'messageType: $messageType, '
         'date: $date}';
   }
 }
