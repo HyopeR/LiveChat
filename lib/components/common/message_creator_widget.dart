@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/combine_gesture_widget.dart';
 import 'package:live_chat/components/common/container_row.dart';
 
 class MessageCreatorWidget extends StatefulWidget {
-
   final double height;
   final EdgeInsets margin;
   final EdgeInsets padding;
@@ -18,89 +20,269 @@ class MessageCreatorWidget extends StatefulWidget {
   final Color buttonColor;
   final VoidCallback onPressed;
 
-  const MessageCreatorWidget({
-    Key key,
-    this.height : 50,
-    this.margin : EdgeInsets.zero,
-    this.padding : EdgeInsets.zero,
-    this.hintText : '',
-    this.textAreaColor : Colors.transparent,
-    this.textAreaRadius : 10,
-    this.textColor : Colors.black,
-    this.iconSize : 32,
-    this.iconColor : Colors.black,
-    this.buttonColor : Colors.amber,
-    this.onPressed
-  }) : super(key: key);
+  const MessageCreatorWidget(
+      {Key key,
+      this.height: 50,
+      this.margin: EdgeInsets.zero,
+      this.padding: EdgeInsets.zero,
+      this.hintText: '',
+      this.textAreaColor: Colors.transparent,
+      this.textAreaRadius: 10,
+      this.textColor: Colors.black,
+      this.iconSize: 32,
+      this.iconColor: Colors.black,
+      this.buttonColor: Colors.amber,
+      this.onPressed})
+      : super(key: key);
 
   @override
   MessageCreatorWidgetState createState() => MessageCreatorWidgetState();
 }
 
 class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
+  TextEditingController controller;
 
-  TextEditingController controller = TextEditingController();
+  bool voiceRecordCancelled = false;
+  bool timerRun = false;
+  int time = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ContainerRow(
-      height: widget.height,
-
+      // height: widget.height,
       margin: widget.margin,
       padding: widget.padding,
 
-      children: [
+      crossAxisAlignment: CrossAxisAlignment.end,
 
+      children: [
         Expanded(
           flex: 1,
           child: Container(
+            constraints: BoxConstraints(minHeight: widget.height),
             decoration: BoxDecoration(
               color: widget.textAreaColor,
               borderRadius: BorderRadius.circular(widget.textAreaRadius),
             ),
-            child: ContainerRow(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(width: widget.iconSize, height: widget.iconSize, child: Icon(Icons.emoji_emotions, color: widget.iconColor)),
+            child: !timerRun
 
-                Expanded(
-                  child: Container(
-                    child: TextField(
-                      controller: controller,
-                      style: TextStyle(color: widget.textColor),
-                      decoration: InputDecoration(
-                          hintText: widget.hintText,
-                          border: InputBorder.none,
-                      ),
+              ? ContainerRow(
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: defaultArea(),
+              )
 
-                    ),
-                  ),
-                ),
+              : ContainerRow(
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: voiceRecordArea(),
+              ),
 
-                Container(width: widget.iconSize, height: widget.iconSize,  child: Icon(Icons.attach_file, color: widget.iconColor)),
-                Container(width: widget.iconSize, height: widget.iconSize,  child: Icon(Icons.camera_alt, color: widget.iconColor)),
-              ],
+          ),
+        ),
+        SizedBox(width: 10),
+        Container(
+          child: controller.text.trim().length > 0
+              ? defaultButton()
+              : voiceRecordButton(),
+        )
+      ],
+    );
+  }
+
+  String calculateTimer(int time) {
+    if (time < 60) {
+      String secondStr = (time % 60).toString().padLeft(2, '0');
+      return '00 : $secondStr';
+    } else {
+      int remainingSecond = time % 60;
+      String secondStr = (remainingSecond % 60).toString().padLeft(2, '0');
+
+      int minutes = (time / 60).truncate();
+      String minutesStr = (minutes % 60).toString().padLeft(2, '0');
+
+      return '$minutesStr : $secondStr';
+    }
+  }
+
+  List<Widget> defaultArea() {
+    return [
+      Container(
+          width: widget.iconSize,
+          height: widget.iconSize,
+          child: Icon(Icons.emoji_emotions, color: widget.iconColor)),
+      Expanded(
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: 150,
+          ),
+          child: TextField(
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
+            onChanged: (text) => setState(() => controller.text = text),
+            style: TextStyle(color: widget.textColor),
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.only(top: 10, bottom: 6),
             ),
           ),
         ),
+      ),
+      Container(
+          width: widget.iconSize,
+          height: widget.iconSize,
+          child: Icon(Icons.attach_file, color: widget.iconColor)),
+      AnimatedOpacity(
+        duration: Duration(milliseconds: 750),
+        opacity: controller.text.length <= 0 ? 1 : 0,
+        child: controller.text.length <= 0
+            ? InkWell(
+                onTap: () {},
+                child: Container(
+                    width: widget.iconSize,
+                    height: widget.iconSize,
+                    child: Icon(Icons.camera_alt, color: widget.iconColor)),
+              )
+            : Container(),
+      )
+    ];
+  }
 
-        SizedBox(width: 10),
+  List<Widget> voiceRecordArea() {
+    return [
+      Icon(Icons.mic),
+      Text(
+        calculateTimer(time),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      ),
+      Expanded(
+          child: Container(
+              alignment: Alignment.centerRight,
+              child: Text('İptal etmek için belirli alana bırak.')))
+    ];
+  }
 
+  Widget defaultButton() {
+    return GestureDetector(
+      onTap: widget.onPressed,
+      child: Container(
+        constraints: BoxConstraints(
+          minHeight: widget.height,
+          minWidth: widget.height,
+        ),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: widget.buttonColor,
+        ),
+        child: Container(
+            width: widget.iconSize,
+            height: widget.iconSize,
+            child: Icon(Icons.send, color: widget.iconColor)),
+      ),
+    );
+  }
+
+  Widget voiceRecordButton() {
+    return Column(
+      children: [
+        timerRun
+            ? DragTarget(
+                builder: (context, List<int> candidateData, rejectedData) {
+                  return Center(
+                      child: Container(
+                          color: widget.textAreaColor,
+                          width: 50,
+                          height: 50,
+                          child: Icon(Icons.delete)));
+                },
+                onAccept: (data) {
+                  setState(() {
+                    voiceRecordCancelled = true;
+                  });
+                },
+              )
+            : Container(),
+        SizedBox(height: 10),
         Container(
-          width: widget.height,
-          height: widget.height,
-          child: RaisedButton(
-            elevation: 0,
-            onPressed: widget.onPressed,
+          child: CombineGestureWidget(
+            onLongPressStart: () {
+              setState(() {
+                voiceRecordCancelled = false;
+                timerRun = true;
+              });
+            },
+            onLongPress: () {
+              Timer.periodic(Duration(seconds: 1), (Timer timer) {
+                if (timerRun)
+                  setState(() => time = time + 1);
+                else
+                  timer.cancel();
+              });
+            },
+            onLongPressEnd: () {
+              setState(() {
+                time = 0;
+                timerRun = false;
+              });
 
-            color: widget.buttonColor,
-            shape: CircleBorder(),
-
-            child: Container(width: widget.iconSize, height: widget.iconSize, child: Icon(Icons.send, color: widget.iconColor)),
+              /// voiceRecordCancelled true ise işlem yapma false ise sendMessage işlemi gerçekleştir.
+              print(voiceRecordCancelled);
+            },
+            child: LongPressDraggable(
+              data: 1,
+              feedback: Container(
+                constraints: BoxConstraints(
+                  minHeight: widget.height,
+                  minWidth: widget.height,
+                ),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.buttonColor.withGreen(120),
+                ),
+                child: Container(
+                    width: widget.iconSize,
+                    height: widget.iconSize,
+                    child: Icon(Icons.mic, color: widget.iconColor)),
+              ),
+              child: timerRun
+                  ? Container(
+                      constraints: BoxConstraints(
+                      minHeight: widget.height,
+                      minWidth: widget.height,
+                    ))
+                  : Container(
+                      constraints: BoxConstraints(
+                        minHeight: widget.height,
+                        minWidth: widget.height,
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: widget.buttonColor,
+                      ),
+                      child: Container(
+                          width: widget.iconSize,
+                          height: widget.iconSize,
+                          child: Icon(Icons.mic, color: widget.iconColor)),
+                    ),
+            ),
           ),
         )
-
       ],
     );
   }

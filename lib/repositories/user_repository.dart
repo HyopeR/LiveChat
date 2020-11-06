@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:live_chat/locator.dart';
-import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/auth_base.dart';
 import 'package:live_chat/services/firebase_auth_service.dart';

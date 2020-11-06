@@ -36,7 +36,7 @@ class MessageBubble extends StatelessWidget {
           children: [
             Container(
                 margin: EdgeInsets.only(bottom: 5),
-                child: Text(message.message)
+                child: writeMessage(message)
             ),
 
             message.date != null
@@ -46,6 +46,40 @@ class MessageBubble extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget writeMessage(MessageModel message) {
+
+    switch(message.messageType) {
+
+      case('Text'):
+        return Text(message.message);
+        break;
+
+      case('Image'):
+        return InkWell(
+          onTap: () {},
+          child: Container(
+              width: 200,
+              height: 200,
+              child: Text(message.message)
+          ),
+        );
+        break;
+
+      case('Sound'):
+        return Text('Not ready sound type');
+        break;
+
+      case('Document'):
+        return Text('Not ready document type');
+        break;
+
+      default:
+        return null;
+        break;
+    }
+
   }
 
   String showClock(Timestamp date) {

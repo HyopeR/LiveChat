@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/container_column.dart';
-import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
