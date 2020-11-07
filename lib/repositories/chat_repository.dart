@@ -43,14 +43,7 @@ class ChatRepository {
   }
 
   Future<String> uploadVoiceNote(String userId, String fileType, File file) async {
-    try{
-      String voiceUrl = await _firebaseStorageService.uploadVoiceNote(userId, fileType, file);
-      return voiceUrl;
-    }catch(err) {
-      print('Repo uploadVoiceNote: ${err.toString()}');
-      _voiceRecordService.clearStorage();
-      return null;
-    }
+    return _firebaseStorageService.uploadVoiceNote(userId, fileType, file);
   }
 
 
