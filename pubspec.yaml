@@ -43,6 +43,7 @@ dependencies:
   audio_recorder: ^1.0.2
   path_provider: ^1.6.24
   audioplayers: ^0.16.2
+  uuid: ^2.2.2
 
 dev_dependencies:
   flutter_test:

@@ -2,6 +2,7 @@ import 'dart:io';
 
 abstract class StorageBase {
 
-  Future<String> uploadFile(String userId, String fileType, File file);
+  Future<String> uploadProfilePhoto(String userId, String fileType, File file);
+  Future<String> uploadVoiceNote(String userId, String fileType, File file);
 
 }

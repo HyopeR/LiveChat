@@ -113,9 +113,9 @@ class UserRepository implements AuthBase{
     return _fireStoreDbService.updateUserName(userId, newUserName);
   }
 
-  Future<String> uploadFile(String userId, String fileType, File file) async {
+  Future<String> uploadProfilePhoto(String userId, String fileType, File file) async {
 
-    String fileUrl = await _firebaseStorageService.uploadFile(userId, fileType, file);
+    String fileUrl = await _firebaseStorageService.uploadProfilePhoto(userId, fileType, file);
     bool fileUploadComplete = await _fireStoreDbService.updateProfilePhoto(userId, fileUrl);
 
     return fileUploadComplete ? fileUrl : null;

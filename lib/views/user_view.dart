@@ -208,10 +208,10 @@ class UserView with ChangeNotifier implements AuthBase {
 
   }
 
-  Future<String> uploadFile(String userId, String fileType, File file) async {
+  Future<String> uploadProfilePhoto(String userId, String fileType, File file) async {
 
     try{
-      String fileUrl = await _userRepo.uploadFile(userId, fileType, file);
+      String fileUrl = await _userRepo.uploadProfilePhoto(userId, fileType, file);
 
       if(fileUrl != null) {
         _user.userProfilePhotoUrl = fileUrl;

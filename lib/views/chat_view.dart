@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
@@ -71,6 +73,10 @@ class ChatView with ChangeNotifier {
 
   Future<bool> clearStorage() async {
     return _chatRepo.clearStorage();
+  }
+
+  Future<String> uploadVoiceNote(String userId, String fileType, File file) async {
+    return _chatRepo.uploadVoiceNote(userId, fileType, file);
   }
 
 

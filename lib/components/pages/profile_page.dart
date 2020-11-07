@@ -259,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() => showUserProfilePhoto = false);
       _imageWidgetState.currentState.loadingStart();
 
-      var uploadFile = await _userView.uploadFile(
+      var uploadFile = await _userView.uploadProfilePhoto(
           _userView.user.userId, 'Profile_Photo', _profilePhoto);
 
       if (uploadFile != null) {
