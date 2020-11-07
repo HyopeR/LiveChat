@@ -9,6 +9,7 @@ import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -25,6 +26,15 @@ class _ChatPageState extends State<ChatPage> {
   ChatView _chatView;
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
+
+  // final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool permissionStatus = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getPermissionStatus();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,15 +100,23 @@ class _ChatPageState extends State<ChatPage> {
                 hintText: 'Bir mesaj yazın.',
                 textAreaColor: Colors.grey.shade300.withOpacity(0.8),
                 buttonColor: Theme.of(context).primaryColor,
+                permissionsAllowed: permissionStatus,
+
                 onPressed: () => saveMessage('Text'),
 
                 onLongPressStart: () async {
-                  // _chatView.recordStart();
+                  if(permissionStatus)
+                    _chatView.recordStart();
+                  else
+                    requestPermission();
                 },
 
                 onLongPressEnd: () async {
-                  // await _chatView.recordStop();
-                  saveMessage('Voice');
+                  if(permissionStatus) {
+                    await _chatView.recordStop();
+                    saveMessage('Voice');
+                  }
+
                 },
               )
             ],
@@ -172,4 +190,22 @@ class _ChatPageState extends State<ChatPage> {
         fromMe: message.fromMe,
       );
   }
+
+  getPermissionStatus() async {
+    PermissionStatus storagePermission = await Permission.storage.status;
+    PermissionStatus microphonePermission = await Permission.microphone.status;
+    bool permissionResult = (storagePermission.isGranted && microphonePermission.isGranted);
+    if(permissionResult)
+      _messageCreatorState.currentState.permissionAllow();
+
+
+    setState(() {
+      permissionStatus = permissionResult;
+    });
+  }
+
+  requestPermission() async {
+    await [Permission.microphone, Permission.storage].request();
+  }
+
 }

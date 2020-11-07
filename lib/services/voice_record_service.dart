@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
@@ -6,9 +8,10 @@ import 'package:file/local.dart';
 class VoiceRecordService {
 
   final LocalFileSystem _localFileSystem = LocalFileSystem();
-  Recording _recording;
+  Recording _recording = Recording();
   bool _isRecording = false;
   String _currentPath;
+  Random random = new Random();
 
   void recordStart() async {
 
@@ -20,7 +23,6 @@ class VoiceRecordService {
 
         _recording = Recording(duration: Duration(), path: '');
         _isRecording = isRecording;
-
       } else {
         print('Record Start: AudioRecorder.hasPermissions Error');
       }
@@ -30,18 +32,26 @@ class VoiceRecordService {
   }
 
   Future<File> recordStop() async {
-    var recording = await AudioRecorder.stop();
+    try{
 
-    bool isRecording = await AudioRecorder.isRecording;
-    _currentPath = recording.path;
+      var recording = await AudioRecorder.stop();
 
-    File file = _localFileSystem.file(_currentPath);
+      bool isRecording = await AudioRecorder.isRecording;
+      _currentPath = recording.path;
 
-    // print("  File length: ${await file.length()}");
-    _recording = recording;
-    _isRecording = isRecording;
+      File file = _localFileSystem.file(_currentPath);
 
-    return file;
+      // print("  File length: ${await file.length()}");
+      _recording = recording;
+      _isRecording = isRecording;
+
+      return file;
+
+    }catch(err) {
+      clearStorage();
+      print('recordStop Error: ${err.toString()}');
+      return null;
+    }
   }
 
   Future<bool> clearStorage() async {

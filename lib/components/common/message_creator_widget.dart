@@ -19,6 +19,8 @@ class MessageCreatorWidget extends StatefulWidget {
 
   final Color buttonColor;
 
+  final bool permissionsAllowed;
+
   final VoidCallback onPressed;
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
@@ -35,6 +37,7 @@ class MessageCreatorWidget extends StatefulWidget {
       this.iconSize: 32,
       this.iconColor: Colors.black,
       this.buttonColor: Colors.amber,
+      this.permissionsAllowed: false,
       this.onPressed,
       this.onLongPressStart,
       this.onLongPressEnd,
@@ -46,6 +49,7 @@ class MessageCreatorWidget extends StatefulWidget {
 }
 
 class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
+  bool permissionsAllowed;
   TextEditingController controller;
 
   bool voiceRecordCancelled = false;
@@ -58,12 +62,19 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   void initState() {
     super.initState();
     controller = TextEditingController();
+    permissionsAllowed = widget.permissionsAllowed;
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  permissionAllow() {
+    setState(() {
+      permissionsAllowed = true;
+    });
   }
 
   @override
@@ -231,31 +242,41 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
         Container(
           child: CombineGestureWidget(
             onLongPressStart: () {
-              setState(() {
-                voiceRecordCancelled = false;
-                timerRun = true;
-              });
+
+              if(permissionsAllowed) {
+                setState(() {
+                  voiceRecordCancelled = false;
+                  timerRun = true;
+                });
+              }
 
               widget.onLongPressStart();
             },
 
             onLongPress: () {
-              Timer.periodic(Duration(seconds: 1), (Timer timer) {
-                if (timerRun)
-                  setState(() => time = time + 1);
-                else
-                  timer.cancel();
-              });
+
+              if(permissionsAllowed) {
+                Timer.periodic(Duration(seconds: 1), (Timer timer) {
+                  if (timerRun)
+                    setState(() => time = time + 1);
+                  else
+                    timer.cancel();
+                });
+              }
+
             },
 
             onLongPressEnd: () {
-              setState(() {
-                if(time < 1)
-                  voiceRecordCancelled = true;
-                oldTime = time;
-                time = 0;
-                timerRun = false;
-              });
+
+              if(permissionsAllowed) {
+                setState(() {
+                  if(time < 1)
+                    voiceRecordCancelled = true;
+                  oldTime = time;
+                  time = 0;
+                  timerRun = false;
+                });
+              }
 
               widget.onLongPressEnd();
             },
