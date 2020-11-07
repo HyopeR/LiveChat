@@ -47,6 +47,7 @@ class ChatRepository {
       String voiceUrl = await _firebaseStorageService.uploadVoiceNote(userId, fileType, file);
       return voiceUrl;
     }catch(err) {
+      print('Repo uploadVoiceNote: ${err.toString()}');
       _voiceRecordService.clearStorage();
       return null;
     }

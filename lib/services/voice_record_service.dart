@@ -34,6 +34,7 @@ class VoiceRecordService {
 
     bool isRecording = await AudioRecorder.isRecording;
     _currentPath = recording.path;
+
     File file = _localFileSystem.file(_currentPath);
 
     // print("  File length: ${await file.length()}");

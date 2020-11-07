@@ -138,6 +138,8 @@ class _ChatPageState extends State<ChatPage> {
             savingMessage.messageType = 'Voice';
             savingMessage.duration = _messageCreatorState.currentState.oldTime;
 
+            print(savingMessage.toString());
+
             bool result = await _chatView.saveMessage(savingMessage);
             if (result) {
               _chatView.clearStorage();
