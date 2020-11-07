@@ -18,7 +18,10 @@ class MessageCreatorWidget extends StatefulWidget {
   final Color iconColor;
 
   final Color buttonColor;
+
   final VoidCallback onPressed;
+  final VoidCallback onLongPressStart;
+  final VoidCallback onLongPressEnd;
 
   const MessageCreatorWidget(
       {Key key,
@@ -32,7 +35,10 @@ class MessageCreatorWidget extends StatefulWidget {
       this.iconSize: 32,
       this.iconColor: Colors.black,
       this.buttonColor: Colors.amber,
-      this.onPressed})
+      this.onPressed,
+      this.onLongPressStart,
+      this.onLongPressEnd,
+      })
       : super(key: key);
 
   @override
@@ -76,6 +82,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
               color: widget.textAreaColor,
               borderRadius: BorderRadius.circular(widget.textAreaRadius),
             ),
+
             child: !timerRun
 
               ? ContainerRow(
@@ -226,7 +233,10 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
                 voiceRecordCancelled = false;
                 timerRun = true;
               });
+
+              widget.onLongPressStart();
             },
+
             onLongPress: () {
               Timer.periodic(Duration(seconds: 1), (Timer timer) {
                 if (timerRun)
@@ -235,6 +245,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
                   timer.cancel();
               });
             },
+
             onLongPressEnd: () {
               setState(() {
                 time = 0;
@@ -243,9 +254,13 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
               /// voiceRecordCancelled true ise işlem yapma false ise sendMessage işlemi gerçekleştir.
               print(voiceRecordCancelled);
+              widget.onLongPressEnd();
             },
             child: LongPressDraggable(
               data: 1,
+              axis: Axis.vertical,
+              dragAnchor: DragAnchor.child,
+
               feedback: Container(
                 constraints: BoxConstraints(
                   minHeight: widget.height,
@@ -260,13 +275,15 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
                     height: widget.iconSize,
                     child: Icon(Icons.mic, color: widget.iconColor)),
               ),
-              child: timerRun
-                  ? Container(
-                      constraints: BoxConstraints(
-                      minHeight: widget.height,
-                      minWidth: widget.height,
-                    ))
-                  : Container(
+
+              childWhenDragging: Container(
+                  constraints: BoxConstraints(
+                    minHeight: widget.height,
+                    minWidth: widget.height,
+                  )
+              ),
+
+              child: Container(
                       constraints: BoxConstraints(
                         minHeight: widget.height,
                         minWidth: widget.height,

@@ -90,29 +90,59 @@ class _ChatPageState extends State<ChatPage> {
                 hintText: 'Bir mesaj yazın.',
                 textAreaColor: Colors.grey.shade300.withOpacity(0.8),
                 buttonColor: Theme.of(context).primaryColor,
-                onPressed: () => saveMessage(),
+                onPressed: () => saveMessage('Text'),
+
+                onLongPressStart: () async {
+                  // _chatView.recordStart();
+                },
+
+                onLongPressEnd: () async {
+                  // await _chatView.recordStop();
+                  saveMessage('Voice');
+                },
               )
             ],
           ),
         ));
   }
 
-  void saveMessage() async {
-    if (_messageCreatorState.currentState.controller.text.trim().length > 0) {
-      MessageModel savingMessage = MessageModel(
-        senderId: widget.currentUser.userId,
-        receiverId: widget.chatUser.userId,
-        fromMe: true,
-        message: _messageCreatorState.currentState.controller.text,
-        messageType: 'Text',
-      );
+  void saveMessage(String messageType) async {
 
-      bool result = await _chatView.saveMessage(savingMessage);
-      if (result) {
-        _messageCreatorState.currentState.controller.clear();
-        _scrollController.animateTo(0,
-            duration: Duration(microseconds: 50), curve: Curves.easeOut);
-      }
+    switch(messageType) {
+
+      case('Text'):
+        if (_messageCreatorState.currentState.controller.text.trim().length > 0) {
+          MessageModel savingMessage = MessageModel(
+            senderId: widget.currentUser.userId,
+            receiverId: widget.chatUser.userId,
+            fromMe: true,
+            message: _messageCreatorState.currentState.controller.text,
+            messageType: 'Text',
+          );
+
+          bool result = await _chatView.saveMessage(savingMessage);
+          if (result) {
+            _messageCreatorState.currentState.controller.clear();
+            _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
+          }
+        }
+        break;
+
+      case('Voice'):
+        if(!_messageCreatorState.currentState.voiceRecordCancelled) {
+
+          MessageModel savingMessage = MessageModel(
+            senderId: widget.currentUser.userId,
+            receiverId: widget.chatUser.userId,
+            fromMe: true,
+            message: _messageCreatorState.currentState.controller.text,
+            messageType: 'Voice',
+          );
+        }
+        break;
+
+      default:
+        break;
     }
   }
 

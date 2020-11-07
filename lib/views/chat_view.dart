@@ -14,7 +14,7 @@ class ChatView with ChangeNotifier {
 
   List<ChatModel> get chats => _chats;
 
-  selectChatUser(String userId) {
+  UserModel selectChatUser(String userId) {
     UserModel user = _users.where((user) => user.userId == userId).first;
     return user;
   }
@@ -59,6 +59,18 @@ class ChatView with ChangeNotifier {
       print('saveMessage Error: ${err.toString()}');
       return null;
     }
+  }
+
+  void recordStart() async {
+    return _chatRepo.recordStart();
+  }
+
+  Future<String> recordStop() async {
+    return _chatRepo.recordStop();
+  }
+
+  Future<bool> clearStorage() async {
+    return _chatRepo.clearStorage();
   }
 
 
