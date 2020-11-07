@@ -34,7 +34,7 @@ class ChatRepository {
     return _voiceRecordService.recordStart();
   }
 
-  Future<String> recordStop() async {
+  Future<File> recordStop() async {
     return _voiceRecordService.recordStop();
   }
 
@@ -43,7 +43,13 @@ class ChatRepository {
   }
 
   Future<String> uploadVoiceNote(String userId, String fileType, File file) async {
-    return _firebaseStorageService.uploadVoiceNote(userId, fileType, file);
+    try{
+      String voiceUrl = await _firebaseStorageService.uploadVoiceNote(userId, fileType, file);
+      return voiceUrl;
+    }catch(err) {
+      _voiceRecordService.clearStorage();
+      return null;
+    }
   }
 
 

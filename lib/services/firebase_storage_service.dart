@@ -8,8 +8,6 @@ class FirebaseStorageService implements StorageBase {
 
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
   StorageReference _storageReference;
-  var uuid = Uuid();
-
 
   @override
   Future<String> uploadProfilePhoto(String userId, String fileType, File file) async {
@@ -23,8 +21,8 @@ class FirebaseStorageService implements StorageBase {
 
   @override
   Future<String> uploadVoiceNote(String userId, String fileType, File file) async {
-    String voiceUniqueName = uuid.v1();
-    _storageReference = _firebaseStorage.ref().child(userId).child(fileType).child(voiceUniqueName);
+
+    _storageReference = _firebaseStorage.ref().child(userId).child(fileType).child('x');
     StorageUploadTask uploadTask = _storageReference.putFile(file);
 
     String url = await (await uploadTask.onComplete).ref.getDownloadURL();

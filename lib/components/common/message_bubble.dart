@@ -67,8 +67,8 @@ class MessageBubble extends StatelessWidget {
         );
         break;
 
-      case('Sound'):
-        return Text('Not ready sound type');
+      case('Voice'):
+        return Text(message.message + ':' + message.duration.toString());
         break;
 
       case('Document'):

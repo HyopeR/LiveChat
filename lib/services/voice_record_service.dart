@@ -7,9 +7,8 @@ class VoiceRecordService {
 
   final LocalFileSystem _localFileSystem = LocalFileSystem();
   Recording _recording;
-  bool isRecording = false;
-  File voiceFile;
-  String currentPath;
+  bool _isRecording = false;
+  String _currentPath;
 
   void recordStart() async {
 
@@ -17,10 +16,10 @@ class VoiceRecordService {
       if (await AudioRecorder.hasPermissions) {
 
         await AudioRecorder.start();
-        bool stateRecord = await AudioRecorder.isRecording;
+        bool isRecording = await AudioRecorder.isRecording;
 
         _recording = Recording(duration: Duration(), path: '');
-        isRecording = stateRecord;
+        _isRecording = isRecording;
 
       } else {
         print('Record Start: AudioRecorder.hasPermissions Error');
@@ -30,25 +29,24 @@ class VoiceRecordService {
     }
   }
 
-  Future<String> recordStop() async {
+  Future<File> recordStop() async {
     var recording = await AudioRecorder.stop();
 
-    bool stateRecord = await AudioRecorder.isRecording;
-    currentPath = recording.path;
-    voiceFile = _localFileSystem.file(currentPath);
+    bool isRecording = await AudioRecorder.isRecording;
+    _currentPath = recording.path;
+    File file = _localFileSystem.file(_currentPath);
 
     // print("  File length: ${await file.length()}");
     _recording = recording;
-    isRecording = stateRecord;
+    _isRecording = isRecording;
 
-    return currentPath;
+    return file;
   }
 
   Future<bool> clearStorage() async {
     try{
-      await _localFileSystem.file(currentPath).delete();
-      currentPath = null;
-      voiceFile = null;
+      await _localFileSystem.file(_currentPath).delete();
+      _currentPath = null;
       return true;
     }catch(err) {
       print('storageClear Error: ${err.toString()}');

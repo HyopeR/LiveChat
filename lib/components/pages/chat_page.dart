@@ -108,41 +108,49 @@ class _ChatPageState extends State<ChatPage> {
 
   void saveMessage(String messageType) async {
 
-    switch(messageType) {
+    if(_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
+      MessageModel savingMessage = MessageModel(
+        senderId: widget.currentUser.userId,
+        receiverId: widget.chatUser.userId,
+        fromMe: true,
+        message: '',
+        messageType: '',
+      );
 
-      case('Text'):
-        if (_messageCreatorState.currentState.controller.text.trim().length > 0) {
-          MessageModel savingMessage = MessageModel(
-            senderId: widget.currentUser.userId,
-            receiverId: widget.chatUser.userId,
-            fromMe: true,
-            message: _messageCreatorState.currentState.controller.text,
-            messageType: 'Text',
-          );
+      switch(messageType) {
+
+        case('Text'):
+          savingMessage.message = _messageCreatorState.currentState.controller.text;
+          savingMessage.messageType = 'Text';
 
           bool result = await _chatView.saveMessage(savingMessage);
           if (result) {
             _messageCreatorState.currentState.controller.clear();
             _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
           }
-        }
-        break;
+          break;
 
-      case('Voice'):
-        if(!_messageCreatorState.currentState.voiceRecordCancelled) {
+        case('Voice'):
+          String voiceUrl = await _chatView.uploadVoiceNote(widget.currentUser.userId, 'Voice_Notes', _chatView.voiceFile);
 
-          MessageModel savingMessage = MessageModel(
-            senderId: widget.currentUser.userId,
-            receiverId: widget.chatUser.userId,
-            fromMe: true,
-            message: _messageCreatorState.currentState.controller.text,
-            messageType: 'Voice',
-          );
-        }
-        break;
+          if(voiceUrl != null) {
+            savingMessage.message = voiceUrl;
+            savingMessage.messageType = 'Voice';
+            savingMessage.duration = _messageCreatorState.currentState.oldTime;
 
-      default:
-        break;
+            bool result = await _chatView.saveMessage(savingMessage);
+            if (result) {
+              _chatView.clearStorage();
+              _messageCreatorState.currentState.controller.clear();
+              _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+
     }
   }
 

@@ -50,7 +50,9 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
   bool voiceRecordCancelled = false;
   bool timerRun = false;
+
   int time = 0;
+  int oldTime = 0;
 
   @override
   void initState() {
@@ -248,12 +250,13 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
             onLongPressEnd: () {
               setState(() {
+                if(time < 1)
+                  voiceRecordCancelled = true;
+                oldTime = time;
                 time = 0;
                 timerRun = false;
               });
 
-              /// voiceRecordCancelled true ise işlem yapma false ise sendMessage işlemi gerçekleştir.
-              print(voiceRecordCancelled);
               widget.onLongPressEnd();
             },
             child: LongPressDraggable(

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:live_chat/models/chat_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
@@ -130,6 +131,7 @@ class FireStoreDbService implements DbBase {
       'interlocutor': message.receiverId,
       'lastMessage': message.message,
       'seenNotification': false,
+      'messageType': message.messageType,
       'createdAt': FieldValue.serverTimestamp()
     });
 
@@ -144,6 +146,7 @@ class FireStoreDbService implements DbBase {
       'interlocutor': message.senderId,
       'lastMessage': message.message,
       'seenNotification': false,
+      'messageType': message.messageType,
       'createdAt': FieldValue.serverTimestamp()
     });
 

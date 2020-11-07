@@ -14,6 +14,8 @@ class ChatView with ChangeNotifier {
   List<UserModel> _users;
   List<ChatModel> _chats;
 
+  File voiceFile;
+
   List<ChatModel> get chats => _chats;
 
   UserModel selectChatUser(String userId) {
@@ -67,8 +69,9 @@ class ChatView with ChangeNotifier {
     return _chatRepo.recordStart();
   }
 
-  Future<String> recordStop() async {
-    return _chatRepo.recordStop();
+  Future<File> recordStop() async {
+    voiceFile = await _chatRepo.recordStop();
+    return voiceFile;
   }
 
   Future<bool> clearStorage() async {
