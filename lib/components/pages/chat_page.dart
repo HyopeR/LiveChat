@@ -70,12 +70,13 @@ class _ChatPageState extends State<ChatPage> {
             children: [
               Expanded(
                   child: StreamBuilder<List<MessageModel>>(
-                stream: _chatView.getMessages(
-                    widget.currentUser.userId, widget.chatUser.userId),
-                builder: (context, streamData) {
-                  List<MessageModel> messages = streamData.data;
+                  stream: _chatView.getMessages(
+                      widget.currentUser.userId, widget.chatUser.userId),
+                  builder: (context, streamData) {
+                    List<MessageModel> messages = streamData.data;
 
                   if (streamData.hasData) {
+
                     if (messages.isNotEmpty)
                       return Align(
                         alignment: Alignment.topCenter,
@@ -85,6 +86,8 @@ class _ChatPageState extends State<ChatPage> {
                             controller: _scrollController,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
+                              // print(messages[index].toString());
+
                               return createMessageBubble(messages[index]);
                             }),
                       );
@@ -101,22 +104,18 @@ class _ChatPageState extends State<ChatPage> {
                 textAreaColor: Colors.grey.shade300.withOpacity(0.8),
                 buttonColor: Theme.of(context).primaryColor,
                 permissionsAllowed: permissionStatus,
-
                 onPressed: () => saveMessage('Text'),
-
                 onLongPressStart: () async {
-                  if(permissionStatus)
+                  if (permissionStatus)
                     _chatView.recordStart();
                   else
                     requestPermission();
                 },
-
                 onLongPressEnd: () async {
-                  if(permissionStatus) {
+                  if (permissionStatus) {
                     await _chatView.recordStop();
                     saveMessage('Voice');
                   }
-
                 },
               )
             ],
@@ -125,35 +124,34 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void saveMessage(String messageType) async {
-
-    if(_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
+    if (_messageCreatorState.currentState.controller.text.trim().length > 0 ||
+        !_messageCreatorState.currentState.voiceRecordCancelled) {
       MessageModel savingMessage = MessageModel(
         senderId: widget.currentUser.userId,
         receiverId: widget.chatUser.userId,
         fromMe: true,
         message: '',
-        messageType: '',
+        messageType: messageType,
       );
 
-      switch(messageType) {
-
-        case('Text'):
+      switch (messageType) {
+        case ('Text'):
           savingMessage.message = _messageCreatorState.currentState.controller.text;
-          savingMessage.messageType = 'Text';
 
           bool result = await _chatView.saveMessage(savingMessage);
           if (result) {
             _messageCreatorState.currentState.controller.clear();
-            _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
+            _scrollController.animateTo(0,
+                duration: Duration(microseconds: 50), curve: Curves.easeOut);
           }
           break;
 
-        case('Voice'):
-          String voiceUrl = await _chatView.uploadVoiceNote(widget.currentUser.userId, 'Voice_Notes', _chatView.voiceFile);
+        case ('Voice'):
+          String voiceUrl = await _chatView.uploadVoiceNote(
+              widget.currentUser.userId, 'Voice_Notes', _chatView.voiceFile);
 
-          if(voiceUrl != null) {
+          if (voiceUrl != null) {
             savingMessage.message = voiceUrl;
-            savingMessage.messageType = 'Voice';
             savingMessage.duration = _messageCreatorState.currentState.oldTime;
 
             print(savingMessage.toString());
@@ -162,7 +160,8 @@ class _ChatPageState extends State<ChatPage> {
             if (result) {
               _chatView.clearStorage();
               _messageCreatorState.currentState.controller.clear();
-              _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
+              _scrollController.animateTo(0,
+                  duration: Duration(microseconds: 50), curve: Curves.easeOut);
             }
           }
           break;
@@ -170,7 +169,6 @@ class _ChatPageState extends State<ChatPage> {
         default:
           break;
       }
-
     }
   }
 
@@ -194,10 +192,9 @@ class _ChatPageState extends State<ChatPage> {
   getPermissionStatus() async {
     PermissionStatus storagePermission = await Permission.storage.status;
     PermissionStatus microphonePermission = await Permission.microphone.status;
-    bool permissionResult = (storagePermission.isGranted && microphonePermission.isGranted);
-    if(permissionResult)
-      _messageCreatorState.currentState.permissionAllow();
-
+    bool permissionResult =
+        (storagePermission.isGranted && microphonePermission.isGranted);
+    if (permissionResult) _messageCreatorState.currentState.permissionAllow();
 
     setState(() {
       permissionStatus = permissionResult;
@@ -207,5 +204,4 @@ class _ChatPageState extends State<ChatPage> {
   requestPermission() async {
     await [Permission.microphone, Permission.storage].request();
   }
-
 }

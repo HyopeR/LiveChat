@@ -119,6 +119,10 @@ class FireStoreDbService implements DbBase {
     String _receiverDocumentId = message.receiverId + '--' + message.senderId;
 
     Map<String, dynamic> messageMap = message.toMap();
+    if(message.messageType != 'Voice')
+      messageMap.remove('duration');
+    
+    print(messageMap);
 
     await _fireStore.collection('chats').doc(_senderDocumentId)
         .collection('messages')
@@ -133,7 +137,6 @@ class FireStoreDbService implements DbBase {
       'messageType': message.messageType,
       'createdAt': FieldValue.serverTimestamp()
     });
-
     messageMap.update('fromMe', (value) => false);
     await _fireStore.collection('chats').doc(_receiverDocumentId)
         .collection('messages')

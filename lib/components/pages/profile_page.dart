@@ -21,6 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
+  ImagePicker picker = ImagePicker();
 
   File _profilePhoto;
 
@@ -215,18 +216,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void photoFromCamera() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
-    if (pickedFile.path != null) {
+    var pickedFile = await picker.getImage(source: ImageSource.camera);
+    if (pickedFile != null) {
       _profilePhoto = File(pickedFile.path);
       _alertContainerWidgetState.currentState.showAlertAddText('Resim eklendi. Değişiklikleri kaydedin.');
     }
   }
 
   void photoFromGallery() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    if (pickedFile.path != null) {
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
       _profilePhoto = File(pickedFile.path);
       _alertContainerWidgetState.currentState.showAlertAddText('Resim eklendi. Değişiklikleri kaydedin.');
     }

@@ -153,7 +153,8 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
           child: TextField(
             maxLines: null,
             keyboardType: TextInputType.multiline,
-            onChanged: (text) => setState(() => controller.text = text),
+            onChanged: (value) => setState(() {}),
+            controller: controller,
             style: TextStyle(color: widget.textColor),
             decoration: InputDecoration(
               hintText: widget.hintText,

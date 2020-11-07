@@ -28,7 +28,7 @@ class MessageModel {
       'fromMe': fromMe,
       'message': message,
       'messageType': messageType,
-      'duration': duration,
+      'duration': duration ?? null,
       'date': date ?? FieldValue.serverTimestamp(),
     };
   }
