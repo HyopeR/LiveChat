@@ -3,24 +3,42 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/repositories/chat_repository.dart';
+
+enum SelectedChatState { Empty, Loading, Loaded }
+
 class ChatView with ChangeNotifier {
 
   ChatRepository _chatRepo = locator<ChatRepository>();
 
   List<UserModel> _users;
-  List<ChatModel> _chats;
+  List<GroupModel> _groups;
+
+  GroupModel _selectedChat;
+  SelectedChatState _selectedChatState = SelectedChatState.Empty;
 
   File voiceFile;
 
-  List<ChatModel> get chats => _chats;
+  GroupModel get selectedChat => _selectedChat;
+  SelectedChatState get selectedChatState => _selectedChatState;
+
+  set selectedChatState(SelectedChatState value) {
+    _selectedChatState = value;
+    notifyListeners();
+  }
 
   UserModel selectChatUser(String userId) {
     UserModel user = _users.where((user) => user.userId == userId).first;
     return user;
+  }
+
+  GroupModel selectChat(String groupId) {
+    _selectedChat = _groups.where((group) => group.groupId == groupId).first;
+    selectedChatState = SelectedChatState.Loaded;
+    return _selectedChat;
   }
 
   Future<List<UserModel>> getAllUsers() async {
@@ -33,32 +51,45 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Stream<List<ChatModel>> getAllChats(String userId) {
+  Stream<List<GroupModel>> getAllGroups(String userId) async* {
 
     try{
-      return _chatRepo.getAllChats(userId);
+      _groups = await _chatRepo.getAllGroups(userId).first;
+      yield _groups;
     }catch(err) {
 
       print('getAllChats Error: ${err.toString()}');
-      return null;
+      yield null;
     }
 
   }
 
-  Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
+  Stream<List<MessageModel>> getMessages(String groupId) {
 
     try{
-      return _chatRepo.getMessages(currentUserId, chatUserId);
+      return _chatRepo.getMessages(groupId);
     }catch(err) {
       print('getMessages Error: ${err.toString()}');
       return null;
     }
-
   }
 
-  Future<bool> saveMessage(MessageModel message) async {
+  Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
     try{
-      return _chatRepo.saveMessage(message);
+      selectedChatState = SelectedChatState.Loading;
+      _selectedChat = await _chatRepo.getGroupIdByUserIdList(userId, groupType, userIdList);
+      selectedChatState = SelectedChatState.Loaded;
+      return _selectedChat;
+    }catch(err) {
+      selectedChatState = SelectedChatState.Empty;
+      print('getGroupIdByUserIdList Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool> saveMessage(MessageModel message, String groupId) async {
+    try{
+      return _chatRepo.saveMessage(message, groupId);
     }catch(err) {
       print('saveMessage Error: ${err.toString()}');
       return null;

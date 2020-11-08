@@ -9,7 +9,12 @@ class UserModel {
   String userName;
   String userEmail;
   String userProfilePhotoUrl;
-  int userLevel;
+
+  List<dynamic> contacts;
+  List<dynamic> groups;
+
+  DateTime lastSeen;
+  bool online;
 
   DateTime createdAt;
   DateTime updatedAt;
@@ -23,7 +28,13 @@ class UserModel {
       'userName': userName ?? 'User ' +  String.fromCharCodes(List.generate(10, (index) => r.nextInt(33) + 89)),
       'userEmail': userEmail,
       'userProfilePhotoUrl': userProfilePhotoUrl ?? 'https://img.webme.com/pic/c/creative-blog/user_black.png',
-      'userLevel': userLevel ?? 1,
+
+      'contacts': contacts ?? [],
+      'groups': groups ?? [],
+
+      'lastSeen': lastSeen ?? FieldValue.serverTimestamp(),
+      'online': online ?? true,
+
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
       'updatedAt': updatedAt ?? FieldValue.serverTimestamp(),
     };
@@ -34,7 +45,10 @@ class UserModel {
       userName = map['userName'],
       userEmail = map['userEmail'],
       userProfilePhotoUrl = map['userProfilePhotoUrl'],
-      userLevel = map['userLevel'],
+      contacts = map['contacts'],
+      groups = map['groups'],
+      lastSeen = (map['lastSeen'] as Timestamp).toDate(),
+      online = map['online'],
       createdAt = (map['createdAt'] as Timestamp).toDate(),
       updatedAt = (map['updatedAt'] as Timestamp).toDate();
 
@@ -45,7 +59,10 @@ class UserModel {
         'userName: $userName, '
         'userEmail: $userEmail, '
         'userProfilePhotoUrl: $userProfilePhotoUrl, '
-        'userLevel: $userLevel, '
+        'contacts: $contacts, '
+        'groups: $groups, '
+        'lastSeen: $lastSeen, '
+        'online: $online, '
         'createdAt: $createdAt, '
         'updatedAt: $updatedAt'
         '}';

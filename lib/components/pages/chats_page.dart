@@ -5,7 +5,7 @@ import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
@@ -38,11 +38,11 @@ class _ChatsPageState extends State<ChatsPage> {
 
                   TitleArea(titleText: 'Konuşmalarım', icon: Icons.chat),
                   Expanded(
-                    child: StreamBuilder<List<ChatModel>>(
-                      stream: _chatView.getAllChats(_userView.user.userId),
+                    child: StreamBuilder<List<GroupModel>>(
+                      stream: _chatView.getAllGroups(_userView.user.userId),
                       builder: (context, streamData) {
 
-                        List<ChatModel> chats = streamData.data;
+                        List<GroupModel> chats = streamData.data;
 
                         if (streamData.hasData) {
                           if (chats.isNotEmpty)
@@ -50,26 +50,32 @@ class _ChatsPageState extends State<ChatsPage> {
                                 itemCount: chats.length,
                                 itemBuilder: (context, index) {
 
-                                  ChatModel currentChat = chats[index];
-                                  UserModel currentInterlocutor = _chatView.selectChatUser(currentChat.interlocutor);
+                                  GroupModel currentChat = chats[index];
+
+                                  UserModel interlocutorUser;
+                                  if(currentChat.groupType == 'Private') {
+                                    String userId = currentChat.members.where((memberUserId) => memberUserId != _userView.user.userId).first;
+                                    interlocutorUser = _chatView.selectChatUser(userId);
+                                  }
+
+
                                   Map<String, String> dates = currentChat.createdAt != null
-                                      ? showDate(currentChat.createdAt)
+                                      ? showDate(currentChat.updatedAt)
                                       : null;
 
                                   return GestureDetector(
                                     onTap: () {
 
-                                      Navigator.of(context, rootNavigator: true)
-                                          .push(MaterialPageRoute(builder: (context) => ChatPage(
-                                          currentUser: _userView.user,
-                                          chatUser: currentInterlocutor,
-                                      )));
+                                      _chatView.selectChat(currentChat.groupId);
+                                      currentChat.groupType == 'Private'
+                                          ? Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage.private(interlocutorUser: interlocutorUser)))
+                                          : Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage.plural()));
 
                                     },
 
                                     child: ListTile(
                                       leading: ImageWidget(
-                                            imageUrl: currentInterlocutor.userProfilePhotoUrl,
+                                            imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
                                             imageWidth: 75,
                                             imageHeight: 75,
                                             backgroundShape: BoxShape.circle,
@@ -80,10 +86,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                                     ? Text(dates['date'] + '\n' + dates['clock'], textAlign: TextAlign.right,)
                                                     : Text(' '),
 
-                                        title: Text(currentInterlocutor.userName),
-                                        subtitle: Text(currentChat.lastMessage.length < 25
-                                            ? currentChat.lastMessage
-                                            : currentChat.lastMessage.substring(0, 21) + '...'
+                                        title: Text(currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName),
+                                        subtitle: Text(currentChat.recentMessage.length < 25
+                                            ? currentChat.recentMessage
+                                            : currentChat.recentMessage.substring(0, 21) + '...'
                                         ),
                                     ),
                                   );

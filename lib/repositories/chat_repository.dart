@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:live_chat/locator.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/firebase_storage_service.dart';
@@ -18,16 +18,20 @@ class ChatRepository {
     return await _fireStoreDbService.getAllUsers();
   }
 
-  Stream<List<ChatModel>> getAllChats(String userId) {
-    return _fireStoreDbService.getAllChats(userId);
+  Stream<List<GroupModel>> getAllGroups(String userId) {
+    return _fireStoreDbService.getAllGroups(userId);
   }
 
-  Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
-    return _fireStoreDbService.getMessages(currentUserId, chatUserId);
+  Stream<List<MessageModel>> getMessages(String groupId) {
+    return _fireStoreDbService.getMessages(groupId);
   }
 
-  Future<bool> saveMessage(MessageModel message) async {
-    return _fireStoreDbService.saveMessage(message);
+  Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
+    return _fireStoreDbService.getGroupIdByUserIdList(userId, groupType, userIdList);
+  }
+
+  Future<bool> saveMessage(MessageModel message, String groupId) async {
+    return _fireStoreDbService.saveMessage(message, groupId);
   }
 
   void recordStart() async {

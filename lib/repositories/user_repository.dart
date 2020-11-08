@@ -7,6 +7,11 @@ import 'package:live_chat/services/firebase_auth_service.dart';
 import 'package:live_chat/services/firebase_storage_service.dart';
 import 'package:live_chat/services/firestore_db_service.dart';
 
+/*
+  Bir sınıftan implements edlirse metodlar ezilemez.
+  Ancak bir sınıftan extends edilen sınıflar metodları ezebilir.
+*/
+
 class UserRepository implements AuthBase{
 
   FirebaseAuthService _firebaseAuthService = locator<FirebaseAuthService>();
@@ -17,12 +22,15 @@ class UserRepository implements AuthBase{
   Future<UserModel> getCurrentUser() async {
     UserModel userAuth = await _firebaseAuthService.getCurrentUser();
     if (userAuth != null) {
-      UserModel user = await _fireStoreDbService.readUser(userAuth.userId);
-      return user;
+      // UserModel user = await _fireStoreDbService.readUser(userAuth.userId);
+      return userAuth;
     }
     else
       return null;
+  }
 
+  Stream<UserModel> streamCurrentUser(String userId) {
+    return _fireStoreDbService.streamUser(userId);
   }
 
   @override

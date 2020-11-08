@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:live_chat/models/chat_model.dart';
+import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/db_base.dart';
@@ -21,6 +21,13 @@ class FireStoreDbService implements DbBase {
     UserModel readUser = UserModel.fromMap(response.data());
 
     return readUser;
+  }
+
+  @override
+  Stream<UserModel> streamUser(String userId) {
+    Stream<DocumentSnapshot> streamUser = _fireStore.collection('users').doc(userId).snapshots();
+
+    return streamUser.map((user) => UserModel.fromMap(user.data()));
   }
 
   @override
@@ -51,10 +58,13 @@ class FireStoreDbService implements DbBase {
 
   @override
   Future<bool> updateUserName(String userId, String newUserName) async {
+
+    // Username alınmış mı kontrolü
     QuerySnapshot response = await _fireStore
         .collection('users')
         .where('userName', isEqualTo: newUserName)
         .get();
+
     if (response.docs.length >= 1) {
       return false;
     } else {
@@ -86,23 +96,21 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Stream<List<ChatModel>> getAllChats(String userId) {
-    var chatsQuery =  _fireStore.collection('chats')
-        .where('speaker', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
+  Stream<List<GroupModel>> getAllGroups(String userId) {
+    var groupsQuery =  _fireStore.collection('groups')
+        .where('members', arrayContains: userId)
         .snapshots();
 
-    return chatsQuery.map((chats) => chats.docs
-        .map((chat) => ChatModel.fromMap(chat.data()))
+    return groupsQuery.map((chats) => chats.docs
+        .map((chat) => GroupModel.fromMapPlural(chat.data()))
         .toList());
   }
 
-
   @override
-  Stream<List<MessageModel>> getMessages(String currentUserId, String chatUserId) {
+  Stream<List<MessageModel>> getMessages(groupId) {
     var messagesQuery = _fireStore
         .collection('chats')
-        .doc(currentUserId + '--' + chatUserId)
+        .doc(groupId)
         .collection('messages')
         .orderBy('date', descending: true)
         .snapshots();
@@ -112,46 +120,57 @@ class FireStoreDbService implements DbBase {
         .toList());
   }
 
-  Future<bool> saveMessage(MessageModel message) async {
+  @override
+  Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
+    QuerySnapshot groupQuery = await _fireStore.collection('groups')
+        .where('members', arrayContainsAny: userIdList)
+        .get();
+
+    // Grup varsa var olanı döndürür.
+    if(groupQuery.docs.length > 0)
+      return groupQuery.docs.map((DocumentSnapshot groupDocument) => GroupModel.fromMapPlural(groupDocument.data())).first;
+
+    // Grup yok ise var olan kullanıcıların roomlarını güncelleyip, yeni bir room oluşturup döndürürüz.
+    else {
+      String groupId = _fireStore.collection('groups').doc().id;
+      GroupModel createGroup = GroupModel.private(
+        groupId: groupId,
+        groupType: groupType,
+        members: userIdList,
+        createdBy: userId
+      );
+
+      userIdList.forEach((userId) {
+        DocumentReference userReference = _fireStore.collection('users').doc(userId);
+        userReference.update({
+          'groups': FieldValue.arrayUnion([groupId])
+        });
+      });
+
+      await _fireStore.collection('groups').doc(groupId).set(createGroup.toMapPrivate());
+      return createGroup;
+    }
+  }
+
+  Future<bool> saveMessage(MessageModel message, String groupId) async {
 
     String messageId = _fireStore.collection('chats').doc().id;
-    String _senderDocumentId = message.senderId + '--' + message.receiverId;
-    String _receiverDocumentId = message.receiverId + '--' + message.senderId;
 
     Map<String, dynamic> messageMap = message.toMap();
     if(message.messageType != 'Voice')
       messageMap.remove('duration');
-    
-    print(messageMap);
 
-    await _fireStore.collection('chats').doc(_senderDocumentId)
+    await _fireStore.collection('groups').doc(groupId).update({
+      'recentMessage': message.message,
+      'sentBy': message.sendBy
+    });
+
+    await _fireStore.collection('chats').doc(groupId)
         .collection('messages')
         .doc(messageId)
         .set(messageMap);
-
-    await _fireStore.collection('chats').doc(_senderDocumentId).set({
-      'speaker': message.senderId,
-      'interlocutor': message.receiverId,
-      'lastMessage': message.message,
-      'seenNotification': false,
-      'messageType': message.messageType,
-      'createdAt': FieldValue.serverTimestamp()
-    });
-    messageMap.update('fromMe', (value) => false);
-    await _fireStore.collection('chats').doc(_receiverDocumentId)
-        .collection('messages')
-        .doc(messageId)
-        .set(messageMap);
-
-    await _fireStore.collection('chats').doc(_receiverDocumentId).set({
-      'speaker': message.receiverId,
-      'interlocutor': message.senderId,
-      'lastMessage': message.message,
-      'seenNotification': false,
-      'messageType': message.messageType,
-      'createdAt': FieldValue.serverTimestamp()
-    });
 
     return true;
   }
+
 }

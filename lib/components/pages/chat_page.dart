@@ -9,14 +9,17 @@ import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
+import 'package:live_chat/views/user_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
-  final UserModel currentUser;
-  final UserModel chatUser;
+  UserModel interlocutorUser;
+  String groupType;
 
-  const ChatPage({Key key, this.currentUser, this.chatUser}) : super(key: key);
+  ChatPage.private({Key key, this.interlocutorUser, this.groupType = 'Private'}) : super(key: key);
+  ChatPage.plural({Key key, this.groupType = 'Plural'}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -24,6 +27,9 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   ChatView _chatView;
+  UserView _userView;
+  List<String> userIdList = [];
+
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
 
@@ -33,11 +39,16 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    getPermissionStatus();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      userIdList.add(_userView.user.userId.toString());
+      userIdList.add(widget.interlocutorUser.userId.toString());
+      getPermissionStatus();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    _userView = Provider.of<UserView>(context);
     _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
@@ -55,7 +66,7 @@ class _ChatPageState extends State<ChatPage> {
                         : Icons.arrow_back_ios,
                   ),
                   ImageWidget(
-                    imageUrl: widget.chatUser.userProfilePhotoUrl,
+                    imageUrl: widget.groupType == 'Private' ? widget.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
                     imageWidth: 50,
                     imageHeight: 50,
                     backgroundShape: BoxShape.circle,
@@ -63,21 +74,22 @@ class _ChatPageState extends State<ChatPage> {
                 ],
               ),
             ),
-            title: Text(widget.chatUser.userName)),
+            title: Text(widget.groupType == 'Private' ? widget.interlocutorUser.userName : _chatView.selectedChat.groupName)
+        ),
         body: SafeArea(
           child: ContainerColumn(
             padding: EdgeInsets.all(10),
             children: [
-              Expanded(
+              
+              _chatView.selectedChatState == SelectedChatState.Loaded
+              ? Expanded(
                   child: StreamBuilder<List<MessageModel>>(
-                  stream: _chatView.getMessages(
-                      widget.currentUser.userId, widget.chatUser.userId),
+                  stream: _chatView.getMessages(_chatView.selectedChat.groupId),
                   builder: (context, streamData) {
                     List<MessageModel> messages = streamData.data;
 
                   if (streamData.hasData) {
 
-                    if (messages.isNotEmpty)
                       return Align(
                         alignment: Alignment.topCenter,
                         child: ListView.builder(
@@ -91,12 +103,12 @@ class _ChatPageState extends State<ChatPage> {
                               return createMessageBubble(messages[index]);
                             }),
                       );
-                    else
-                      return Center(child: Text('Bir konuşma başlat'));
                   } else
                     return Container();
                 },
-              )),
+              ))
+              
+              : Expanded(child: Container(child: Center(child: Text('Bir konuşma başlat.')))),
               MessageCreatorWidget(
                 margin: EdgeInsets.only(top: 10),
                 key: _messageCreatorState,
@@ -124,68 +136,75 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void saveMessage(String messageType) async {
-    if (_messageCreatorState.currentState.controller.text.trim().length > 0 ||
-        !_messageCreatorState.currentState.voiceRecordCancelled) {
-      MessageModel savingMessage = MessageModel(
-        senderId: widget.currentUser.userId,
-        receiverId: widget.chatUser.userId,
-        fromMe: true,
-        message: '',
-        messageType: messageType,
-      );
 
-      switch (messageType) {
-        case ('Text'):
-          savingMessage.message = _messageCreatorState.currentState.controller.text;
+    if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
 
-          bool result = await _chatView.saveMessage(savingMessage);
+      print(_chatView.selectedChat);
+      if(_chatView.selectedChat == null) {
+        await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, userIdList);
+        sendMessage(messageType);
+      } else {
+        sendMessage(messageType);
+      }
+
+    }
+  }
+
+  sendMessage(String messageType) async {
+    MessageModel savingMessage = MessageModel(
+      sendBy: _userView.user.userId,
+      message: '',
+      messageType: messageType,
+    );
+
+    switch (messageType) {
+      case ('Text'):
+        savingMessage.message = _messageCreatorState.currentState.controller.text;
+
+        bool result = await _chatView.saveMessage(savingMessage, _chatView.selectedChat.groupId);
+        if (result) {
+          _messageCreatorState.currentState.controller.clear();
+          _scrollController.animateTo(0,
+              duration: Duration(microseconds: 50), curve: Curves.easeOut);
+        }
+        break;
+
+      case ('Voice'):
+        String voiceUrl = await _chatView.uploadVoiceNote(_userView.user.userId, 'Voice_Notes', _chatView.voiceFile);
+
+        if (voiceUrl != null) {
+          savingMessage.message = voiceUrl;
+          savingMessage.duration = _messageCreatorState.currentState.oldTime;
+
+          bool result = await _chatView.saveMessage(savingMessage, _chatView.selectedChat.groupId);
           if (result) {
+            _chatView.clearStorage();
             _messageCreatorState.currentState.controller.clear();
             _scrollController.animateTo(0,
                 duration: Duration(microseconds: 50), curve: Curves.easeOut);
           }
-          break;
+        }
+        break;
 
-        case ('Voice'):
-          String voiceUrl = await _chatView.uploadVoiceNote(
-              widget.currentUser.userId, 'Voice_Notes', _chatView.voiceFile);
-
-          if (voiceUrl != null) {
-            savingMessage.message = voiceUrl;
-            savingMessage.duration = _messageCreatorState.currentState.oldTime;
-
-            print(savingMessage.toString());
-
-            bool result = await _chatView.saveMessage(savingMessage);
-            if (result) {
-              _chatView.clearStorage();
-              _messageCreatorState.currentState.controller.clear();
-              _scrollController.animateTo(0,
-                  duration: Duration(microseconds: 50), curve: Curves.easeOut);
-            }
-          }
-          break;
-
-        default:
-          break;
-      }
+      default:
+        break;
     }
   }
 
   Widget createMessageBubble(MessageModel message) {
-    bool _fromMe = message.fromMe;
+    bool _fromMe = message.sendBy == _userView.user.userId;
 
     if (_fromMe)
       return MessageBubble(
         message: message,
         color: Theme.of(context).primaryColor.withOpacity(0.8),
-        fromMe: message.fromMe,
+        fromMe: _fromMe,
       );
     else
       return MessageBubble(
         message: message,
         color: Colors.grey.shade300.withOpacity(0.8),
-        fromMe: message.fromMe,
+        fromMe: _fromMe,
       );
   }
 

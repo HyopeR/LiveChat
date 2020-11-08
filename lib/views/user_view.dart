@@ -41,7 +41,18 @@ class UserView with ChangeNotifier implements AuthBase {
     } finally {
       state = UserViewState.Idle;
     }
+  }
 
+  Stream<UserModel> streamCurrentUser(String userId) async* {
+    try{
+      _user = await _userRepo.streamCurrentUser(userId).first;
+      yield* _userRepo.streamCurrentUser(userId);
+    }catch(err) {
+
+      print('getCurrentUser Error: ${err.toString()}');
+      yield* null;
+
+    }
   }
 
   @override
@@ -193,10 +204,10 @@ class UserView with ChangeNotifier implements AuthBase {
 
       bool result = await _userRepo.updateUserName(userId, newUserName);
 
-      if(result) {
-        _user.userName = newUserName;
-        _user.updatedAt = DateTime.now();
-      }
+      // if(result) {
+      //   _user.userName = newUserName;
+      //   _user.updatedAt = DateTime.now();
+      // }
 
       return result;
 
@@ -213,10 +224,10 @@ class UserView with ChangeNotifier implements AuthBase {
     try{
       String fileUrl = await _userRepo.uploadProfilePhoto(userId, fileType, file);
 
-      if(fileUrl != null) {
-        _user.userProfilePhotoUrl = fileUrl;
-        _user.updatedAt = DateTime.now();
-      }
+      // if(fileUrl != null) {
+      //   _user.userProfilePhotoUrl = fileUrl;
+      //   _user.updatedAt = DateTime.now();
+      // }
 
       return fileUrl;
 

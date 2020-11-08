@@ -49,9 +49,10 @@ class _UsersPageState extends State<UsersPage> {
                                 if ((currentUser.userId != _userView.user.userId))
                                   return GestureDetector(
                                     onTap: () {
+
                                       Navigator.of(context, rootNavigator: true)
-                                          .push(MaterialPageRoute(builder: (context) =>
-                                          ChatPage(currentUser: _userView.user, chatUser: currentUser)));
+                                          .push(MaterialPageRoute(builder: (context) => ChatPage.private(interlocutorUser: currentUser)));
+
                                     },
                                     child: ListTile(
                                       leading: ImageWidget(

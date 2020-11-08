@@ -2,18 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageModel {
 
-  String senderId;
-  String receiverId;
-  bool fromMe;
+  String sendBy;
   String message;
   String messageType;
   int duration;
   Timestamp date;
 
+  bool fromMe;
+
   MessageModel({
-    this.senderId,
-    this.receiverId,
-    this.fromMe,
+    this.sendBy,
     this.message,
     this.messageType,
     this.duration,
@@ -23,9 +21,7 @@ class MessageModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'senderId': senderId,
-      'receiverId': receiverId,
-      'fromMe': fromMe,
+      'sendBy': sendBy,
       'message': message,
       'messageType': messageType,
       'duration': duration ?? null,
@@ -34,8 +30,7 @@ class MessageModel {
   }
 
   MessageModel.fromMap(Map<String, dynamic> map) :
-        senderId = map['senderId'],
-        receiverId = map['receiverId'],
+        sendBy = map['sendBy'],
         fromMe = map['fromMe'],
         message = map['message'],
         messageType = map['messageType'],
@@ -45,9 +40,8 @@ class MessageModel {
 
   @override
   String toString() {
-    return 'ChatModel{'
-        'senderId: $senderId, '
-        'receiverId: $receiverId, '
+    return 'MessageModel{'
+        'sendBy: $sendBy, '
         'fromMe: $fromMe, '
         'message: $message, '
         'messageType: $messageType, '
