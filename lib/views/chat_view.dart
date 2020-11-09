@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/locator.dart';
 import 'package:live_chat/models/group_model.dart';
@@ -15,7 +16,7 @@ class ChatView with ChangeNotifier {
   ChatRepository _chatRepo = locator<ChatRepository>();
 
   List<UserModel> _users;
-  List<GroupModel> _groups;
+  List<GroupModel> _groups = [];
 
   GroupModel _selectedChat;
   SelectedChatState _selectedChatState = SelectedChatState.Empty;
@@ -41,6 +42,26 @@ class ChatView with ChangeNotifier {
     return _selectedChat;
   }
 
+  findChatByUserIdList(List<String> userIdList) {
+    if(_groups.length > 0) {
+      GroupModel findGroup = _groups.map((group){
+        if(listEquals(group.members, userIdList))
+          return group;
+        else
+          return null;
+      }).first;
+
+      if(findGroup != null) {
+        selectedChatState = SelectedChatState.Loaded;
+        _selectedChat = findGroup;
+      } else {
+        selectedChatState = SelectedChatState.Empty;
+        _selectedChat = null;
+      }
+    }
+
+  }
+
   Future<List<UserModel>> getAllUsers() async {
     try{
       _users = await _chatRepo.getAllUsers();
@@ -54,7 +75,10 @@ class ChatView with ChangeNotifier {
   Stream<List<GroupModel>> getAllGroups(String userId) async* {
 
     try{
-      _groups = await _chatRepo.getAllGroups(userId).first;
+      _chatRepo.getAllGroups(userId).forEach((element) {
+        _groups = element;
+      });
+
       yield _groups;
     }catch(err) {
 

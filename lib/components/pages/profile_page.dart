@@ -63,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: EdgeInsets.all(10),
             children: [
               TitleArea(
-                titleText: 'Bilgiler',
+                titleText: 'Bilgilerim',
                 icon: Icons.person,
               ),
               StreamBuilder<UserModel>(

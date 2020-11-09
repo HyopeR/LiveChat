@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/container_column.dart';
 
-enum TabItem { Users, Chats, Profile }
+enum TabItem { Chats, Users, Profile }
 class TabItemData {
 
   final String label;
@@ -11,8 +11,8 @@ class TabItemData {
   TabItemData(this.label, this.icon);
 
   static Map<TabItem, TabItemData> allTabs = {
-    TabItem.Users : TabItemData('Users', Icons.people),
     TabItem.Chats : TabItemData('Chats', Icons.chat),
+    TabItem.Users : TabItemData('Users', Icons.people),
     TabItem.Profile : TabItemData('Profile', Icons.person),
   };
 }
@@ -58,8 +58,8 @@ class CustomBottomNavigationState extends State<CustomBottomNavigation> {
         iconSize: 28,
 
         items: [
-          _createNavigationItem(TabItem.Users),
           _createNavigationItem(TabItem.Chats),
+          _createNavigationItem(TabItem.Users),
           _createNavigationItem(TabItem.Profile),
         ],
 

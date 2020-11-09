@@ -17,18 +17,18 @@ class _HomePageState extends State<HomePage> {
   UserView _userView;
 
   List tabsKeys = TabItem.values;
-  TabItem _currentTab = TabItem.Users;
+  TabItem _currentTab = TabItem.Chats;
 
   Map<TabItem, GlobalKey<NavigatorState>> tabNavigatorKeys = {
-    TabItem.Users : GlobalKey<NavigatorState>(),
     TabItem.Chats : GlobalKey<NavigatorState>(),
+    TabItem.Users : GlobalKey<NavigatorState>(),
     TabItem.Profile : GlobalKey<NavigatorState>(),
   };
 
   Map<TabItem, Widget> tabPagesCreator() {
     return {
-      TabItem.Users: UsersPage(),
       TabItem.Chats: ChatsPage(),
+      TabItem.Users: UsersPage(),
       TabItem.Profile: ProfilePage(),
     };
   }

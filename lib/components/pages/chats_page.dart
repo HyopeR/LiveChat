@@ -51,6 +51,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                 itemBuilder: (context, index) {
 
                                   GroupModel currentChat = chats[index];
+                                  print(currentChat.toString());
 
                                   UserModel interlocutorUser;
                                   if(currentChat.groupType == 'Private') {

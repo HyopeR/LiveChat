@@ -28,7 +28,6 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   ChatView _chatView;
   UserView _userView;
-  List<String> userIdList = [];
 
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
@@ -40,8 +39,6 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      userIdList.add(_userView.user.userId.toString());
-      userIdList.add(widget.interlocutorUser.userId.toString());
       getPermissionStatus();
     });
   }
@@ -98,8 +95,6 @@ class _ChatPageState extends State<ChatPage> {
                             controller: _scrollController,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
-                              // print(messages[index].toString());
-
                               return createMessageBubble(messages[index]);
                             }),
                       );
@@ -138,12 +133,12 @@ class _ChatPageState extends State<ChatPage> {
   void saveMessage(String messageType) async {
 
     if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
-
-      print(_chatView.selectedChat);
-      if(_chatView.selectedChat == null) {
-        await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, userIdList);
-        sendMessage(messageType);
+      if(_chatView.selectedChatState == SelectedChatState.Empty) {
+        print('IF STATEMENT');
+        await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, [_userView.user.userId, widget.interlocutorUser.userId]);
+        await sendMessage(messageType);
       } else {
+        print('ELSE STATEMENT');
         sendMessage(messageType);
       }
 

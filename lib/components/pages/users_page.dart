@@ -30,7 +30,7 @@ class _UsersPageState extends State<UsersPage> {
           child: ContainerColumn(
             padding: EdgeInsets.all(10),
             children: [
-              TitleArea(titleText: 'Tüm Kullanıcılar', icon: Icons.people),
+              TitleArea(titleText: 'Kişilerim', icon: Icons.people),
               Expanded(
                 child: FutureBuilder<List<UserModel>>(
                   future: _chatView.getAllUsers(),
@@ -50,6 +50,7 @@ class _UsersPageState extends State<UsersPage> {
                                   return GestureDetector(
                                     onTap: () {
 
+                                      _chatView.findChatByUserIdList([_userView.user.userId, currentUser.userId]);
                                       Navigator.of(context, rootNavigator: true)
                                           .push(MaterialPageRoute(builder: (context) => ChatPage.private(interlocutorUser: currentUser)));
 

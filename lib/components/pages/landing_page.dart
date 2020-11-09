@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,7 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
 
   UserView _userView;
+  ChatView _chatView;
 
   @override
   void initState() {
@@ -22,6 +24,7 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
+    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
         
@@ -49,6 +52,10 @@ class _LandingPageState extends State<LandingPage> {
 
   Future<void> _checkUser() async {
     await _userView.getCurrentUser();
+
+    _userView.streamCurrentUser(_userView.user.userId);
+
+    await _chatView.getAllUsers();
 
     if(_userView.user == null) {
       Future.delayed(
