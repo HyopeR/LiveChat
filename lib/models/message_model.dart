@@ -8,6 +8,7 @@ class MessageModel {
   int duration;
   Timestamp date;
 
+  String ownerImageUrl;
   bool fromMe;
 
   MessageModel({
@@ -31,21 +32,24 @@ class MessageModel {
 
   MessageModel.fromMap(Map<String, dynamic> map) :
         sendBy = map['sendBy'],
-        fromMe = map['fromMe'],
         message = map['message'],
         messageType = map['messageType'],
         duration = map['duration'],
-        date = map['date'];
+        date = map['date'],
+        ownerImageUrl = map['ownerImageUrl'],
+        fromMe = map['fromMe'];
 
 
   @override
   String toString() {
     return 'MessageModel{'
         'sendBy: $sendBy, '
-        'fromMe: $fromMe, '
         'message: $message, '
         'messageType: $messageType, '
         'duration: $duration, '
-        'date: $date}';
+        'date: $date}'
+        'ownerImageUrl: $ownerImageUrl}'
+        'fromMe: $fromMe, '
+    ;
   }
 }

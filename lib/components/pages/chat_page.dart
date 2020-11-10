@@ -189,6 +189,8 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget createMessageBubble(MessageModel message) {
     bool _fromMe = message.sendBy == _userView.user.userId;
+    message.fromMe = _fromMe;
+    message.ownerImageUrl = _fromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
 
     if (_fromMe)
       return MessageBubble(

@@ -78,6 +78,7 @@ class MessageBubble extends StatelessWidget {
               soundUrl: message.message,
               soundDuration: message.duration.toDouble(),
               soundType: 'Voice',
+              imageUrl: message.ownerImageUrl,
           ),
         );
         break;

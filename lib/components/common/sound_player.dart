@@ -14,7 +14,7 @@ class SoundPlayer extends StatefulWidget {
     this.soundUrl,
     this.soundType = 'Voice',
     this.soundDuration,
-    this.imageUrl = 'https://img.webme.com/pic/c/creative-blog/voice.png'
+    this.imageUrl
   }) : super(key: key);
 
   SoundPlayer.song({
