@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/sound_player.dart';
 import 'package:live_chat/models/message_model.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -68,7 +69,11 @@ class MessageBubble extends StatelessWidget {
         break;
 
       case('Voice'):
-        return Text(message.message + ':' + message.duration.toString());
+        return SoundPlayer.voice(
+            soundUrl: message.message,
+            soundDuration: message.duration.toDouble(),
+            soundType: 'Voice',
+        );
         break;
 
       case('Document'):
