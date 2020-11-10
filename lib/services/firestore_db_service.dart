@@ -159,6 +159,8 @@ class FireStoreDbService implements DbBase {
     String messageId = _fireStore.collection('chats').doc().id;
 
     Map<String, dynamic> messageMap = message.toMap();
+    messageMap['messageId'] = messageId;
+
     if(message.messageType != 'Voice')
       messageMap.remove('duration');
 

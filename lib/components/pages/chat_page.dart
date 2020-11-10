@@ -96,7 +96,21 @@ class _ChatPageState extends State<ChatPage> {
                             controller: _scrollController,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
-                              return createMessageBubble(messages[index]);
+
+                              MessageModel currentMessage = messages[index];
+                              bool fromMe = currentMessage.sendBy == _userView.user.userId;
+                              currentMessage.fromMe = fromMe;
+
+                              if(widget.groupType == 'Private')
+                                currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
+
+                              return Dismissible(
+                                key: Key(messages[index].messageId),
+                                direction: DismissDirection.startToEnd,
+                                // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
+                                confirmDismiss: (direction) async => forwardMessage(messages[index]),
+                                child: createMessageBubble(messages[index]),
+                              );
                             }),
                       );
                     } else
@@ -188,22 +202,59 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget createMessageBubble(MessageModel message) {
-    bool _fromMe = message.sendBy == _userView.user.userId;
-    message.fromMe = _fromMe;
-    message.ownerImageUrl = _fromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
-
-    if (_fromMe)
+    if (message.fromMe)
       return MessageBubble(
         message: message,
         color: Theme.of(context).primaryColor.withOpacity(0.8),
-        fromMe: _fromMe,
       );
     else
       return MessageBubble(
         message: message,
         color: Colors.grey.shade300.withOpacity(0.8),
-        fromMe: _fromMe,
       );
+  }
+
+  Future<bool> forwardMessage(MessageModel message) async {
+
+    switch(message.messageType) {
+
+      case('Text'):
+        _messageCreatorState.currentState.setForwardMessage(
+          ContainerRow(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ContainerColumn(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(message.fromMe ? _userView.user.userName : widget.interlocutorUser.userName),
+                  Text(message.message),
+                ],
+              ),
+
+              IconButton(icon: Icon(Icons.cancel), onPressed: () {
+                _messageCreatorState.currentState.setForwardMessage(null);
+              })
+            ],
+          )
+        );
+        break;
+      case('Image'):
+        _messageCreatorState.currentState.setForwardMessage(
+          Text('Image')
+        );
+        break;
+      case('Voice'):
+        _messageCreatorState.currentState.setForwardMessage(
+            Text('Voice')
+        );
+        break;
+
+      default:
+        break;
+
+    }
+
+    return false;
   }
 
   getPermissionStatus() async {

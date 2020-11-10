@@ -8,6 +8,7 @@ class ContainerRow extends StatelessWidget {
   final double height;
   final double width;
   final BoxDecoration decoration;
+  final BoxConstraints constraints;
   final List<Widget> children;
   final MainAxisAlignment mainAxisAlignment;
   final MainAxisSize mainAxisSize;
@@ -22,6 +23,7 @@ class ContainerRow extends StatelessWidget {
     this.height,
     this.width,
     this.decoration,
+    this.constraints,
     this.children,
     this.mainAxisAlignment : MainAxisAlignment.start,
     this.mainAxisSize  : MainAxisSize.max,
@@ -35,6 +37,9 @@ class ContainerRow extends StatelessWidget {
       decoration: decoration != null
           ? decoration : color != null
           ? BoxDecoration(color: color) : null,
+
+      constraints: constraints,
+
       padding: padding,
       margin: margin,
       height: height,

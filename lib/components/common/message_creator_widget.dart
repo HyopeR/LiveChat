@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/combine_gesture_widget.dart';
+import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 
 class MessageCreatorWidget extends StatefulWidget {
@@ -50,6 +51,7 @@ class MessageCreatorWidget extends StatefulWidget {
 
 class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   bool permissionsAllowed;
+  Widget forwardMessageWidget;
   TextEditingController controller;
 
   bool voiceRecordCancelled = false;
@@ -77,6 +79,12 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
     });
   }
 
+  setForwardMessage(Widget forwardMessage) {
+    setState(() {
+      forwardMessageWidget = forwardMessage;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ContainerRow(
@@ -89,28 +97,32 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
       children: [
         Expanded(
           flex: 1,
-          child: Container(
+          child: ContainerColumn(
             constraints: BoxConstraints(minHeight: widget.height),
             decoration: BoxDecoration(
               color: widget.textAreaColor,
               borderRadius: BorderRadius.circular(widget.textAreaRadius),
             ),
 
-            child: !timerRun
+            children: [
+              forwardMessageWidget != null ? forwardMessageWidget : Container(),
 
-              ? ContainerRow(
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: defaultArea(),
-              )
+              !timerRun
+                  ? ContainerRow(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: defaultArea(),
+                  )
 
-              : ContainerRow(
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: voiceRecordArea(),
-              ),
+                  : ContainerRow(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: voiceRecordArea(),
+                  ),
+
+            ],
 
           ),
         ),

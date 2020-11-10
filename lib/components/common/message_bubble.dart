@@ -9,19 +9,18 @@ class MessageBubble extends StatelessWidget {
 
   final MessageModel message;
   final Color color;
-  final bool fromMe;
 
-  const MessageBubble({Key key, this.message, this.color, this.fromMe}) : super(key: key);
+  const MessageBubble({Key key, this.message, this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ContainerColumn(
       margin:
-      fromMe
+      message.fromMe
           ? EdgeInsets.only(top: 5, left: MediaQuery.of(context).size.width * 0.1)
           : EdgeInsets.only(top: 5, right: MediaQuery.of(context).size.width * 0.1),
 
-      crossAxisAlignment: fromMe
+      crossAxisAlignment: message.fromMe
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
 
