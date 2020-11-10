@@ -111,6 +111,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
               !timerRun
                   ? ContainerRow(
+                    constraints: BoxConstraints(minHeight: widget.height),
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -118,6 +119,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
                   )
 
                   : ContainerRow(
+                    constraints: BoxConstraints(minHeight: widget.height),
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -137,21 +139,6 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
       ],
     );
   }
-
-  // String calculateTimer(int time) {
-  //   if (time < 60) {
-  //     String secondStr = (time % 60).toString().padLeft(2, '0');
-  //     return '00 : $secondStr';
-  //   } else {
-  //     int remainingSecond = time % 60;
-  //     String secondStr = (remainingSecond % 60).toString().padLeft(2, '0');
-  //
-  //     int minutes = (time / 60).truncate();
-  //     String minutesStr = (minutes % 60).toString().padLeft(2, '0');
-  //
-  //     return '$minutesStr : $secondStr';
-  //   }
-  // }
 
   List<Widget> defaultArea() {
     return [
