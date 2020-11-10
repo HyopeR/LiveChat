@@ -82,10 +82,6 @@ class MessageBubble extends StatelessWidget {
         );
         break;
 
-      case('Document'):
-        return Text('Not ready document type');
-        break;
-
       default:
         return null;
         break;

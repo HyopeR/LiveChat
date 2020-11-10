@@ -6,6 +6,7 @@ import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
+import 'package:live_chat/components/common/message_forward.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -101,15 +102,31 @@ class _ChatPageState extends State<ChatPage> {
                               bool fromMe = currentMessage.sendBy == _userView.user.userId;
                               currentMessage.fromMe = fromMe;
 
-                              if(widget.groupType == 'Private')
+                              if(widget.groupType == 'Private') {
                                 currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
+                                currentMessage.ownerUsername = fromMe ? _userView.user.userName : widget.interlocutorUser.userName;
+                              }
 
                               return Dismissible(
-                                key: Key(messages[index].messageId),
+                                key: Key(currentMessage.messageId),
                                 direction: DismissDirection.startToEnd,
                                 // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
-                                confirmDismiss: (direction) async => forwardMessage(messages[index]),
-                                child: createMessageBubble(messages[index]),
+                                confirmDismiss: (direction) async {
+                                  _messageCreatorState.currentState.setForwardMessage(
+                                    MessageForward(
+                                      message: currentMessage,
+                                      forwardCancel: () {
+                                        _messageCreatorState.currentState.setForwardMessage(null);
+                                      },
+                                    )
+                                  );
+                                  return false;
+                                },
+
+                                child: MessageBubble(
+                                  message: currentMessage,
+                                  color: currentMessage.fromMe ? Theme.of(context).primaryColor.withOpacity(0.8) : Colors.grey.shade300.withOpacity(0.8),
+                                )
                               );
                             }),
                       );
@@ -199,62 +216,6 @@ class _ChatPageState extends State<ChatPage> {
       default:
         break;
     }
-  }
-
-  Widget createMessageBubble(MessageModel message) {
-    if (message.fromMe)
-      return MessageBubble(
-        message: message,
-        color: Theme.of(context).primaryColor.withOpacity(0.8),
-      );
-    else
-      return MessageBubble(
-        message: message,
-        color: Colors.grey.shade300.withOpacity(0.8),
-      );
-  }
-
-  Future<bool> forwardMessage(MessageModel message) async {
-
-    switch(message.messageType) {
-
-      case('Text'):
-        _messageCreatorState.currentState.setForwardMessage(
-          ContainerRow(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ContainerColumn(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(message.fromMe ? _userView.user.userName : widget.interlocutorUser.userName),
-                  Text(message.message),
-                ],
-              ),
-
-              IconButton(icon: Icon(Icons.cancel), onPressed: () {
-                _messageCreatorState.currentState.setForwardMessage(null);
-              })
-            ],
-          )
-        );
-        break;
-      case('Image'):
-        _messageCreatorState.currentState.setForwardMessage(
-          Text('Image')
-        );
-        break;
-      case('Voice'):
-        _messageCreatorState.currentState.setForwardMessage(
-            Text('Voice')
-        );
-        break;
-
-      default:
-        break;
-
-    }
-
-    return false;
   }
 
   getPermissionStatus() async {

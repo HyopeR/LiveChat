@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/combine_gesture_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
+import 'package:live_chat/services/operation_service.dart';
 
 class MessageCreatorWidget extends StatefulWidget {
   final double height;
@@ -50,6 +51,7 @@ class MessageCreatorWidget extends StatefulWidget {
 }
 
 class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
+
   bool permissionsAllowed;
   Widget forwardMessageWidget;
   TextEditingController controller;
@@ -136,20 +138,20 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
     );
   }
 
-  String calculateTimer(int time) {
-    if (time < 60) {
-      String secondStr = (time % 60).toString().padLeft(2, '0');
-      return '00 : $secondStr';
-    } else {
-      int remainingSecond = time % 60;
-      String secondStr = (remainingSecond % 60).toString().padLeft(2, '0');
-
-      int minutes = (time / 60).truncate();
-      String minutesStr = (minutes % 60).toString().padLeft(2, '0');
-
-      return '$minutesStr : $secondStr';
-    }
-  }
+  // String calculateTimer(int time) {
+  //   if (time < 60) {
+  //     String secondStr = (time % 60).toString().padLeft(2, '0');
+  //     return '00 : $secondStr';
+  //   } else {
+  //     int remainingSecond = time % 60;
+  //     String secondStr = (remainingSecond % 60).toString().padLeft(2, '0');
+  //
+  //     int minutes = (time / 60).truncate();
+  //     String minutesStr = (minutes % 60).toString().padLeft(2, '0');
+  //
+  //     return '$minutesStr : $secondStr';
+  //   }
+  // }
 
   List<Widget> defaultArea() {
     return [

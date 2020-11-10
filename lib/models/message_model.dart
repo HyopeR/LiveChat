@@ -9,6 +9,7 @@ class MessageModel {
   int duration;
   Timestamp date;
 
+  String ownerUsername;
   String ownerImageUrl;
   bool fromMe;
 
@@ -40,6 +41,7 @@ class MessageModel {
         messageType = map['messageType'],
         duration = map['duration'],
         date = map['date'],
+        ownerUsername = map['ownerUsername'],
         ownerImageUrl = map['ownerImageUrl'],
         fromMe = map['fromMe'];
 
@@ -53,6 +55,7 @@ class MessageModel {
         'messageType: $messageType, '
         'duration: $duration, '
         'date: $date}, '
+        'ownerUsername: $ownerUsername}, '
         'ownerImageUrl: $ownerImageUrl}, '
         'fromMe: $fromMe'
     ;
