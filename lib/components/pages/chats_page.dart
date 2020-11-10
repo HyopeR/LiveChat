@@ -42,16 +42,15 @@ class _ChatsPageState extends State<ChatsPage> {
                       stream: _chatView.getAllGroups(_userView.user.userId),
                       builder: (context, streamData) {
 
-                        List<GroupModel> chats = streamData.data;
-
                         if (streamData.hasData) {
+                          List<GroupModel> chats = streamData.data;
+
                           if (chats.isNotEmpty)
                             return ListView.builder(
-                                itemCount: chats.length,
+                                itemCount: _chatView.groups.length,
                                 itemBuilder: (context, index) {
 
                                   GroupModel currentChat = chats[index];
-                                  print(currentChat.toString());
 
                                   UserModel interlocutorUser;
                                   if(currentChat.groupType == 'Private') {
@@ -60,9 +59,15 @@ class _ChatsPageState extends State<ChatsPage> {
                                   }
 
 
-                                  Map<String, String> dates = currentChat.createdAt != null
-                                      ? showDate(currentChat.updatedAt)
+                                  Map<String, String> currentDates = currentChat.recentMessageDate != null
+                                      ? showDate(currentChat.recentMessageDate)
                                       : null;
+
+                                  String currentText = currentChat.recentMessage != null
+                                      ? currentChat.recentMessage.length > 25
+                                        ? currentChat.recentMessage.substring(0, 21) + '...'
+                                        : currentChat.recentMessage
+                                      : 'Yükleniyor...';
 
                                   return GestureDetector(
                                     onTap: () {
@@ -83,15 +88,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                             backgroundColor: Colors.grey.withOpacity(0.3),
                                           ),
 
-                                        trailing: dates != null
-                                                    ? Text(dates['date'] + '\n' + dates['clock'], textAlign: TextAlign.right,)
+                                        trailing: currentDates != null
+                                                    ? Text(currentDates['date'] + '\n' + currentDates['clock'], textAlign: TextAlign.right,)
                                                     : Text(' '),
 
                                         title: Text(currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName),
-                                        subtitle: Text(currentChat.recentMessage.length < 25
-                                            ? currentChat.recentMessage
-                                            : currentChat.recentMessage.substring(0, 21) + '...'
-                                        ),
+                                        subtitle:
+
+                                        Text(currentText),
                                     ),
                                   );
                                 });

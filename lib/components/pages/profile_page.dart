@@ -10,6 +10,7 @@ import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/login_button.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
+  ChatView _chatView;
+
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
   ImagePicker picker = ImagePicker();
@@ -48,6 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
+    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -324,6 +328,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   _signOut() async {
+    _chatView.clearState();
     _userView.signOut();
     Navigator.of(context, rootNavigator: true)
         .pushReplacementNamed('/signInPage');

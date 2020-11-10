@@ -43,14 +43,17 @@ class UserView with ChangeNotifier implements AuthBase {
     }
   }
 
-  Stream<UserModel> streamCurrentUser(String userId) async* {
+  Stream<UserModel> streamCurrentUser(String userId) {
     try{
-      _user = await _userRepo.streamCurrentUser(userId).first;
-      yield* _userRepo.streamCurrentUser(userId);
+      _userRepo.streamCurrentUser(userId).listen((user) {
+        _user = user;
+      });
+
+      return _userRepo.streamCurrentUser(userId);
     }catch(err) {
 
       print('getCurrentUser Error: ${err.toString()}');
-      yield* null;
+      return null;
 
     }
   }

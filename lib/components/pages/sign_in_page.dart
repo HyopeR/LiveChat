@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
 
 import 'package:live_chat/components/common/login_button.dart';
@@ -14,6 +15,8 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   UserView _userView;
+  ChatView _chatView;
+
   bool showForm = false;
 
   GlobalKey<LoginFormState> _loginFormState = GlobalKey();
@@ -21,6 +24,7 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    _chatView = Provider.of<ChatView>(context);
     _userView = Provider.of<UserView>(context);
 
     return Scaffold(
@@ -122,43 +126,20 @@ class _SignInPageState extends State<SignInPage> {
   void visitorLogin() async {
     UserModel user = await _userView.signInAnonymously();
 
-    if(user != null) {
-      Navigator.of(context, rootNavigator: true).pushReplacementNamed(
-        '/homePage',
-        // arguments: user
-      );
-    } else
-        print('User nesnesi boş.');
-
-
+    await pageTransition(user);
   }
 
   void googleLogin() async {
     UserModel user = await _userView.signInWithGoogle();
 
-    if(user != null) {
-      Navigator.of(context, rootNavigator: true).pushReplacementNamed(
-        '/homePage',
-        // arguments: user
-      );
-    } else
-        print('User nesnesi boş.');
-
-
+    await pageTransition(user);
   }
 
 
   void facebookLogin() async {
     UserModel user = await _userView.signInWithFacebook();
 
-    if(user != null) {
-      Navigator.of(context, rootNavigator: true).pushReplacementNamed(
-        '/homePage',
-        // arguments: user
-      );
-    } else
-      print('User nesnesi boş.');
-
+    await pageTransition(user);
   }
 
 
@@ -180,13 +161,22 @@ class _SignInPageState extends State<SignInPage> {
       );
     }
 
+    await pageTransition(user);
+
+  }
+
+  pageTransition(UserModel user) async {
     if(user != null) {
+      _userView.streamCurrentUser(_userView.user.userId);
+      await _chatView.getAllUsers();
+      _chatView.getAllGroups(_userView.user.userId);
+
       Navigator.of(context, rootNavigator: true).pushReplacementNamed(
         '/homePage',
         // arguments: user
       );
-    } else
+    } else {
       print('User nesnesi boş.');
-
+    }
   }
 }

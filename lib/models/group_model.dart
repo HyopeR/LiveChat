@@ -13,6 +13,7 @@ class GroupModel {
   List<dynamic> members;
 
   String recentMessage;
+  Timestamp recentMessageDate;
   String sentBy;
 
   String createdBy;
@@ -24,6 +25,7 @@ class GroupModel {
     this.groupType,
     this.members,
     this.recentMessage,
+    this.recentMessageDate,
     this.sentBy,
     this.createdBy,
     this.createdAt,
@@ -37,6 +39,7 @@ class GroupModel {
     this.groupImageUrl,
     this.members,
     this.recentMessage,
+    this.recentMessageDate,
     this.sentBy,
     this.createdBy,
     this.createdAt,
@@ -54,6 +57,7 @@ class GroupModel {
       'members': members ?? [],
 
       'recentMessage': recentMessage,
+      'recentMessageDate': recentMessageDate,
       'sentBy': sentBy,
 
       'createdBy': createdBy,
@@ -69,6 +73,7 @@ class GroupModel {
         groupImageUrl = map['groupImageUrl'],
         members = map['members'],
         recentMessage = map['recentMessage'],
+        recentMessageDate = map['recentMessageDate'],
         sentBy = map['sentBy'],
         createdBy = map['createdBy'],
         createdAt = map['createdAt'],
@@ -84,6 +89,7 @@ class GroupModel {
       'members': members ?? [],
 
       'recentMessage': recentMessage,
+      'recentMessageDate': recentMessageDate,
       'sentBy': sentBy,
 
       'createdBy': createdBy,
@@ -97,6 +103,7 @@ class GroupModel {
         groupType = map['groupType'],
         members = map['members'],
         recentMessage = map['recentMessage'],
+        recentMessageDate = map['recentMessageDate'],
         sentBy = map['sentBy'],
         createdBy = map['createdBy'],
         createdAt = map['createdAt'],
@@ -112,6 +119,7 @@ class GroupModel {
         'groupImageUrl: $groupImageUrl, '
         'members: $members, '
         'recentMessage: $recentMessage, '
+        'recentMessageDate: $recentMessageDate, '
         'sentBy: $sentBy, '
         'createdBy: $createdBy, '
         'createdAt: $createdAt, '

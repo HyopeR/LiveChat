@@ -99,6 +99,7 @@ class FireStoreDbService implements DbBase {
   Stream<List<GroupModel>> getAllGroups(String userId) {
     var groupsQuery =  _fireStore.collection('groups')
         .where('members', arrayContains: userId)
+        .orderBy('recentMessageDate', descending: true)
         .snapshots();
 
     return groupsQuery.map((groups) => groups.docs
@@ -128,13 +129,11 @@ class FireStoreDbService implements DbBase {
 
     // Grup varsa var olanı döndürür.
     if(groupQuery.docs.length > 0) {
-      print('SERVICE IF');
       return groupQuery.docs.map((DocumentSnapshot groupDocument) => GroupModel.fromMapPlural(groupDocument.data())).first;
     }
 
     // Grup yok ise var olan kullanıcıların roomlarını güncelleyip, yeni bir room oluşturup döndürürüz.
     else {
-      print('SERVICE ELSE');
       String groupId = _fireStore.collection('groups').doc().id;
       GroupModel createGroup = GroupModel.private(
         groupId: groupId,
@@ -150,7 +149,6 @@ class FireStoreDbService implements DbBase {
         });
       });
 
-      // print(createGroup.toMapPrivate());
       await _fireStore.collection('groups').doc(groupId).set(createGroup.toMapPrivate());
       return createGroup;
     }
@@ -164,8 +162,9 @@ class FireStoreDbService implements DbBase {
     if(message.messageType != 'Voice')
       messageMap.remove('duration');
 
-    await _fireStore.collection('groups').doc(groupId).set({
+    await _fireStore.collection('groups').doc(groupId).update({
       'recentMessage': message.message,
+      'recentMessageDate': FieldValue.serverTimestamp(),
       'sentBy': message.sendBy
     });
 

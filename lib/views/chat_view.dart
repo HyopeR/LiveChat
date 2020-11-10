@@ -23,12 +23,21 @@ class ChatView with ChangeNotifier {
 
   File voiceFile;
 
+  List<GroupModel> get groups => _groups;
   GroupModel get selectedChat => _selectedChat;
   SelectedChatState get selectedChatState => _selectedChatState;
 
   set selectedChatState(SelectedChatState value) {
     _selectedChatState = value;
     notifyListeners();
+  }
+
+  bool clearState() {
+    _users = null;
+    _groups = [];
+    _selectedChat = null;
+    selectedChatState = SelectedChatState.Empty;
+    return true;
   }
 
   UserModel selectChatUser(String userId) {
@@ -43,14 +52,17 @@ class ChatView with ChangeNotifier {
   }
 
   findChatByUserIdList(List<String> userIdList) {
+    print('userIdList: ' + userIdList.toString());
     if(_groups.length > 0) {
-      GroupModel findGroup = _groups.map((group){
-        if(listEquals(group.members, userIdList))
-          return group;
-        else
-          return null;
-      }).first;
+      GroupModel findGroup;
+      findGroup = _groups.map((group) => group).firstWhere((element) => element.createdBy == userIdList[0]
+          ? listEquals(element.members, userIdList)
+          : listEquals(element.members, userIdList.reversed.toList()),
 
+          orElse: () => null,
+      );
+
+      print('findChatByUserIdList: ' + findGroup.toString());
       if(findGroup != null) {
         selectedChatState = SelectedChatState.Loaded;
         _selectedChat = findGroup;
@@ -58,8 +70,8 @@ class ChatView with ChangeNotifier {
         selectedChatState = SelectedChatState.Empty;
         _selectedChat = null;
       }
-    }
 
+    }
   }
 
   Future<List<UserModel>> getAllUsers() async {
@@ -72,20 +84,17 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Stream<List<GroupModel>> getAllGroups(String userId) async* {
+  Stream<List<GroupModel>> getAllGroups(String userId) {
 
     try{
-      _chatRepo.getAllGroups(userId).forEach((element) {
-        _groups = element;
+      _chatRepo.getAllGroups(userId).listen((event) {
+        _groups = event;
       });
-
-      yield _groups;
+      return _chatRepo.getAllGroups(userId);
     }catch(err) {
-
       print('getAllChats Error: ${err.toString()}');
-      yield null;
+      return null;
     }
-
   }
 
   Stream<List<MessageModel>> getMessages(String groupId) {

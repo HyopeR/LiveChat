@@ -83,13 +83,14 @@ class _ChatPageState extends State<ChatPage> {
                   child: StreamBuilder<List<MessageModel>>(
                   stream: _chatView.getMessages(_chatView.selectedChat.groupId),
                   builder: (context, streamData) {
-                    List<MessageModel> messages = streamData.data;
 
                   if (streamData.hasData) {
+                    List<MessageModel> messages = streamData.data;
 
+                  if (messages.isNotEmpty) {
                       return Align(
-                        alignment: Alignment.topCenter,
-                        child: ListView.builder(
+                          alignment: Alignment.topCenter,
+                          child: ListView.builder(
                             reverse: true,
                             shrinkWrap: true,
                             controller: _scrollController,
@@ -98,6 +99,8 @@ class _ChatPageState extends State<ChatPage> {
                               return createMessageBubble(messages[index]);
                             }),
                       );
+                    } else
+                      return Container();
                   } else
                     return Container();
                 },
@@ -134,11 +137,9 @@ class _ChatPageState extends State<ChatPage> {
 
     if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
       if(_chatView.selectedChatState == SelectedChatState.Empty) {
-        print('IF STATEMENT');
         await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, [_userView.user.userId, widget.interlocutorUser.userId]);
-        await sendMessage(messageType);
+        sendMessage(messageType);
       } else {
-        print('ELSE STATEMENT');
         sendMessage(messageType);
       }
 

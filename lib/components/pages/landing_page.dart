@@ -53,10 +53,6 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> _checkUser() async {
     await _userView.getCurrentUser();
 
-    _userView.streamCurrentUser(_userView.user.userId);
-
-    await _chatView.getAllUsers();
-
     if(_userView.user == null) {
       Future.delayed(
           Duration(seconds: 2),
@@ -67,6 +63,10 @@ class _LandingPageState extends State<LandingPage> {
           }
       );
     } else {
+      _userView.streamCurrentUser(_userView.user.userId);
+      await _chatView.getAllUsers();
+      _chatView.getAllGroups(_userView.user.userId);
+
       Future.delayed(
           Duration(seconds: 2),
           () {
