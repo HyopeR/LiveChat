@@ -54,7 +54,10 @@ class MessageBubble extends StatelessWidget {
     switch(message.messageType) {
 
       case('Text'):
-        return Text(message.message);
+        return Container(
+            constraints: BoxConstraints(maxWidth: 350),
+            child: Text(message.message)
+        );
         break;
 
       case('Image'):
@@ -69,10 +72,13 @@ class MessageBubble extends StatelessWidget {
         break;
 
       case('Voice'):
-        return SoundPlayer.voice(
-            soundUrl: message.message,
-            soundDuration: message.duration.toDouble(),
-            soundType: 'Voice',
+        return Container(
+          constraints: BoxConstraints(maxWidth: 350),
+          child: SoundPlayer.voice(
+              soundUrl: message.message,
+              soundDuration: message.duration.toDouble(),
+              soundType: 'Voice',
+          ),
         );
         break;
 

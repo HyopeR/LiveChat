@@ -66,30 +66,42 @@ class _SoundPlayerState extends State<SoundPlayer> {
           backgroundColor: Colors.grey.withOpacity(0.3),
         ),
 
-        Slider(
-            activeColor: Colors.black,
-            inactiveColor: Colors.black26,
-            value: currentDuration,
-            onChanged: (value) {
-              setState(() {
-                currentDuration = value;
-              });
-            },
-            divisions: widget.soundDuration.toInt(),
-            max: widget.soundDuration,
-            min: 0.0,
+        Stack(
+          children: [
+            Slider(
+                activeColor: Colors.black,
+                inactiveColor: Colors.black26,
+                value: currentDuration,
+                onChanged: (value) {
+                  setState(() {
+                    currentDuration = value;
+                  });
+                },
+                divisions: widget.soundDuration.toInt(),
+                max: widget.soundDuration,
+                min: 0.0,
+            ),
+
+            Positioned(
+              right: 25,
+              bottom: 0,
+              child: Text(calculateTimer(currentDuration.toInt()))
+            )
+          ],
         ),
 
         Container(
           child: !currentState
               ?
                 IconButton(
+                  splashRadius: 32,
                   icon: Icon(Icons.play_arrow),
                   iconSize: 44,
                   onPressed: () => play(),
                 )
               :
                 IconButton(
+                  splashRadius: 32,
                   icon: Icon(Icons.pause),
                   iconSize: 44,
                   onPressed: () => pause(),
@@ -112,6 +124,21 @@ class _SoundPlayerState extends State<SoundPlayer> {
     setState(() {
       currentState = false;
     });
+  }
+
+  String calculateTimer(int time) {
+    if (time < 60) {
+      String secondStr = (time % 60).toString().padLeft(2, '0');
+      return '00 : $secondStr';
+    } else {
+      int remainingSecond = time % 60;
+      String secondStr = (remainingSecond % 60).toString().padLeft(2, '0');
+
+      int minutes = (time / 60).truncate();
+      String minutesStr = (minutes % 60).toString().padLeft(2, '0');
+
+      return '$minutesStr : $secondStr';
+    }
   }
 
   // void resume() async{
