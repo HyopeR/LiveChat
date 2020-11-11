@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/common/sound_player.dart';
 import 'package:live_chat/models/message_model.dart';
 
@@ -15,6 +16,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ContainerColumn(
+
       margin:
       message.fromMe
           ? EdgeInsets.only(top: 5, left: MediaQuery.of(context).size.width * 0.1)
@@ -27,6 +29,7 @@ class MessageBubble extends StatelessWidget {
       children: [
         ContainerColumn(
           padding: EdgeInsets.all(10),
+
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(10),
@@ -34,6 +37,13 @@ class MessageBubble extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            message.markedMessage != null
+                ? Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: MessageMarked(message: message.markedMessage)
+                )
+                : Container(width: 0),
+
             Container(
                 margin: EdgeInsets.only(bottom: 5),
                 child: writeMessage(message)

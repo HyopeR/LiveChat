@@ -106,6 +106,12 @@ class _ChatPageState extends State<ChatPage> {
                               if(widget.groupType == 'Private') {
                                 currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
                                 currentMessage.ownerUsername = fromMe ? _userView.user.userName : widget.interlocutorUser.userName;
+
+                                if(currentMessage.markedMessage != null) {
+                                  bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
+                                  currentMessage.markedMessage.ownerImageUrl = markedFromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
+                                  currentMessage.markedMessage.ownerUsername = markedFromMe ? _userView.user.userName : widget.interlocutorUser.userName;
+                                }
                               }
 
                               return Dismissible(
@@ -116,6 +122,7 @@ class _ChatPageState extends State<ChatPage> {
                                   _messageCreatorState.currentState..setMarkedMessage(
                                     MessageMarked(
                                       message: currentMessage,
+                                      mainAxisSize: MainAxisSize.max,
                                       forwardCancel: () {
                                         _messageCreatorState.currentState.setMarkedMessage(null);
                                         markedMessage = null;
