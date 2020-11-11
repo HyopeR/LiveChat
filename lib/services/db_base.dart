@@ -16,5 +16,5 @@ abstract class DbBase {
   Stream<List<MessageModel>> getMessages(String groupId);
 
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList);
-  Future<bool> saveMessage(MessageModel message, String groupId);
+  Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId);
 }

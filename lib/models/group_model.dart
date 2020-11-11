@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:live_chat/models/message_model.dart';
 /*
   Bu model private ve plural olmak üzere 2 tip group'a veri sağlayacaktır.
 */
@@ -12,9 +13,7 @@ class GroupModel {
 
   List<dynamic> members;
 
-  String recentMessage;
-  Timestamp recentMessageDate;
-  String sentBy;
+  MessageModel recentMessage;
 
   String createdBy;
   Timestamp createdAt;
@@ -25,8 +24,6 @@ class GroupModel {
     this.groupType,
     this.members,
     this.recentMessage,
-    this.recentMessageDate,
-    this.sentBy,
     this.createdBy,
     this.createdAt,
     this.updatedAt
@@ -39,8 +36,6 @@ class GroupModel {
     this.groupImageUrl,
     this.members,
     this.recentMessage,
-    this.recentMessageDate,
-    this.sentBy,
     this.createdBy,
     this.createdAt,
     this.updatedAt
@@ -56,9 +51,7 @@ class GroupModel {
 
       'members': members ?? [],
 
-      'recentMessage': recentMessage,
-      'recentMessageDate': recentMessageDate,
-      'sentBy': sentBy,
+      'recentMessage': recentMessage == null ? null : recentMessage.toMap(),
 
       'createdBy': createdBy,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
@@ -72,9 +65,7 @@ class GroupModel {
         groupType = map['groupType'],
         groupImageUrl = map['groupImageUrl'],
         members = map['members'],
-        recentMessage = map['recentMessage'],
-        recentMessageDate = map['recentMessageDate'],
-        sentBy = map['sentBy'],
+        recentMessage = map['recentMessage'] == null ? null : MessageModel.fromMap(map['recentMessage']),
         createdBy = map['createdBy'],
         createdAt = map['createdAt'],
         updatedAt = map['updatedAt'];
@@ -88,9 +79,7 @@ class GroupModel {
 
       'members': members ?? [],
 
-      'recentMessage': recentMessage,
-      'recentMessageDate': recentMessageDate,
-      'sentBy': sentBy,
+      'recentMessage': recentMessage == null ? null : recentMessage.toMap(),
 
       'createdBy': createdBy,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
@@ -102,9 +91,7 @@ class GroupModel {
         groupId = map['groupId'],
         groupType = map['groupType'],
         members = map['members'],
-        recentMessage = map['recentMessage'],
-        recentMessageDate = map['recentMessageDate'],
-        sentBy = map['sentBy'],
+        recentMessage = map['recentMessage'] == null ? null : MessageModel.fromMap(map['recentMessage']),
         createdBy = map['createdBy'],
         createdAt = map['createdAt'],
         updatedAt = map['updatedAt'];
@@ -118,9 +105,7 @@ class GroupModel {
         'groupType: $groupType, '
         'groupImageUrl: $groupImageUrl, '
         'members: $members, '
-        'recentMessage: $recentMessage, '
-        'recentMessageDate: $recentMessageDate, '
-        'sentBy: $sentBy, '
+        'recentMessage: ${recentMessage.toString()}, '
         'createdBy: $createdBy, '
         'createdAt: $createdAt, '
         'updatedAt: $updatedAt}';

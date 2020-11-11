@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
@@ -58,16 +59,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                     interlocutorUser = _chatView.selectChatUser(userId);
                                   }
 
-
-                                  Map<String, String> currentDates = currentChat.recentMessageDate != null
-                                      ? showDate(currentChat.recentMessageDate)
+                                  Map<String, String> currentDates = currentChat.recentMessage.date != null
+                                      ? showDate(currentChat.recentMessage.date)
                                       : null;
-
-                                  String currentText = currentChat.recentMessage != null
-                                      ? currentChat.recentMessage.length > 25
-                                        ? currentChat.recentMessage.substring(0, 21) + '...'
-                                        : currentChat.recentMessage
-                                      : 'Yükleniyor...';
 
                                   return GestureDetector(
                                     onTap: () {
@@ -95,7 +89,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                         title: Text(currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName),
                                         subtitle:
 
-                                        Text(currentText),
+                                        ContainerRow(
+                                          children: currentChat.recentMessage != null ? showMessageText(currentChat) : Text('Yükleniyor...'),
+                                        )
                                     ),
                                   );
                                 });
@@ -151,5 +147,43 @@ class _ChatsPageState extends State<ChatsPage> {
         return dates;
 
     }
+  }
+
+  List<Widget> showMessageText(GroupModel currentChat) {
+
+    switch(currentChat.recentMessage.messageType) {
+
+      case('Text'):
+        return [
+          currentChat.groupType == 'Private' ? Container() : Text('${currentChat.recentMessage.ownerUsername}: '),
+          Text(currentChat.recentMessage.message.length > 25
+
+              ? currentChat.recentMessage.message.substring(0, 21) + '...'
+              : currentChat.recentMessage.message)
+        ];
+        break;
+
+      case('Image'):
+        return [
+          currentChat.groupType == 'Private' ? Container() : Text('${currentChat.recentMessage.ownerUsername}: '),
+          Icon(Icons.image, size: 20),
+          Text('Görüntü')
+        ];
+        break;
+
+      case('Voice'):
+        return [
+          currentChat.groupType == 'Private' ? Container() : Text('${currentChat.recentMessage.ownerUsername}: '),
+          Icon(Icons.mic, size: 20),
+          Text('Ses kaydı')
+        ];
+        break;
+
+      default:
+        return [];
+        break;
+
+    }
+
   }
 }

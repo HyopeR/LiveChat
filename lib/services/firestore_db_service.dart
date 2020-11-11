@@ -59,7 +59,7 @@ class FireStoreDbService implements DbBase {
   @override
   Future<bool> updateUserName(String userId, String newUserName) async {
 
-    // Username alınmış mı kontrolü
+    // Username başka bir user tarafından kullanılıyor mu kontrolü yapıyoruz.
     QuerySnapshot response = await _fireStore
         .collection('users')
         .where('userName', isEqualTo: newUserName)
@@ -99,7 +99,7 @@ class FireStoreDbService implements DbBase {
   Stream<List<GroupModel>> getAllGroups(String userId) {
     var groupsQuery =  _fireStore.collection('groups')
         .where('members', arrayContains: userId)
-        .orderBy('recentMessageDate', descending: true)
+        .orderBy('recentMessage.date', descending: true)
         .snapshots();
 
     return groupsQuery.map((groups) => groups.docs
@@ -142,6 +142,7 @@ class FireStoreDbService implements DbBase {
         createdBy: userId
       );
 
+      // Userların bir gruba dahil olduklarında groups alanlarına girdiği grubun id'sini ekliyoruz.
       userIdList.forEach((userId) {
         DocumentReference userReference = _fireStore.collection('users').doc(userId);
         userReference.update({
@@ -154,26 +155,32 @@ class FireStoreDbService implements DbBase {
     }
   }
 
-  Future<bool> saveMessage(MessageModel message, String groupId) async {
+  Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId) async {
 
+    // Firestore'dan unique bir id elde ediyoruz.
     String messageId = _fireStore.collection('chats').doc().id;
 
+    // Message modelimizi firebase'e eklemek için map'e dönüştürüyoruz.
+    // MessageType verisi voice olmayanlardan duration key'ini siliyoruz.
     Map<String, dynamic> messageMap = message.toMap();
     messageMap['messageId'] = messageId;
 
     if(message.messageType != 'Voice')
       messageMap.remove('duration');
 
-    await _fireStore.collection('groups').doc(groupId).update({
-      'recentMessage': message.message,
-      'recentMessageDate': FieldValue.serverTimestamp(),
-      'sentBy': message.sendBy
-    });
-
     await _fireStore.collection('chats').doc(groupId)
         .collection('messages')
         .doc(messageId)
         .set(messageMap);
+
+    // Groups koleksiyonunda mesaj verilerine ek olarak mesaj sahibinin bazı bilgilerinide işlem yapmak için
+    // groups koleksiyonu altına ekleyeceğimiz message map'in içine ekliyoruz.
+    messageMap['ownerUsername'] = messageOwner.userName;
+    messageMap['ownerImageUrl'] = messageOwner.userProfilePhotoUrl;
+
+    await _fireStore.collection('groups').doc(groupId).update({
+      'recentMessage': messageMap
+    });
 
     return true;
   }

@@ -169,6 +169,7 @@ class _ChatPageState extends State<ChatPage> {
     if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
       if(_chatView.selectedChatState == SelectedChatState.Empty) {
         await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, [_userView.user.userId, widget.interlocutorUser.userId]);
+        print(_chatView.selectedChat.toString());
         sendMessage(messageType);
       } else {
         sendMessage(messageType);
@@ -178,6 +179,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   sendMessage(String messageType) async {
+    print('PAGE: ' + _chatView.selectedChat.toString());
+
     MessageModel savingMessage = MessageModel(
       sendBy: _userView.user.userId,
       message: '',
@@ -188,7 +191,7 @@ class _ChatPageState extends State<ChatPage> {
       case ('Text'):
         savingMessage.message = _messageCreatorState.currentState.controller.text;
 
-        bool result = await _chatView.saveMessage(savingMessage, _chatView.selectedChat.groupId);
+        bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
         if (result) {
           _messageCreatorState.currentState.controller.clear();
           _scrollController.animateTo(0,
@@ -203,7 +206,7 @@ class _ChatPageState extends State<ChatPage> {
           savingMessage.message = voiceUrl;
           savingMessage.duration = _messageCreatorState.currentState.oldTime;
 
-          bool result = await _chatView.saveMessage(savingMessage, _chatView.selectedChat.groupId);
+          bool result = await _chatView.saveMessage(savingMessage, _userView.user ,_chatView.selectedChat.groupId);
           if (result) {
             _chatView.clearStorage();
             _messageCreatorState.currentState.controller.clear();

@@ -62,7 +62,6 @@ class ChatView with ChangeNotifier {
           orElse: () => null,
       );
 
-      print('findChatByUserIdList: ' + findGroup.toString());
       if(findGroup != null) {
         selectedChatState = SelectedChatState.Loaded;
         _selectedChat = findGroup;
@@ -120,9 +119,9 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Future<bool> saveMessage(MessageModel message, String groupId) async {
+  Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId) async {
     try{
-      return _chatRepo.saveMessage(message, groupId);
+      return _chatRepo.saveMessage(message, messageOwner, groupId);
     }catch(err) {
       print('saveMessage Error: ${err.toString()}');
       return null;

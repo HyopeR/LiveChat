@@ -30,8 +30,8 @@ class ChatRepository {
     return _fireStoreDbService.getGroupIdByUserIdList(userId, groupType, userIdList);
   }
 
-  Future<bool> saveMessage(MessageModel message, String groupId) async {
-    return _fireStoreDbService.saveMessage(message, groupId);
+  Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId) async {
+    return _fireStoreDbService.saveMessage(message, messageOwner, groupId);
   }
 
   void recordStart() async {
