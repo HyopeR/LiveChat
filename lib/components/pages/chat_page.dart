@@ -6,7 +6,7 @@ import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
-import 'package:live_chat/components/common/message_forward.dart';
+import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -35,6 +35,7 @@ class _ChatPageState extends State<ChatPage> {
 
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool permissionStatus = false;
+  MessageModel markedMessage;
 
   @override
   void initState() {
@@ -112,14 +113,18 @@ class _ChatPageState extends State<ChatPage> {
                                 direction: DismissDirection.startToEnd,
                                 // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
                                 confirmDismiss: (direction) async {
-                                  _messageCreatorState.currentState.setForwardMessage(
-                                    MessageForward(
+                                  _messageCreatorState.currentState..setMarkedMessage(
+                                    MessageMarked(
                                       message: currentMessage,
                                       forwardCancel: () {
-                                        _messageCreatorState.currentState.setForwardMessage(null);
+                                        _messageCreatorState.currentState.setMarkedMessage(null);
+                                        markedMessage = null;
                                       },
                                     )
                                   );
+
+
+                                  markedMessage = currentMessage;
                                   return false;
                                 },
 
@@ -169,7 +174,6 @@ class _ChatPageState extends State<ChatPage> {
     if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
       if(_chatView.selectedChatState == SelectedChatState.Empty) {
         await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, [_userView.user.userId, widget.interlocutorUser.userId]);
-        print(_chatView.selectedChat.toString());
         sendMessage(messageType);
       } else {
         sendMessage(messageType);
@@ -179,13 +183,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   sendMessage(String messageType) async {
-    print('PAGE: ' + _chatView.selectedChat.toString());
-
     MessageModel savingMessage = MessageModel(
       sendBy: _userView.user.userId,
       message: '',
       messageType: messageType,
     );
+
+    if(markedMessage != null)
+      savingMessage.markedMessage = markedMessage;
 
     switch (messageType) {
       case ('Text'):
@@ -193,9 +198,11 @@ class _ChatPageState extends State<ChatPage> {
 
         bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
         if (result) {
+          markedMessage = null;
+
           _messageCreatorState.currentState.controller.clear();
-          _scrollController.animateTo(0,
-              duration: Duration(microseconds: 50), curve: Curves.easeOut);
+          _messageCreatorState.currentState.setMarkedMessage(null);
+          _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
         }
         break;
 
@@ -208,10 +215,12 @@ class _ChatPageState extends State<ChatPage> {
 
           bool result = await _chatView.saveMessage(savingMessage, _userView.user ,_chatView.selectedChat.groupId);
           if (result) {
+            markedMessage = null;
+
             _chatView.clearStorage();
             _messageCreatorState.currentState.controller.clear();
-            _scrollController.animateTo(0,
-                duration: Duration(microseconds: 50), curve: Curves.easeOut);
+            _messageCreatorState.currentState.setMarkedMessage(null);
+            _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
           }
         }
         break;

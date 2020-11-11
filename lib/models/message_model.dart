@@ -6,8 +6,10 @@ class MessageModel {
   String sendBy;
   String message;
   String messageType;
-  int duration;
   Timestamp date;
+
+  int duration;
+  MessageModel markedMessage;
 
   String ownerUsername;
   String ownerImageUrl;
@@ -18,20 +20,30 @@ class MessageModel {
     this.sendBy,
     this.message,
     this.messageType,
-    this.duration,
     this.date
   });
 
 
   Map<String, dynamic> toMap() {
-    return {
+    Map<String, dynamic> map = {
       'messageId': messageId,
       'sendBy': sendBy,
       'message': message,
       'messageType': messageType,
-      'duration': duration ?? null,
       'date': date ?? FieldValue.serverTimestamp(),
     };
+
+    if(duration != null) {
+      map['duration'] = duration;
+    }
+
+    if(markedMessage != null) {
+      Map<String, dynamic> mapMarkedMessage = markedMessage.toMap();
+      mapMarkedMessage.remove('markedMessage');
+      map['markedMessage'] = mapMarkedMessage;
+    }
+
+    return map;
   }
 
   MessageModel.fromMap(Map<String, dynamic> map) :
@@ -41,6 +53,7 @@ class MessageModel {
         messageType = map['messageType'],
         duration = map['duration'],
         date = map['date'],
+        markedMessage = map['markedMessage'] == null ? null : MessageModel.fromMap(map['markedMessage']),
         ownerUsername = map['ownerUsername'],
         ownerImageUrl = map['ownerImageUrl'],
         fromMe = map['fromMe'];
@@ -55,6 +68,7 @@ class MessageModel {
         'messageType: $messageType, '
         'duration: $duration, '
         'date: $date}, '
+        'markedMessage: ${markedMessage != null ? markedMessage.toString() : null}, '
         'ownerUsername: $ownerUsername}, '
         'ownerImageUrl: $ownerImageUrl}, '
         'fromMe: $fromMe'

@@ -177,6 +177,8 @@ class FireStoreDbService implements DbBase {
     // groups koleksiyonu altına ekleyeceğimiz message map'in içine ekliyoruz.
     messageMap['ownerUsername'] = messageOwner.userName;
     messageMap['ownerImageUrl'] = messageOwner.userProfilePhotoUrl;
+    if(messageMap['markedMessage'] != null)
+      messageMap.remove('markedMessage');
 
     await _fireStore.collection('groups').doc(groupId).update({
       'recentMessage': messageMap

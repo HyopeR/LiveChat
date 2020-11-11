@@ -53,7 +53,7 @@ class MessageCreatorWidget extends StatefulWidget {
 class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
   bool permissionsAllowed;
-  Widget forwardMessageWidget;
+  Widget markedMessageWidget;
   TextEditingController controller;
 
   bool voiceRecordCancelled = false;
@@ -81,9 +81,9 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
     });
   }
 
-  setForwardMessage(Widget forwardMessage) {
+  setMarkedMessage(Widget markedMessage) {
     setState(() {
-      forwardMessageWidget = forwardMessage;
+      markedMessageWidget = markedMessage;
     });
   }
 
@@ -107,7 +107,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
             ),
 
             children: [
-              forwardMessageWidget != null ? forwardMessageWidget : Container(),
+              markedMessageWidget != null ? markedMessageWidget : Container(),
 
               !timerRun
                   ? ContainerRow(

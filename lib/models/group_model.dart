@@ -105,7 +105,7 @@ class GroupModel {
         'groupType: $groupType, '
         'groupImageUrl: $groupImageUrl, '
         'members: $members, '
-        'recentMessage: ${recentMessage.toString()}, '
+        'recentMessage: ${recentMessage != null ? recentMessage.toString() : null}, '
         'createdBy: $createdBy, '
         'createdAt: $createdAt, '
         'updatedAt: $updatedAt}';

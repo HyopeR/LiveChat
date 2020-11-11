@@ -5,11 +5,11 @@ import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/services/operation_service.dart';
 
-class MessageForward extends StatelessWidget {
+class MessageMarked extends StatelessWidget {
   final MessageModel message;
   final VoidCallback forwardCancel;
 
-  MessageForward({Key key, this.message, this.forwardCancel}) : super(key: key);
+  MessageMarked({Key key, this.message, this.forwardCancel}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
