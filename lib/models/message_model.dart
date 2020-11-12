@@ -10,6 +10,7 @@ class MessageModel {
 
   int duration;
   MessageModel markedMessage;
+  String attach;
 
   String ownerUsername;
   String ownerImageUrl;
@@ -37,6 +38,10 @@ class MessageModel {
       map['duration'] = duration;
     }
 
+    if(attach != null) {
+      map['attach'] = attach;
+    }
+
     if(markedMessage != null) {
       Map<String, dynamic> mapMarkedMessage = markedMessage.toMap();
       mapMarkedMessage.remove('markedMessage');
@@ -54,6 +59,7 @@ class MessageModel {
         duration = map['duration'],
         date = map['date'],
         markedMessage = map['markedMessage'] == null ? null : MessageModel.fromMap(map['markedMessage']),
+        attach = map['attach'],
         ownerUsername = map['ownerUsername'],
         ownerImageUrl = map['ownerImageUrl'],
         fromMe = map['fromMe'];
@@ -67,11 +73,11 @@ class MessageModel {
         'message: $message, '
         'messageType: $messageType, '
         'duration: $duration, '
-        'date: $date}, '
+        'date: $date, '
         'markedMessage: ${markedMessage != null ? markedMessage.toString() : null}, '
-        'ownerUsername: $ownerUsername}, '
-        'ownerImageUrl: $ownerImageUrl}, '
-        'fromMe: $fromMe'
-    ;
+        'attach: $attach, '
+        'ownerUsername: $ownerUsername, '
+        'ownerImageUrl: $ownerImageUrl, '
+        'fromMe: $fromMe }';
   }
 }

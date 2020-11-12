@@ -27,6 +27,9 @@ class MessageCreatorWidget extends StatefulWidget {
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
 
+  final VoidCallback useCamera;
+  final VoidCallback useAttach;
+
   const MessageCreatorWidget(
       {Key key,
       this.height: 50,
@@ -43,6 +46,8 @@ class MessageCreatorWidget extends StatefulWidget {
       this.onPressed,
       this.onLongPressStart,
       this.onLongPressEnd,
+      this.useCamera,
+      this.useAttach
       })
       : super(key: key);
 
@@ -166,22 +171,24 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
           ),
         ),
       ),
-      Container(
-          width: widget.iconSize,
-          height: widget.iconSize,
-          child: Icon(Icons.attach_file, color: widget.iconColor)),
+      InkWell(
+        onTap: widget.useAttach,
+        child: Container(
+            width: widget.iconSize,
+            height: widget.iconSize,
+            child: Icon(Icons.attach_file, color: widget.iconColor)),
+      ),
       AnimatedOpacity(
-        duration: Duration(milliseconds: 750),
+        duration: Duration(milliseconds: 500),
         opacity: controller.text.length <= 0 ? 1 : 0,
-        child: controller.text.length <= 0
-            ? InkWell(
-                onTap: () {},
-                child: Container(
-                    width: widget.iconSize,
-                    height: widget.iconSize,
+        child: InkWell(
+                onTap: widget.useCamera,
+                child: AnimatedContainer(
+                    duration: Duration(milliseconds: 250),
+                    width: controller.text.length <= 0 ? widget.iconSize : 0,
+                    height: controller.text.length <= 0 ? widget.iconSize : 0,
                     child: Icon(Icons.camera_alt, color: widget.iconColor)),
               )
-            : Container(),
       )
     ];
   }

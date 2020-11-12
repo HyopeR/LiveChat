@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
+import 'package:live_chat/components/pages/attach_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -32,10 +34,11 @@ class _ChatPageState extends State<ChatPage> {
 
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
+  ImagePicker picker = ImagePicker();
 
-  // final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool permissionStatus = false;
   MessageModel markedMessage;
+  List<File> attachFileList;
 
   @override
   void initState() {
@@ -157,18 +160,29 @@ class _ChatPageState extends State<ChatPage> {
                 textAreaColor: Colors.grey.shade300.withOpacity(0.8),
                 buttonColor: Theme.of(context).primaryColor,
                 permissionsAllowed: permissionStatus,
+
                 onPressed: () => saveMessage('Text'),
+
                 onLongPressStart: () async {
                   if (permissionStatus)
                     _chatView.recordStart();
                   else
                     requestPermission();
                 },
+
                 onLongPressEnd: () async {
                   if (permissionStatus) {
                     await _chatView.recordStop();
                     saveMessage('Voice');
                   }
+                },
+
+                useCamera: () {
+                  addAttach();
+                },
+
+                useAttach: () {
+
                 },
               )
             ],
@@ -234,6 +248,19 @@ class _ChatPageState extends State<ChatPage> {
 
       default:
         break;
+    }
+  }
+
+  addAttach() async {
+    var pickedFile = await picker.getImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      widget.groupType == 'Private'
+       ? Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage.private(attach: File(pickedFile.path), interlocutorUser: widget.interlocutorUser,)))
+       : Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage.plural(attach: File(pickedFile.path))))
+
+          .then((value) {
+            print(value);
+          });
     }
   }
 
