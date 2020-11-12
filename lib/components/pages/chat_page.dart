@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:file/local.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +27,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  LocalFileSystem _localFileSystem = LocalFileSystem();
+
   ChatView _chatView;
   UserView _userView;
 
@@ -249,12 +252,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   addAttach() async {
-    var pickedFile = await picker.getImage(source: ImageSource.camera);
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
     if (pickedFile != null) {
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage(attach: File(pickedFile.path))))
           .then((value) {
-            print(value);
+
+            print(pickedFile.path);
+            _localFileSystem.file(pickedFile.path).delete();
+            print(value.toString());
+
           });
     }
   }
