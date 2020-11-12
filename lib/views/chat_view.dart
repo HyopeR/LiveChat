@@ -16,6 +16,7 @@ class ChatView with ChangeNotifier {
   ChatRepository _chatRepo = locator<ChatRepository>();
 
   List<UserModel> _users;
+  UserModel interlocutorUser;
   List<GroupModel> _groups = [];
 
   GroupModel _selectedChat;
@@ -52,7 +53,6 @@ class ChatView with ChangeNotifier {
   }
 
   findChatByUserIdList(List<String> userIdList) {
-    print('userIdList: ' + userIdList.toString());
     if(_groups.length > 0) {
       GroupModel findGroup;
       findGroup = _groups.map((group) => group).firstWhere((element) => element.createdBy == userIdList[0]

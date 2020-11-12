@@ -67,8 +67,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                     onTap: () {
 
                                       _chatView.selectChat(currentChat.groupId);
+                                      _chatView.interlocutorUser = interlocutorUser;
                                       currentChat.groupType == 'Private'
-                                          ? Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage.private(interlocutorUser: interlocutorUser)))
+                                          ? Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage.private()))
                                           : Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage.plural()));
 
                                     },

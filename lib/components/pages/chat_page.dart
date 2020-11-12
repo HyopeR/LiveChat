@@ -10,18 +10,15 @@ import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/pages/attach_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
-import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-// ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
-  UserModel interlocutorUser;
-  String groupType;
+  final String groupType;
 
-  ChatPage.private({Key key, this.interlocutorUser, this.groupType = 'Private'}) : super(key: key);
+  ChatPage.private({Key key, this.groupType = 'Private'}) : super(key: key);
   ChatPage.plural({Key key, this.groupType = 'Plural'}) : super(key: key);
 
   @override
@@ -68,7 +65,7 @@ class _ChatPageState extends State<ChatPage> {
                         : Icons.arrow_back_ios,
                   ),
                   ImageWidget(
-                    imageUrl: widget.groupType == 'Private' ? widget.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
+                    imageUrl: widget.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
                     imageWidth: 50,
                     imageHeight: 50,
                     backgroundShape: BoxShape.circle,
@@ -76,7 +73,7 @@ class _ChatPageState extends State<ChatPage> {
                 ],
               ),
             ),
-            title: Text(widget.groupType == 'Private' ? widget.interlocutorUser.userName : _chatView.selectedChat.groupName)
+            title: Text(widget.groupType == 'Private' ? _chatView.interlocutorUser.userName : _chatView.selectedChat.groupName)
         ),
         body: SafeArea(
           child: ContainerColumn(
@@ -107,13 +104,13 @@ class _ChatPageState extends State<ChatPage> {
                               currentMessage.fromMe = fromMe;
 
                               if(widget.groupType == 'Private') {
-                                currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
-                                currentMessage.ownerUsername = fromMe ? _userView.user.userName : widget.interlocutorUser.userName;
+                                currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : _chatView.interlocutorUser.userProfilePhotoUrl;
+                                currentMessage.ownerUsername = fromMe ? _userView.user.userName : _chatView.interlocutorUser.userName;
 
                                 if(currentMessage.markedMessage != null) {
                                   bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
-                                  currentMessage.markedMessage.ownerImageUrl = markedFromMe ? _userView.user.userProfilePhotoUrl : widget.interlocutorUser.userProfilePhotoUrl;
-                                  currentMessage.markedMessage.ownerUsername = markedFromMe ? _userView.user.userName : widget.interlocutorUser.userName;
+                                  currentMessage.markedMessage.ownerImageUrl = markedFromMe ? _userView.user.userProfilePhotoUrl : _chatView.interlocutorUser.userProfilePhotoUrl;
+                                  currentMessage.markedMessage.ownerUsername = markedFromMe ? _userView.user.userName : _chatView.interlocutorUser.userName;
                                 }
                               }
 
@@ -194,7 +191,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
       if(_chatView.selectedChatState == SelectedChatState.Empty) {
-        await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, [_userView.user.userId, widget.interlocutorUser.userId]);
+        await _chatView.getGroupIdByUserIdList(_userView.user.userId, widget.groupType, [_userView.user.userId, _chatView.interlocutorUser.userId]);
         sendMessage(messageType);
       } else {
         sendMessage(messageType);
@@ -254,10 +251,8 @@ class _ChatPageState extends State<ChatPage> {
   addAttach() async {
     var pickedFile = await picker.getImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      widget.groupType == 'Private'
-       ? Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage.private(attach: File(pickedFile.path), interlocutorUser: widget.interlocutorUser,)))
-       : Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage.plural(attach: File(pickedFile.path))))
 
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage(attach: File(pickedFile.path))))
           .then((value) {
             print(value);
           });

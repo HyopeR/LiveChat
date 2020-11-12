@@ -51,8 +51,9 @@ class _UsersPageState extends State<UsersPage> {
                                     onTap: () {
 
                                       _chatView.findChatByUserIdList([_userView.user.userId, currentUser.userId]);
+                                      _chatView.interlocutorUser = currentUser;
                                       Navigator.of(context, rootNavigator: true)
-                                          .push(MaterialPageRoute(builder: (context) => ChatPage.private(interlocutorUser: currentUser)));
+                                          .push(MaterialPageRoute(builder: (context) => ChatPage.private()));
 
                                     },
                                     child: ListTile(
