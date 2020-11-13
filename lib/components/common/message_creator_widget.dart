@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/combine_gesture_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
@@ -27,6 +26,7 @@ class MessageCreatorWidget extends StatefulWidget {
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
 
+  final VoidCallback useEmojiKeyboard;
   final VoidCallback useCamera;
   final VoidCallback useAttach;
 
@@ -46,6 +46,7 @@ class MessageCreatorWidget extends StatefulWidget {
       this.onPressed,
       this.onLongPressStart,
       this.onLongPressEnd,
+      this.useEmojiKeyboard,
       this.useCamera,
       this.useAttach
       })
@@ -60,6 +61,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   bool permissionsAllowed;
   Widget markedMessageWidget;
   TextEditingController controller;
+  FocusNode _focusNode;
 
   bool voiceRecordCancelled = false;
   bool timerRun = false;
@@ -71,11 +73,13 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   void initState() {
     super.initState();
     controller = TextEditingController();
+    _focusNode = FocusNode();
     permissionsAllowed = widget.permissionsAllowed;
   }
 
   @override
   void dispose() {
+    _focusNode.dispose();
     controller.dispose();
     super.dispose();
   }
@@ -140,7 +144,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
           child: controller.text.trim().length > 0
               ? defaultButton()
               : voiceRecordButton(),
-        )
+        ),
       ],
     );
   }
@@ -150,7 +154,17 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
       Container(
           width: widget.iconSize,
           height: widget.iconSize,
-          child: Icon(Icons.emoji_emotions, color: widget.iconColor)),
+          child: InkWell(
+            onTap: () {
+              _focusNode.hasPrimaryFocus ? _focusNode.unfocus() : _focusNode.requestFocus();
+            },
+
+            child: Icon(
+                Icons.keyboard,
+                color: widget.iconColor
+            ),
+          )
+      ),
       Expanded(
         child: Container(
           constraints: BoxConstraints(
@@ -160,6 +174,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
             maxLines: null,
             keyboardType: TextInputType.multiline,
             onChanged: (value) => setState(() {}),
+            focusNode: _focusNode,
             controller: controller,
             style: TextStyle(color: widget.textColor),
             decoration: InputDecoration(
