@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'package:file/local.dart';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
@@ -27,14 +26,12 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  LocalFileSystem _localFileSystem = LocalFileSystem();
 
   ChatView _chatView;
   UserView _userView;
 
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
-  ImagePicker picker = ImagePicker();
 
   bool permissionStatus = false;
   MessageModel markedMessage;
@@ -54,30 +51,15 @@ class _ChatPageState extends State<ChatPage> {
     _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
-        appBar: AppBar(
-            leadingWidth: 85,
-            leading: InkWell(
-              onTap: () => Navigator.of(context).pop(),
-              child: ContainerRow(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Platform.isAndroid
-                        ? Icons.arrow_back
-                        : Icons.arrow_back_ios,
-                  ),
-                  ImageWidget(
-                    imageUrl: widget.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
-                    imageWidth: 50,
-                    imageHeight: 50,
-                    backgroundShape: BoxShape.circle,
-                  ),
-                ],
-              ),
-            ),
-            title: Text(widget.groupType == 'Private' ? _chatView.interlocutorUser.userName : _chatView.selectedChat.groupName)
+        appBar: AppbarWidget(
+          onLeftSideClick: () {
+            Navigator.of(context).pop();
+          },
+          titleImageUrl: widget.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
+
+          titleText: widget.groupType == 'Private' ? _chatView.interlocutorUser.userName : _chatView.selectedChat.groupName
         ),
+
         body: SafeArea(
           child: ContainerColumn(
             padding: EdgeInsets.all(10),
@@ -252,18 +234,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   addAttach() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
-    if (pickedFile != null) {
 
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage(attach: File(pickedFile.path))))
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttachShowPage()))
           .then((value) {
 
-            print(pickedFile.path);
-            _localFileSystem.file(pickedFile.path).delete();
-            print(value.toString());
-
           });
-    }
   }
 
   getPermissionStatus() async {
