@@ -31,6 +31,17 @@ class FirebaseStorageService implements StorageBase {
     return url;
   }
 
+  @override
+  Future<String> uploadImage(String userId, String fileType, File file) async {
+    String voiceUniqueName = uuid.v1();
+    _storageReference = _firebaseStorage.ref().child('users').child(userId).child(fileType).child(voiceUniqueName);
+    StorageUploadTask uploadTask = _storageReference.putFile(file);
+
+    String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+
+    return url;
+  }
+
 
 
 }

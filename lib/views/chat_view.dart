@@ -145,5 +145,9 @@ class ChatView with ChangeNotifier {
     return _chatRepo.uploadVoiceNote(userId, fileType, file);
   }
 
+  Future<String> uploadImage(String userId, String fileType, File file) async {
+    return _chatRepo.uploadVoiceNote(userId, fileType, file);
+  }
+
 
 }

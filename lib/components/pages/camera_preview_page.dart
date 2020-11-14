@@ -9,12 +9,12 @@ import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
 
-class AttachShowPage extends StatefulWidget {
+class CameraPreviewPage extends StatefulWidget {
   @override
-  _AttachShowPageState createState() => _AttachShowPageState();
+  _CameraPreviewPageState createState() => _CameraPreviewPageState();
 }
 
-class _AttachShowPageState extends State<AttachShowPage> {
+class _CameraPreviewPageState extends State<CameraPreviewPage> {
   ChatView _chatView;
 
   LocalFileSystem _localFileSystem = LocalFileSystem();
@@ -24,8 +24,11 @@ class _AttachShowPageState extends State<AttachShowPage> {
 
   bool visibilityDataTarget = false;
   bool innerDeleteArea = false;
-  File selectedImage;
+
+  int selectedImageIndex;
+
   List<File> attachFiles = [];
+  List<String> attachTexts = [];
 
   @override
   void initState() {
@@ -34,6 +37,10 @@ class _AttachShowPageState extends State<AttachShowPage> {
     _focusNode = FocusNode();
 
     addAttach();
+
+    controller.addListener(() {
+      attachTexts[selectedImageIndex] = controller.text;
+    });
   }
 
   @override
@@ -56,7 +63,7 @@ class _AttachShowPageState extends State<AttachShowPage> {
             ? BoxDecoration(
                 color: Colors.black,
                 image: DecorationImage(
-                  image: FileImage(selectedImage),
+                  image: FileImage(attachFiles[selectedImageIndex]),
                   // image: NetworkImage(attachFiles[0]),
                   fit: BoxFit.contain,
                 ))
@@ -103,27 +110,30 @@ class _AttachShowPageState extends State<AttachShowPage> {
                             );
                           },
 
-                          onWillAccept: (data) {
+                          onWillAccept: (itemIndex) {
                             setState(() {
                               innerDeleteArea = true;
                             });
                             return true;
                           },
 
-                          onLeave: (data) {
+                          onLeave: (itemIndex) {
                             setState(() {
                               innerDeleteArea = false;
                             });
                           },
 
-                          onAccept: (data) {
-                            _localFileSystem.file(attachFiles[data].path).delete();
+                          onAccept: (itemIndex) {
+                            _localFileSystem.file(attachFiles[itemIndex].path).delete();
 
                               setState(() {
-                                if(selectedImage.path == attachFiles[data].path)
-                                  selectedImage = attachFiles[0];
+                                if(attachFiles[selectedImageIndex].path == attachFiles[itemIndex].path) {
+                                  selectedImageIndex = 0;
+                                  // controller.text = attachTexts[0];
+                                }
 
-                                attachFiles.removeAt(data);
+                                attachFiles.removeAt(itemIndex);
+                                attachTexts.removeAt(itemIndex);
                                 innerDeleteArea = false;
                               });
 
@@ -274,9 +284,14 @@ class _AttachShowPageState extends State<AttachShowPage> {
     );
   }
 
-  void changeSelectedPhoto(File attach) {
-    if(selectedImage.path != attach.path)
-      setState(() => selectedImage = attach);
+  void changeSelectedPhoto(int photoIndex) {
+    if(attachFiles[selectedImageIndex].path != attachFiles[photoIndex].path) {
+      setState(() {
+        selectedImageIndex = photoIndex;
+        controller.text = attachTexts[photoIndex];
+      });
+
+    }
   }
 
   Widget childPhoto(int photoIndex) {
@@ -301,14 +316,14 @@ class _AttachShowPageState extends State<AttachShowPage> {
         decoration: BoxDecoration(
             border: Border.all(
                 width: 1,
-                color: attachFiles[photoIndex].path == selectedImage.path ? Colors.amber : Colors.black.withOpacity(0.5)
+                color: attachFiles[photoIndex].path == attachFiles[photoIndex].path ? Colors.amber : Colors.black.withOpacity(0.5)
             ),
             image: DecorationImage(
                 fit: BoxFit.cover, image: FileImage(attachFiles[photoIndex]))),
       ),
       childWhenDragging: Container(width: 60, height: 50),
       child: InkWell(
-        onTap: () => changeSelectedPhoto(attachFiles[photoIndex]),
+        onTap: () => changeSelectedPhoto(photoIndex),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 5),
           width: 50,
@@ -316,7 +331,7 @@ class _AttachShowPageState extends State<AttachShowPage> {
           decoration: BoxDecoration(
               border: Border.all(
                   width: 1,
-                  color: attachFiles[photoIndex].path == selectedImage.path ? Colors.amber : Colors.black.withOpacity(0.5)
+                  color: attachFiles[photoIndex].path == attachFiles[selectedImageIndex].path ? Colors.amber : Colors.black.withOpacity(0.5)
               ),
               image: DecorationImage(
                   fit: BoxFit.cover, image: FileImage(attachFiles[photoIndex]))),
@@ -330,8 +345,10 @@ class _AttachShowPageState extends State<AttachShowPage> {
 
     if (pickedFile != null) {
       setState(() {
-        selectedImage = File(pickedFile.path);
+        selectedImageIndex = attachFiles.length;
         attachFiles.add(File(pickedFile.path));
+        attachTexts.add('');
+        controller.text = '';
       });
     } else {
       Navigator.of(context).pop([]);

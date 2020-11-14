@@ -1,12 +1,12 @@
 import 'dart:io';
-
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
-import 'package:live_chat/components/pages/attach_show_page.dart';
+import 'package:live_chat/components/pages/camera_preview_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
@@ -28,6 +28,7 @@ class _ChatPageState extends State<ChatPage> {
   ChatView _chatView;
   UserView _userView;
 
+  LocalFileSystem _localFileSystem = LocalFileSystem();
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
 
@@ -241,9 +242,17 @@ class _ChatPageState extends State<ChatPage> {
 
   addAttach() async {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => AttachShowPage()))
-        .then((value) {
-          print(value);
+        .push(MaterialPageRoute(builder: (context) => CameraPreviewPage()))
+        .then((fileList) async {
+
+          if(fileList.length > 0) {
+
+            fileList.forEach((File file) async {
+              String imageUrl = await _chatView.uploadImage(_userView.user.userId, 'Images', file);
+              _localFileSystem.file(file.path).delete();
+            });
+          }
+
         });
   }
 
