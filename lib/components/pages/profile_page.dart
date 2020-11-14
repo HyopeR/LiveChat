@@ -35,7 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool showUserData = true;
   bool showUserProfilePhoto = true;
-  bool showForm = false;
+  bool showForm = true;
 
   @override
   void initState() {

@@ -7,7 +7,6 @@ import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/pages/attach_show_page.dart';
-import 'package:live_chat/components/pages/camera_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
