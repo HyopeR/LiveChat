@@ -28,7 +28,7 @@ class MessageMarked extends StatelessWidget {
 
         constraints: BoxConstraints(
           maxHeight: 100,
-          minHeight: 60,
+          minHeight: 50,
         ),
 
         children: writeForwardMessage(message)
@@ -64,22 +64,33 @@ class MessageMarked extends StatelessWidget {
 
       case ('Image'):
         return [
-            ImageWidget(
-              imageUrl: message.message,
-              imageHeight: 50,
-              imageWidth: 50,
-              backgroundPadding: 0,
-            ),
-            ContainerColumn(
-              constraints: BoxConstraints(
-                minWidth: 100,
-              ),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            ContainerRow(
+              mainAxisAlignment: MainAxisAlignment.start,
+
+
               children: [
-                Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Text(message.message),
+                ImageWidget(
+                  imageUrl: message.attach,
+                  imageHeight: 50,
+                  imageWidth: 50,
+                  imageFit: BoxFit.cover,
+                  backgroundPadding: 0,
+                ),
+
+                ContainerColumn(
+                  padding: EdgeInsets.all(5),
+                  constraints: BoxConstraints(
+                    minWidth: 100,
+                  ),
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  
+                  children: [
+                    Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 5),
+                    message.message.trim().length > 0 ? Text(message.message) : Container(height: 5)
+                  ],
+                ),
               ],
             ),
             forwardCancel != null

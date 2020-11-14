@@ -27,7 +27,7 @@ class MessageBubble extends StatelessWidget {
           children: [
             ContainerColumn(
               constraints: BoxConstraints(minWidth: 60),
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(10),
@@ -72,8 +72,8 @@ class MessageBubble extends StatelessWidget {
           child: ContainerColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImageWidget(imageWidth: 180, imageHeight: 180, imageUrl: message.attach, imageFit: BoxFit.cover),
-              message.message != null ? Text(message.message) : Container(),
+              ImageWidget(imageWidth: 150, imageHeight: 150, imageUrl: message.attach, imageFit: BoxFit.cover),
+              message.message.trim().length > 0 ? Text(message.message) : Container(width: 0),
             ],
           ),
         );
