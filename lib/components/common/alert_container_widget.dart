@@ -24,8 +24,8 @@ class AlertContainerWidget extends StatefulWidget {
     this.areaColor : Colors.amber,
     this.areaText : '',
 
-    this.iconSize : 24,
-    this.textSize : 16,
+    this.iconSize : 22,
+    this.textSize : 12,
     this.textColor : Colors.black,
 
     this.leftSideColor : Colors.transparent,

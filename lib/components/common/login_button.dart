@@ -19,7 +19,7 @@ class LoginButton extends StatelessWidget {
       @required this.buttonText,
       this.buttonColor: Colors.blue,
       this.textColor: Colors.white,
-      this.textSize: 16,
+      this.textSize: 14,
       this.buttonRadius: 16,
       this.buttonHeight: 50,
       this.icon,

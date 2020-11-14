@@ -8,7 +8,6 @@ import 'package:live_chat/components/common/sound_player.dart';
 import 'package:live_chat/models/message_model.dart';
 
 class MessageBubble extends StatelessWidget {
-
   final MessageModel message;
   final Color color;
 
@@ -17,41 +16,41 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ContainerColumn(
-
-      margin:
-      message.fromMe
+      margin: message.fromMe
           ? EdgeInsets.only(top: 5, left: MediaQuery.of(context).size.width * 0.1)
           : EdgeInsets.only(top: 5, right: MediaQuery.of(context).size.width * 0.1),
 
-      crossAxisAlignment: message.fromMe
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
+      crossAxisAlignment: message.fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
 
       children: [
-        ContainerColumn(
-          padding: EdgeInsets.all(10),
-
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Stack(
           children: [
-            message.markedMessage != null
-                ? Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: MessageMarked(message: message.markedMessage)
-                )
-                : Container(width: 0),
-
-            Container(
-                margin: EdgeInsets.only(bottom: 5),
-                child: writeMessage(message)
+            ContainerColumn(
+              constraints: BoxConstraints(minWidth: 60),
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                message.markedMessage != null
+                    ? Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: MessageMarked(message: message.markedMessage))
+                    : Container(width: 0),
+                Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    child: writeMessage(message)),
+              ],
             ),
-
             message.date != null
-                ? Text(showClock(message.date), style: TextStyle(color: Colors.black54))
+                ? Positioned(
+                    right: 5,
+                    bottom: 2,
+                    child: Text(showClock(message.date),
+                        style: TextStyle(color: Colors.black54, fontSize: 10)))
                 : Text('')
           ],
         ),
@@ -60,40 +59,36 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget writeMessage(MessageModel message) {
-
-    switch(message.messageType) {
-
-      case('Text'):
+    switch (message.messageType) {
+      case ('Text'):
         return Container(
             constraints: BoxConstraints(maxWidth: 350),
-            child: Text(message.message)
-        );
+            child: Text(message.message));
         break;
 
-      case('Image'):
+      case ('Image'):
         return InkWell(
           onTap: () {},
           child: ContainerColumn(
-              width: 200,
-              height: 200,
-              children: [
-                ImageWidget(imageWidth: 180, imageHeight: 180, imageUrl: message.attach),
-                message.message != null
-                    ? Text(message.message)
-                    : Container(),
-              ],
+            width: 200,
+            height: 200,
+            children: [
+              ImageWidget(
+                  imageWidth: 180, imageHeight: 180, imageUrl: message.attach),
+              message.message != null ? Text(message.message) : Container(),
+            ],
           ),
         );
         break;
 
-      case('Voice'):
+      case ('Voice'):
         return Container(
           constraints: BoxConstraints(maxWidth: 350),
           child: SoundPlayer.voice(
-              soundUrl: message.message,
-              soundDuration: message.duration.toDouble(),
-              soundType: 'Voice',
-              imageUrl: message.ownerImageUrl,
+            soundUrl: message.message,
+            soundDuration: message.duration.toDouble(),
+            soundType: 'Voice',
+            imageUrl: message.ownerImageUrl,
           ),
         );
         break;
@@ -102,7 +97,6 @@ class MessageBubble extends StatelessWidget {
         return null;
         break;
     }
-
   }
 
   String showClock(Timestamp date) {

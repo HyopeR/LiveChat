@@ -1,6 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
@@ -60,7 +59,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   }
 
                                   Map<String, String> currentDates = currentChat.recentMessage.date != null
-                                      ? showDate(currentChat.recentMessage.date)
+                                      ? showDate(currentChat.recentMessage.date, currentDate)
                                       : null;
 
                                   return GestureDetector(
@@ -120,34 +119,6 @@ class _ChatsPageState extends State<ChatsPage> {
             )
         )
     );
-  }
-
-  Map<String, String> showDate(Timestamp date) {
-    DateTime serverDate = date.toDate();
-    int differenceDay = currentDate.difference(serverDate).inDays;
-
-    var formatterDate = DateFormat.yMd();
-    var formatterClock = DateFormat.Hm();
-
-    Map<String, String> dates = {
-      'date': '',
-      'clock': formatterClock.format(serverDate),
-    };
-
-    switch(differenceDay) {
-      case(0):
-        dates.update('date', (value) => 'Bugün');
-        return dates;
-
-      case(1):
-        dates.update('date', (value) => 'Dün');
-        return dates;
-
-      default:
-        dates.update('date', (value) => formatterDate.format(serverDate));
-        return dates;
-
-    }
   }
 
   List<Widget> showMessageText(GroupModel currentChat) {

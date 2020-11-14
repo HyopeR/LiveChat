@@ -62,15 +62,16 @@ class _SoundPlayerState extends State<SoundPlayer> {
       children: [
         ImageWidget(
           imageUrl: widget.imageUrl,
-          imageWidth: 75,
-          imageHeight: 75,
+          imageWidth: 60,
+          imageHeight: 60,
           backgroundShape: BoxShape.circle,
           backgroundColor: Colors.grey.withOpacity(0.3),
         ),
 
-        Stack(
-          children: [
-            Slider(
+        Expanded(
+          child: Stack(
+            children: [
+              Slider(
                 activeColor: Colors.black,
                 inactiveColor: Colors.black26,
                 value: currentDuration,
@@ -82,14 +83,15 @@ class _SoundPlayerState extends State<SoundPlayer> {
                 divisions: widget.soundDuration.toInt(),
                 max: widget.soundDuration,
                 min: 0.0,
-            ),
+              ),
 
-            Positioned(
-              right: 25,
-              bottom: 0,
-              child: Text(calculateTimer(currentDuration.toInt()))
-            )
-          ],
+              Positioned(
+                  right: 25,
+                  bottom: 0,
+                  child: Text(calculateTimer(currentDuration.toInt()))
+              )
+            ],
+          ),
         ),
 
         Container(

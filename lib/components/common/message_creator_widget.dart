@@ -26,7 +26,6 @@ class MessageCreatorWidget extends StatefulWidget {
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
 
-  final VoidCallback useEmojiKeyboard;
   final VoidCallback useCamera;
   final VoidCallback useAttach;
 
@@ -46,7 +45,6 @@ class MessageCreatorWidget extends StatefulWidget {
       this.onPressed,
       this.onLongPressStart,
       this.onLongPressEnd,
-      this.useEmojiKeyboard,
       this.useCamera,
       this.useAttach
       })
@@ -61,7 +59,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   bool permissionsAllowed;
   Widget markedMessageWidget;
   TextEditingController controller;
-  FocusNode _focusNode;
+  FocusNode focusNode;
 
   bool voiceRecordCancelled = false;
   bool timerRun = false;
@@ -73,13 +71,17 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   void initState() {
     super.initState();
     controller = TextEditingController();
-    _focusNode = FocusNode();
+    focusNode = FocusNode();
     permissionsAllowed = widget.permissionsAllowed;
+
+    focusNode.addListener(() {
+
+    });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    focusNode.dispose();
     controller.dispose();
     super.dispose();
   }
@@ -152,12 +154,11 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   List<Widget> defaultArea() {
     return [
       Container(
+          alignment: Alignment.topCenter,
           width: widget.iconSize,
           height: widget.iconSize,
           child: InkWell(
-            onTap: () {
-              _focusNode.hasPrimaryFocus ? _focusNode.unfocus() : _focusNode.requestFocus();
-            },
+            onTap: () => focusNode.hasPrimaryFocus ? focusNode.unfocus() : focusNode.requestFocus(),
 
             child: Icon(
                 Icons.keyboard,
@@ -174,14 +175,14 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
             maxLines: null,
             keyboardType: TextInputType.multiline,
             onChanged: (value) => setState(() {}),
-            focusNode: _focusNode,
+            focusNode: focusNode,
             controller: controller,
             style: TextStyle(color: widget.textColor),
             decoration: InputDecoration(
               hintText: widget.hintText,
               border: InputBorder.none,
               isDense: true,
-              contentPadding: EdgeInsets.only(top: 10, bottom: 6),
+              // contentPadding: EdgeInsets.all(8),
             ),
           ),
         ),
@@ -189,6 +190,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
       InkWell(
         onTap: widget.useAttach,
         child: Container(
+            alignment: Alignment.topCenter,
             width: widget.iconSize,
             height: widget.iconSize,
             child: Icon(Icons.attach_file, color: widget.iconColor)),
@@ -199,6 +201,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
         child: InkWell(
                 onTap: widget.useCamera,
                 child: AnimatedContainer(
+                    alignment: Alignment.topCenter,
                     duration: Duration(milliseconds: 250),
                     width: controller.text.length <= 0 ? widget.iconSize : 0,
                     height: controller.text.length <= 0 ? widget.iconSize : 0,

@@ -29,7 +29,10 @@
 // }
 //
 // void logError(String code, String message) => print('Error: $code\nError Message: $message');
-// void prepareCamera() async => cameras = await availableCameras();
+// void prepareCamera() async {
+//   cameras = await availableCameras();
+//   print(cameras);
+// }
 //
 // class _CameraPageState extends State<CameraPage>
 //     with WidgetsBindingObserver {
@@ -243,7 +246,7 @@
 //   Widget _cameraTogglesRowWidget() {
 //     final List<Widget> toggles = <Widget>[];
 //
-//     if (cameras.isEmpty) {
+//     if (cameras.length < 1) {
 //       return const Text('No camera found');
 //     } else {
 //       for (CameraDescription cameraDescription in cameras) {

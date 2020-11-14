@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:live_chat/services/operation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/alert_container_widget.dart';
@@ -23,6 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
   ChatView _chatView;
 
+  DateTime currentDate = DateTime.now();
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
   ImagePicker picker = ImagePicker();
@@ -210,47 +211,46 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   List<Widget> _userDataWrite() {
-    List<Widget> usersData = [];
+    return [
+      userDataWidget('Name', _userView.user.userName),
+      userDataWidget('Email', _userView.user.userEmail),
+      userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen, currentDate) : 'Yükleniyor...'),
+      userDataWidget('Online', _userView.user.online),
+      userDataWidget('Registered', _userView.user.createdAt != null ? showDate(_userView.user.createdAt, currentDate)['date'] : 'Yükleniyor...'),
+      userDataWidget('Updated', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.updatedAt, currentDate) : 'Yükleniyor...'),
+    ];
+  }
 
-    _userView.user.toMap().forEach((key, value) {
-      if (key != 'userProfilePhotoUrl' &&
-          key != 'userId' &&
-          key != 'groups' &&
-          key != 'contacts')
-        usersData.add(
-          ContainerRow(
-            margin: EdgeInsets.symmetric(vertical: 3),
-            children: [
-              Expanded(
-                flex: 2,
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.grey.withOpacity(0.3),
-                  ),
-                  child: Text('$key:'),
-                ),
-              ),
-              Expanded(
-                  flex: 4,
-                  child: Container(
-                    margin: EdgeInsets.only(left: 3),
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey.withOpacity(0.3),
-                    ),
-                    child: Text(value.toString()),
-                  )),
-            ],
+  Widget userDataWidget(String key, dynamic value) {
+    return ContainerRow(
+      margin: EdgeInsets.symmetric(vertical: 3),
+      children: [
+        Expanded(
+          flex: 2,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.grey.withOpacity(0.3),
+            ),
+            child: Text('$key:'),
           ),
-        );
-    });
-
-    return usersData;
+        ),
+        Expanded(
+            flex: 4,
+            child: Container(
+              margin: EdgeInsets.only(left: 3),
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey.withOpacity(0.3),
+              ),
+              child: Text(value.toString()),
+            )),
+      ],
+    );
   }
 
   void photoFromCamera() async {

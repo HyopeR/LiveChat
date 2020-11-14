@@ -251,8 +251,7 @@ class _ChatPageState extends State<ChatPage> {
   getPermissionStatus() async {
     PermissionStatus storagePermission = await Permission.storage.status;
     PermissionStatus microphonePermission = await Permission.microphone.status;
-    bool permissionResult =
-        (storagePermission.isGranted && microphonePermission.isGranted);
+    bool permissionResult = (storagePermission.isGranted && microphonePermission.isGranted);
     if (permissionResult) _messageCreatorState.currentState.permissionAllow();
 
     setState(() {
@@ -261,6 +260,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   requestPermission() async {
-    await [Permission.microphone, Permission.storage].request();
+    Map<Permission, PermissionStatus> result = await [Permission.microphone, Permission.storage].request();
+    if(result[Permission.microphone].isGranted && result[Permission.storage].isGranted) {
+      _messageCreatorState.currentState.permissionAllow();
+
+      setState(() {
+        permissionStatus = true;
+      });
+
+    }
   }
 }

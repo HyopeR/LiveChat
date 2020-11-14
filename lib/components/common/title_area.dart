@@ -22,10 +22,10 @@ class TitleArea extends StatelessWidget {
     this.padding,
 
     this.icon : Icons.brightness_1,
-    this.iconSize : 24,
+    this.iconSize : 22,
     this.iconColor : Colors.amber,
 
-    this.textSize : 22,
+    this.textSize : 18,
     this.textColor : Colors.black,
     this.textFontWeight : FontWeight.w500
   }) : super(key: key);

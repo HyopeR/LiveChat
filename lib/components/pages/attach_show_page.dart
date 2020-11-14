@@ -1,9 +1,11 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
+import 'package:live_chat/components/common/combine_gesture_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -80,26 +82,31 @@ class _AttachShowPageState extends State<AttachShowPage> {
                 popControl();
                 return false;
               },
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Stack(
                   children: [
                     ContainerColumn(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
-                      padding: EdgeInsets.all(10),
-                      constraints: BoxConstraints(minHeight: 100, maxHeight: 150),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                      // color: Colors.red,
 
-                      ),
                       children: [
-                        Stack(
-                          overflow: Overflow.visible,
-                          children: [
+                        Container(
+                          height: 35,
+                          color: Colors.transparent,
+                        ),
 
+                        ContainerColumn(
+                          mainAxisSize: MainAxisSize.min,
+                          padding: EdgeInsets.all(10),
+                          constraints: BoxConstraints(minHeight: 100, maxHeight: 150),
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            // color: Colors.blue
+                          ),
+                          children: [
                             ContainerRow(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,28 +138,30 @@ class _AttachShowPageState extends State<AttachShowPage> {
                                 ),
                               ],
                             ),
-
-                            Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: defaultButton()
+                            Divider(thickness: 1, height: 5),
+                            ContainerRow(
+                              height: 25,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Icons.arrow_right),
+                                Text(_chatView.selectedChat.groupType == 'Private'
+                                    ? _chatView.interlocutorUser.userName
+                                    : _chatView.selectedChat.groupName)
+                              ],
                             ),
-
-                          ],
-                        ),
-                        Divider(thickness: 1, height: 5),
-                        ContainerRow(
-                          height: 25,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.arrow_right),
-                            Text(_chatView.selectedChat.groupType == 'Private'
-                                ? _chatView.interlocutorUser.userName
-                                : _chatView.selectedChat.groupName)
                           ],
                         ),
                       ],
+                    ),
+
+                    Positioned(
+                      right: 10,
+                      top: 0,
+                      child: Container(
+                        // color: Colors.red,
+                        child: defaultButton(),
+                      ),
                     ),
                   ],
                 ),
@@ -164,17 +173,14 @@ class _AttachShowPageState extends State<AttachShowPage> {
 
   Widget defaultButton() {
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.translucent,
 
       onTap: () {
-        print('asdasdasd');
         Navigator.of(context).pop(attachFiles);
       },
       child: Container(
-        constraints: BoxConstraints(
-          minHeight: 65,
-          minWidth: 65,
-        ),
+        height: 65,
+        width: 65,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Theme.of(context).primaryColor,

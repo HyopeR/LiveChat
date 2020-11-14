@@ -13,11 +13,11 @@ class UserModel {
   List<dynamic> contacts;
   List<dynamic> groups;
 
-  DateTime lastSeen;
+  Timestamp lastSeen;
   bool online;
 
-  DateTime createdAt;
-  DateTime updatedAt;
+  Timestamp createdAt;
+  Timestamp updatedAt;
 
   UserModel({@required this.userId, @required this.userEmail});
 
@@ -47,10 +47,10 @@ class UserModel {
       userProfilePhotoUrl = map['userProfilePhotoUrl'],
       contacts = map['contacts'],
       groups = map['groups'],
-      lastSeen = (map['lastSeen'] as Timestamp).toDate(),
+      lastSeen = map['lastSeen'],
       online = map['online'],
-      createdAt = (map['createdAt'] as Timestamp).toDate(),
-      updatedAt = (map['updatedAt'] as Timestamp).toDate();
+      createdAt = map['createdAt'],
+      updatedAt = map['updatedAt'];
 
   @override
   String toString() {

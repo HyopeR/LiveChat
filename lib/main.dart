@@ -45,6 +45,15 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.amber,
           visualDensity: VisualDensity.adaptivePlatformDensity,
+          textTheme: TextTheme(
+            headline6: TextStyle(fontSize: 18),
+            bodyText2: TextStyle(fontSize: 12),
+            bodyText1: TextStyle(fontSize: 12),
+          ),
+          
+          inputDecorationTheme: InputDecorationTheme(
+            contentPadding: EdgeInsets.all(10),
+          ),
         ),
       ),
     );
