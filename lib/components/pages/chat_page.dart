@@ -34,7 +34,7 @@ class _ChatPageState extends State<ChatPage> {
 
   bool permissionStatus = false;
   MessageModel markedMessage;
-  List<File> attachFileList;
+  List<Map<String, dynamic>> attachFileList;
 
   @override
   void initState() {
@@ -235,6 +235,32 @@ class _ChatPageState extends State<ChatPage> {
         }
         break;
 
+      case ('Image'):
+        attachFileList.forEach((Map<String, dynamic> map) async {
+          String imageUrl = await _chatView.uploadImage(_userView.user.userId, 'Images', map['file']);
+          print(imageUrl);
+
+          if (imageUrl != null) {
+            savingMessage.attach = imageUrl;
+            savingMessage.message = map['text'];
+
+            bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
+            if (result) {
+              markedMessage = null;
+
+              _chatView.clearStorage();
+              _messageCreatorState.currentState.setMarkedMessage(null);
+              _scrollController.animateTo(0,
+                  duration: Duration(microseconds: 50), curve: Curves.easeOut);
+            }
+          }
+
+          _localFileSystem.file(map['file'].path).delete();
+        });
+
+        attachFileList = [];
+        break;
+
       default:
         break;
     }
@@ -243,14 +269,11 @@ class _ChatPageState extends State<ChatPage> {
   addAttach() async {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => CameraPreviewPage()))
-        .then((fileList) async {
+        .then((listData) async {
 
-          if(fileList.length > 0) {
-
-            fileList.forEach((File file) async {
-              String imageUrl = await _chatView.uploadImage(_userView.user.userId, 'Images', file);
-              _localFileSystem.file(file.path).delete();
-            });
+          if(listData.length > 0) {
+            attachFileList = listData;
+            saveMessage('Image');
           }
 
         });

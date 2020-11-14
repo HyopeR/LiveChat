@@ -70,11 +70,9 @@ class MessageBubble extends StatelessWidget {
         return InkWell(
           onTap: () {},
           child: ContainerColumn(
-            width: 200,
-            height: 200,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImageWidget(
-                  imageWidth: 180, imageHeight: 180, imageUrl: message.attach),
+              ImageWidget(imageWidth: 180, imageHeight: 180, imageUrl: message.attach, imageFit: BoxFit.cover),
               message.message != null ? Text(message.message) : Container(),
             ],
           ),
