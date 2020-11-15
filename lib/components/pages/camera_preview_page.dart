@@ -10,6 +10,11 @@ import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
 
 class CameraPreviewPage extends StatefulWidget {
+  final String groupType;
+
+  const CameraPreviewPage({Key key, this.groupType}) : super(key: key);
+
+
   @override
   _CameraPreviewPageState createState() => _CameraPreviewPageState();
 }
@@ -79,10 +84,10 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
               onLeftSideClick: () {
                 popControl();
               },
-              titleImageUrl: _chatView.selectedChat.groupType == 'Private'
+              titleImageUrl: widget.groupType == 'Private'
                   ? _chatView.interlocutorUser.userProfilePhotoUrl
                   : _chatView.selectedChat.groupImageUrl,
-              titleText: _chatView.selectedChat.groupType == 'Private'
+              titleText: widget.groupType == 'Private'
                   ? _chatView.interlocutorUser.userName
                   : _chatView.selectedChat.groupName,
             ),
@@ -247,7 +252,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Icon(Icons.arrow_right),
-                                    Text(_chatView.selectedChat.groupType ==
+                                    Text(widget.groupType ==
                                         'Private'
                                         ? _chatView.interlocutorUser.userName
                                         : _chatView.selectedChat.groupName)

@@ -97,8 +97,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                 });
                           else
                             return SizedBox.expand(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
+                              child: ContainerColumn(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.chat, size: 100),
                                   Text(

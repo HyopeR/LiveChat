@@ -15,12 +15,18 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double bubbleMarginRate = 0.1;
+    if(message.messageType == 'Image' || message.messageType == 'Video')
+      bubbleMarginRate = 0.4;
+
     return ContainerColumn(
       margin: message.fromMe
-          ? EdgeInsets.only(top: 5, left: MediaQuery.of(context).size.width * 0.1)
-          : EdgeInsets.only(top: 5, right: MediaQuery.of(context).size.width * 0.1),
+          ? EdgeInsets.only(top: 5, left: MediaQuery.of(context).size.width * bubbleMarginRate)
+          : EdgeInsets.only(top: 5, right: MediaQuery.of(context).size.width * bubbleMarginRate),
 
-      crossAxisAlignment: message.fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: message.fromMe
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
 
       children: [
         Stack(
@@ -42,7 +48,7 @@ class MessageBubble extends StatelessWidget {
                     : Container(width: 0),
                 Container(
                     margin: EdgeInsets.only(bottom: 10),
-                    child: writeMessage(message)),
+                    child: writeMessage(context, message)),
               ],
             ),
             message.date != null
@@ -58,7 +64,7 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget writeMessage(MessageModel message) {
+  Widget writeMessage(BuildContext context, MessageModel message) {
     switch (message.messageType) {
       case ('Text'):
         return Container(
@@ -67,12 +73,14 @@ class MessageBubble extends StatelessWidget {
         break;
 
       case ('Image'):
+        double imageSize = (MediaQuery.of(context).size.width * 0.6) - 20;
+
         return InkWell(
           onTap: () {},
           child: ContainerColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImageWidget(imageWidth: 150, imageHeight: 150, imageUrl: message.attach, imageFit: BoxFit.cover),
+              ImageWidget(imageWidth: imageSize, imageHeight: imageSize, imageUrl: message.attach, imageFit: BoxFit.cover),
               message.message != null ? Text(message.message) : Container(width: 0),
             ],
           ),

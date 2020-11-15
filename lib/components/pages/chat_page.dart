@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
@@ -10,7 +10,6 @@ import 'package:live_chat/components/pages/camera_preview_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +17,6 @@ class ChatPage extends StatefulWidget {
   final String groupType;
 
   ChatPage.private({Key key, this.groupType = 'Private'}) : super(key: key);
-
   ChatPage.plural({Key key, this.groupType = 'Plural'}) : super(key: key);
 
   @override
@@ -160,8 +158,15 @@ class _ChatPageState extends State<ChatPage> {
                   }
                 },
 
-                useCamera: () {
-                  addAttach();
+                useCamera: () async {
+                  if(permissionStatus)
+                    addAttach();
+                  else{
+                    bool allowControl = await requestPermission();
+                    if(allowControl)
+                      addAttach();
+                  }
+
                 },
 
                 useAttach: () {
@@ -247,7 +252,6 @@ class _ChatPageState extends State<ChatPage> {
             if (result) {
               markedMessage = null;
 
-              _chatView.clearStorage();
               _messageCreatorState.currentState.setMarkedMessage(null);
               _scrollController.animateTo(0,
                   duration: Duration(microseconds: 50), curve: Curves.easeOut);
@@ -255,13 +259,15 @@ class _ChatPageState extends State<ChatPage> {
           }
 
           // Telefona gönderilen resmin kaydedilmesi.
-          Directory phoneGalleryPath = await getApplicationDocumentsDirectory();
-          await map['file'].copy('${phoneGalleryPath.path}/image1.png');
+          bool saveStatus = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
+          print(saveStatus.toString());
 
           // Local cache'den cameradan eklenen resmin silinmesi.
-          _localFileSystem.file(map['file'].path).delete();
+          if(saveStatus)
+            await _localFileSystem.file(map['file'].path).delete();
         });
 
+        // await GallerySaver.saveImage(attachFileList[0]['file'].path, albumName: 'Live Chat Images');
         attachFileList = [];
         break;
 
@@ -272,7 +278,7 @@ class _ChatPageState extends State<ChatPage> {
 
   addAttach() async {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => CameraPreviewPage()))
+        .push(MaterialPageRoute(builder: (context) => CameraPreviewPage(groupType: widget.groupType)))
         .then((listData) async {
 
           if(listData.length > 0) {
@@ -284,17 +290,15 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   getPermissionStatus() async {
-    PermissionStatus storagePermission = await Permission.storage.status;
-    PermissionStatus microphonePermission = await Permission.microphone.status;
-    bool permissionResult = (storagePermission.isGranted && microphonePermission.isGranted);
-    if (permissionResult) _messageCreatorState.currentState.permissionAllow();
-
-    setState(() {
-      permissionStatus = permissionResult;
-    });
+    if (await Permission.microphone.isGranted && await Permission.storage.isGranted) {
+      _messageCreatorState.currentState.permissionAllow();
+      setState(() {
+        permissionStatus = true;
+      });
+    }
   }
 
-  requestPermission() async {
+  Future<bool> requestPermission() async {
     Map<Permission, PermissionStatus> result = await [Permission.microphone, Permission.storage].request();
     if(result[Permission.microphone].isGranted && result[Permission.storage].isGranted) {
       _messageCreatorState.currentState.permissionAllow();
@@ -303,6 +307,8 @@ class _ChatPageState extends State<ChatPage> {
         permissionStatus = true;
       });
 
-    }
+      return true;
+    } else
+      return false;
   }
 }

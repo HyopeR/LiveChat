@@ -46,23 +46,29 @@ class _UsersPageState extends State<UsersPage> {
                               itemBuilder: (context, index) {
                                 UserModel currentUser = users[index];
 
-                                if ((currentUser.userId != _userView.user.userId))
+                                if ((currentUser.userId !=
+                                    _userView.user.userId))
                                   return GestureDetector(
                                     onTap: () {
-
-                                      _chatView.findChatByUserIdList([_userView.user.userId, currentUser.userId]);
+                                      _chatView.findChatByUserIdList([
+                                        _userView.user.userId,
+                                        currentUser.userId
+                                      ]);
                                       _chatView.interlocutorUser = currentUser;
                                       Navigator.of(context, rootNavigator: true)
-                                          .push(MaterialPageRoute(builder: (context) => ChatPage.private()));
-
+                                          .push(MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChatPage.private()));
                                     },
                                     child: ListTile(
                                       leading: ImageWidget(
-                                        imageUrl: currentUser.userProfilePhotoUrl,
+                                        imageUrl:
+                                            currentUser.userProfilePhotoUrl,
                                         imageWidth: 75,
                                         imageHeight: 75,
                                         backgroundShape: BoxShape.circle,
-                                        backgroundColor: Colors.grey.withOpacity(0.3),
+                                        backgroundColor:
+                                            Colors.grey.withOpacity(0.3),
                                       ),
                                       title: Text(currentUser.userName),
                                       subtitle: Text(currentUser.userEmail),
@@ -72,26 +78,27 @@ class _UsersPageState extends State<UsersPage> {
                                   return Container();
                               }),
                         );
-                      else
-                        return RefreshIndicator(
-                          onRefresh: () => refreshUsers(),
-                          child: SizedBox.expand(
-                            child: ListView(
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.people, size: 100),
-                                    Text(
-                                      'Kayıtlı kullanıcı bulunmamaktadır.',
-                                      textAlign: TextAlign.center,
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
+                      else {
+                        return LayoutBuilder(
+                          builder: (context, constraints) => RefreshIndicator(onRefresh: () => refreshUsers(),
+                              child: SingleChildScrollView(
+                                  physics: AlwaysScrollableScrollPhysics(),
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                        minHeight: constraints.maxHeight),
+                                    child: ContainerColumn(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Icon(Icons.people, size: 100),
+                                        Text(
+                                          'Kayıtlı kullanıcı bulunmamaktadır.',
+                                          textAlign: TextAlign.center,
+                                        )
+                                      ],
+                                    ),
+                                  ))),
                         );
+                      }
                     } else
                       return Center(child: CircularProgressIndicator());
                   },
