@@ -54,11 +54,13 @@ class _UsersPageState extends State<UsersPage> {
                                         _userView.user.userId,
                                         currentUser.userId
                                       ]);
+
                                       _chatView.interlocutorUser = currentUser;
+                                      _chatView.groupType = 'Private';
                                       Navigator.of(context, rootNavigator: true)
                                           .push(MaterialPageRoute(
                                               builder: (context) =>
-                                                  ChatPage.private()));
+                                                  ChatPage()));
                                     },
                                     child: ListTile(
                                       leading: ImageWidget(

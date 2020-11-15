@@ -14,11 +14,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
-  final String groupType;
-
-  ChatPage.private({Key key, this.groupType = 'Private'}) : super(key: key);
-  ChatPage.plural({Key key, this.groupType = 'Plural'}) : super(key: key);
-
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -53,10 +48,10 @@ class _ChatPageState extends State<ChatPage> {
             onLeftSideClick: () {
               Navigator.of(context).pop();
             },
-            titleImageUrl: widget.groupType == 'Private'
+            titleImageUrl: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userProfilePhotoUrl
                 : _chatView.selectedChat.groupImageUrl,
-            titleText: widget.groupType == 'Private'
+            titleText: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userName
                 : _chatView.selectedChat.groupName),
         body: SafeArea(
@@ -87,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
                                   bool fromMe = currentMessage.sendBy == _userView.user.userId;
                                   currentMessage.fromMe = fromMe;
 
-                                  if(widget.groupType == 'Private') {
+                                  if(_chatView.groupType == 'Private') {
                                     currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : _chatView.interlocutorUser.userProfilePhotoUrl;
                                     currentMessage.ownerUsername = fromMe ? _userView.user.userName : _chatView.interlocutorUser.userName;
 
@@ -184,7 +179,7 @@ class _ChatPageState extends State<ChatPage> {
       if (_chatView.selectedChatState == SelectedChatState.Empty) {
         await _chatView.getGroupIdByUserIdList(
             _userView.user.userId,
-            widget.groupType,
+            _chatView.groupType,
             [_userView.user.userId, _chatView.interlocutorUser.userId]);
         sendMessage(messageType);
       } else {
@@ -260,7 +255,6 @@ class _ChatPageState extends State<ChatPage> {
 
           // Telefona gönderilen resmin kaydedilmesi.
           bool saveStatus = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
-          print(saveStatus.toString());
 
           // Local cache'den cameradan eklenen resmin silinmesi.
           if(saveStatus)
@@ -278,7 +272,7 @@ class _ChatPageState extends State<ChatPage> {
 
   addAttach() async {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => CameraPreviewPage(groupType: widget.groupType)))
+        .push(MaterialPageRoute(builder: (context) => CameraPreviewPage()))
         .then((listData) async {
 
           if(listData.length > 0) {

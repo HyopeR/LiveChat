@@ -18,6 +18,7 @@ class ChatView with ChangeNotifier {
   List<UserModel> _users;
   UserModel interlocutorUser;
   List<GroupModel> _groups = [];
+  String groupType;
 
   GroupModel _selectedChat;
   SelectedChatState _selectedChatState = SelectedChatState.Empty;
