@@ -88,7 +88,7 @@ class MessageMarked extends StatelessWidget {
                   children: [
                     Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(height: 5),
-                    message.message.trim().length > 0 ? Text(message.message) : Container(height: 5)
+                    message.message != null ? Text(message.message) : Container(height: 5)
                   ],
                 ),
               ],

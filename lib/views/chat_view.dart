@@ -141,12 +141,12 @@ class ChatView with ChangeNotifier {
     return _chatRepo.clearStorage();
   }
 
-  Future<String> uploadVoiceNote(String userId, String fileType, File file) async {
-    return _chatRepo.uploadVoiceNote(userId, fileType, file);
+  Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
+    return _chatRepo.uploadVoiceNote(groupId, fileType, file);
   }
 
-  Future<String> uploadImage(String userId, String fileType, File file) async {
-    return _chatRepo.uploadVoiceNote(userId, fileType, file);
+  Future<String> uploadImage(String groupId, String fileType, File file) async {
+    return _chatRepo.uploadVoiceNote(groupId, fileType, file);
   }
 
 

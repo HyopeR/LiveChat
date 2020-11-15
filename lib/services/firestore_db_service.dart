@@ -168,6 +168,9 @@ class FireStoreDbService implements DbBase {
     if(message.messageType != 'Voice')
       messageMap.remove('duration');
 
+    if(message.message.trim().length < 1)
+      messageMap.remove('message');
+
     await _fireStore.collection('chats').doc(groupId)
         .collection('messages')
         .doc(messageId)

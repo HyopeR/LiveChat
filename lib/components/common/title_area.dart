@@ -14,7 +14,6 @@ class TitleArea extends StatelessWidget {
   final Color textColor;
   final FontWeight textFontWeight;
 
-
   const TitleArea({
     Key key,
     this.titleText,

@@ -73,7 +73,7 @@ class MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ImageWidget(imageWidth: 150, imageHeight: 150, imageUrl: message.attach, imageFit: BoxFit.cover),
-              message.message.trim().length > 0 ? Text(message.message) : Container(width: 0),
+              message.message != null ? Text(message.message) : Container(width: 0),
             ],
           ),
         );

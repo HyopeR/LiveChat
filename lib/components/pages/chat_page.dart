@@ -10,6 +10,7 @@ import 'package:live_chat/components/pages/camera_preview_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -198,8 +199,7 @@ class _ChatPageState extends State<ChatPage> {
 
     switch (messageType) {
       case ('Text'):
-        savingMessage.message =
-            _messageCreatorState.currentState.controller.text;
+        savingMessage.message = _messageCreatorState.currentState.controller.text;
 
         bool result = await _chatView.saveMessage(
             savingMessage, _userView.user, _chatView.selectedChat.groupId);
@@ -214,8 +214,7 @@ class _ChatPageState extends State<ChatPage> {
         break;
 
       case ('Voice'):
-        String voiceUrl = await _chatView.uploadVoiceNote(
-            _userView.user.userId, 'Voice_Notes', _chatView.voiceFile);
+        String voiceUrl = await _chatView.uploadVoiceNote(_chatView.selectedChat.groupId, 'Voice_Notes', _chatView.voiceFile);
 
         if (voiceUrl != null) {
           savingMessage.message = voiceUrl;
@@ -237,7 +236,7 @@ class _ChatPageState extends State<ChatPage> {
 
       case ('Image'):
         attachFileList.forEach((Map<String, dynamic> map) async {
-          String imageUrl = await _chatView.uploadImage(_userView.user.userId, 'Images', map['file']);
+          String imageUrl = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
           print(imageUrl);
 
           if (imageUrl != null) {
@@ -255,6 +254,11 @@ class _ChatPageState extends State<ChatPage> {
             }
           }
 
+          // Telefona gönderilen resmin kaydedilmesi.
+          Directory phoneGalleryPath = await getApplicationDocumentsDirectory();
+          await map['file'].copy('${phoneGalleryPath.path}/image1.png');
+
+          // Local cache'den cameradan eklenen resmin silinmesi.
           _localFileSystem.file(map['file'].path).delete();
         });
 

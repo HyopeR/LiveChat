@@ -21,9 +21,9 @@ class FirebaseStorageService implements StorageBase {
   }
 
   @override
-  Future<String> uploadVoiceNote(String userId, String fileType, File file) async {
+  Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
     String voiceUniqueName = uuid.v1();
-    _storageReference = _firebaseStorage.ref().child('users').child(userId).child(fileType).child(voiceUniqueName);
+    _storageReference = _firebaseStorage.ref().child('groups').child(groupId).child(fileType).child(voiceUniqueName);
     StorageUploadTask uploadTask = _storageReference.putFile(file);
 
     String url = await (await uploadTask.onComplete).ref.getDownloadURL();
@@ -32,9 +32,9 @@ class FirebaseStorageService implements StorageBase {
   }
 
   @override
-  Future<String> uploadImage(String userId, String fileType, File file) async {
+  Future<String> uploadImage(String groupId, String fileType, File file) async {
     String voiceUniqueName = uuid.v1();
-    _storageReference = _firebaseStorage.ref().child('users').child(userId).child(fileType).child(voiceUniqueName);
+    _storageReference = _firebaseStorage.ref().child('groups').child(groupId).child(fileType).child(voiceUniqueName);
     StorageUploadTask uploadTask = _storageReference.putFile(file);
 
     String url = await (await uploadTask.onComplete).ref.getDownloadURL();
