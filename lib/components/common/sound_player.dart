@@ -11,21 +11,21 @@ class SoundPlayer extends StatefulWidget {
   double soundDuration;
   String imageUrl;
 
-  SoundPlayer.voice({
-    Key key,
-    this.soundUrl,
-    this.soundType = 'Voice',
-    this.soundDuration,
-    this.imageUrl
-  }) : super(key: key);
+  SoundPlayer.voice(
+      {Key key,
+      this.soundUrl,
+      this.soundType = 'Voice',
+      this.soundDuration,
+      this.imageUrl})
+      : super(key: key);
 
-  SoundPlayer.song({
-    Key key,
-    this.soundUrl,
-    this.soundType = 'Song',
-    this.soundDuration,
-    this.imageUrl = 'https://img.webme.com/pic/c/creative-blog/song.png'
-  }) : super(key: key);
+  SoundPlayer.song(
+      {Key key,
+      this.soundUrl,
+      this.soundType = 'Song',
+      this.soundDuration,
+      this.imageUrl = 'https://img.webme.com/pic/c/creative-blog/song.png'})
+      : super(key: key);
 
   @override
   _SoundPlayerState createState() => _SoundPlayerState();
@@ -58,7 +58,6 @@ class _SoundPlayerState extends State<SoundPlayer> {
   Widget build(BuildContext context) {
     return ContainerRow(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
       children: [
         ImageWidget(
           imageUrl: widget.imageUrl,
@@ -67,7 +66,6 @@ class _SoundPlayerState extends State<SoundPlayer> {
           backgroundShape: BoxShape.circle,
           backgroundColor: Colors.grey.withOpacity(0.3),
         ),
-
         Expanded(
           child: Stack(
             children: [
@@ -84,61 +82,50 @@ class _SoundPlayerState extends State<SoundPlayer> {
                 max: widget.soundDuration,
                 min: 0.0,
               ),
-
               Positioned(
                   right: 25,
                   bottom: 0,
-                  child: Text(calculateTimer(currentDuration.toInt()))
-              )
+                  child: Text(calculateTimer(currentDuration.toInt())))
             ],
           ),
         ),
-
         Container(
-          child: !currentState
-              ?
-                IconButton(
-                  splashRadius: 32,
-                  icon: Icon(Icons.play_arrow),
-                  iconSize: 44,
-                  onPressed: () => play(),
-                )
-              :
-                IconButton(
-                  splashRadius: 32,
-                  icon: Icon(Icons.pause),
-                  iconSize: 44,
-                  onPressed: () => pause(),
-                )
-              )
+            child: IconButton(
+              splashRadius: 24,
+              icon: Icon(!currentState ? Icons.play_arrow : Icons.pause),
+              iconSize: 44,
+              onPressed: () => !currentState ? play() : pause(),
+           )
+        )
       ],
     );
   }
 
-  void play() async{
-    await audioPlayer.release();
-    audioPlayer.play(widget.soundUrl, isLocal: false, position: Duration(seconds: currentDuration.toInt()));
+  void play() async {
+    // await audioPlayer.release();
+    audioPlayer.play(widget.soundUrl,
+        isLocal: false, position: Duration(seconds: currentDuration.toInt()));
     setState(() {
       currentState = true;
     });
   }
 
-  void pause() async{
+  void pause() async {
     audioPlayer.pause();
     setState(() {
       currentState = false;
     });
   }
 
-  // void resume() async{
-  //   await audioPlayer.resume();
-  // }
-  //
-  // void stop() async{
-  //   await audioPlayer.stop();
-  // }
-  //
-  // void release() async{
-  //   await audioPlayer.release();
-  // }
+// void resume() async{
+//   await audioPlayer.resume();
+// }
+//
+// void stop() async{
+//   await audioPlayer.stop();
+// }
+//
+// void release() async{
+//   await audioPlayer.release();
+// }
 }

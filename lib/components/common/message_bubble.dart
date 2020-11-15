@@ -16,9 +16,22 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double bubbleMarginRate = 0.1;
-    if(message.messageType == 'Image' || message.messageType == 'Video')
-      bubbleMarginRate = 0.4;
+    switch(message.messageType){
 
+      case('Video'):
+      case('Image'):
+        bubbleMarginRate = 0.4;
+        break;
+
+      case('Sound'):
+      case('Voice'):
+        bubbleMarginRate = 0.2;
+        break;
+
+      default:
+        break;
+
+    }
     return ContainerColumn(
       margin: message.fromMe
           ? EdgeInsets.only(top: 5, left: MediaQuery.of(context).size.width * bubbleMarginRate)
