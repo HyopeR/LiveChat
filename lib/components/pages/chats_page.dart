@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/components/common/container_column.dart';
@@ -58,9 +59,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                     interlocutorUser = _chatView.selectChatUser(userId);
                                   }
 
-                                  Map<String, String> currentDates = currentChat.recentMessage.date != null
-                                      ? showDate(currentChat.recentMessage.date, currentDate)
+                                  String currentDates = currentChat.recentMessage.date != null
+                                      ? showDateComposedString(currentChat.recentMessage.date, currentDate)
                                       : null;
+
+                                  int unreadMessageCount = currentChat.totalMessage - currentChat.seenMessage[_userView.user.userId];
 
                                   return GestureDetector(
                                     onTap: () {
@@ -81,9 +84,27 @@ class _ChatsPageState extends State<ChatsPage> {
                                             backgroundColor: Colors.grey.withOpacity(0.3),
                                           ),
 
-                                        trailing: currentDates != null
-                                                    ? Text(currentDates['date'] + '\n' + currentDates['clock'], textAlign: TextAlign.right,)
-                                                    : Text(' '),
+                                        trailing: ContainerColumn(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                                          children: [
+                                            currentDates != null
+                                                ? Text(currentDates, textAlign: TextAlign.right,)
+                                                : Text(' '),
+
+                                            Container(
+                                              padding: EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  color: unreadMessageCount > 0 ? Theme.of(context).primaryColor : Colors.transparent
+                                              ),
+                                              child: Text(
+                                                  unreadMessageCount > 0 ? unreadMessageCount.toString() : ' ',
+                                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                                            )
+
+                                          ],
+                                        ),
 
                                         title: Text(currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName),
                                         subtitle:
@@ -128,9 +149,9 @@ class _ChatsPageState extends State<ChatsPage> {
       case('Text'):
         return [
           currentChat.groupType == 'Private' ? Container() : Text('${currentChat.recentMessage.ownerUsername}: '),
-          Text(currentChat.recentMessage.message.length > 25
+          Text(currentChat.recentMessage.message.length > 32
 
-              ? currentChat.recentMessage.message.substring(0, 21) + '...'
+              ? currentChat.recentMessage.message.substring(0, 28) + '...'
               : currentChat.recentMessage.message)
         ];
         break;

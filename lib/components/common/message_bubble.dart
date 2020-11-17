@@ -46,7 +46,7 @@ class MessageBubble extends StatelessWidget {
           children: [
             ContainerColumn(
               constraints: BoxConstraints(minWidth: 60),
-              padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(10),

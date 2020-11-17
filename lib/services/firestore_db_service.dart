@@ -123,9 +123,18 @@ class FireStoreDbService implements DbBase {
 
   @override
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
+    print(userId);
+    print(groupType);
+    print(userIdList);
+
     QuerySnapshot groupQuery = await _fireStore.collection('groups')
         .where('members', isEqualTo: userIdList)
         .get();
+
+    print(groupQuery.docs.length.toString());
+    groupQuery.docs.forEach((element) {
+      print('Foreach: ' + element.data().toString());
+    });
 
     // Grup varsa var olanı döndürür.
     if(groupQuery.docs.length > 0) {
@@ -135,11 +144,18 @@ class FireStoreDbService implements DbBase {
     // Grup yok ise var olan kullanıcıların roomlarını güncelleyip, yeni bir room oluşturup döndürürüz.
     else {
       String groupId = _fireStore.collection('groups').doc().id;
+
+      // Grupta olacak her bir user için okunmamış mesaj değerlerini tutacak bir map yapısı oluşturuyoruz.
+      Map<String, int> seenMessage = {};
+      userIdList.forEach((userId) => seenMessage[userId] = 0);
+
       GroupModel createGroup = GroupModel.private(
         groupId: groupId,
         groupType: groupType,
         members: userIdList,
-        createdBy: userId
+        seenMessage: seenMessage,
+        totalMessage: 0,
+        createdBy: userId,
       );
 
       // Userların bir gruba dahil olduklarında groups alanlarına girdiği grubun id'sini ekliyoruz.
@@ -183,11 +199,22 @@ class FireStoreDbService implements DbBase {
     if(messageMap['markedMessage'] != null)
       messageMap.remove('markedMessage');
 
+    // Son mesajı gruba kaydetme sırasında aynı zamanda mesajı gönderen kişinin seen message alanını ve
+    // total message alanlarını 1 arttırıyoruz.
     await _fireStore.collection('groups').doc(groupId).update({
-      'recentMessage': messageMap
+      'recentMessage': messageMap,
+      'totalMessage': FieldValue.increment(1),
+      'seenMessage.${messageOwner.userId}': FieldValue.increment(1)
     });
 
     return true;
+  }
+
+  @override
+  void messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
+    await _fireStore.collection('groups').doc(groupId).update({
+      'seenMessage.$userId': totalMessage
+    });
   }
 
 }

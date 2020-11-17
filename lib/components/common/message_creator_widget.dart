@@ -73,10 +73,6 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
     controller = TextEditingController();
     focusNode = FocusNode();
     permissionsAllowed = widget.permissionsAllowed;
-
-    focusNode.addListener(() {
-
-    });
   }
 
   @override

@@ -17,4 +17,6 @@ abstract class DbBase {
 
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList);
   Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId);
+
+  void messagesMarkAsSeen(String userId, String groupId, int totalMessage);
 }

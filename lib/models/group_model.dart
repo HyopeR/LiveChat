@@ -14,6 +14,8 @@ class GroupModel {
   List<dynamic> members;
 
   MessageModel recentMessage;
+  Map<String, dynamic> seenMessage;
+  int totalMessage;
 
   String createdBy;
   Timestamp createdAt;
@@ -24,6 +26,8 @@ class GroupModel {
     this.groupType,
     this.members,
     this.recentMessage,
+    this.seenMessage,
+    this.totalMessage,
     this.createdBy,
     this.createdAt,
     this.updatedAt
@@ -36,6 +40,8 @@ class GroupModel {
     this.groupImageUrl,
     this.members,
     this.recentMessage,
+    this.seenMessage,
+    this.totalMessage,
     this.createdBy,
     this.createdAt,
     this.updatedAt
@@ -52,6 +58,8 @@ class GroupModel {
       'members': members ?? [],
 
       'recentMessage': recentMessage == null ? null : recentMessage.toMap(),
+      'seenMessage': seenMessage ?? Map<String, int>(),
+      'totalMessage': totalMessage ?? 0,
 
       'createdBy': createdBy,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
@@ -66,6 +74,8 @@ class GroupModel {
         groupImageUrl = map['groupImageUrl'],
         members = map['members'],
         recentMessage = map['recentMessage'] == null ? null : MessageModel.fromMap(map['recentMessage']),
+        totalMessage = map['totalMessage'],
+        seenMessage = map['seenMessage'],
         createdBy = map['createdBy'],
         createdAt = map['createdAt'],
         updatedAt = map['updatedAt'];
@@ -80,6 +90,8 @@ class GroupModel {
       'members': members ?? [],
 
       'recentMessage': recentMessage == null ? null : recentMessage.toMap(),
+      'seenMessage': seenMessage ?? Map<String, int>(),
+      'totalMessage': totalMessage ?? 0,
 
       'createdBy': createdBy,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
@@ -92,6 +104,8 @@ class GroupModel {
         groupType = map['groupType'],
         members = map['members'],
         recentMessage = map['recentMessage'] == null ? null : MessageModel.fromMap(map['recentMessage']),
+        seenMessage = map['seenMessage'],
+        totalMessage = map['totalMessage'],
         createdBy = map['createdBy'],
         createdAt = map['createdAt'],
         updatedAt = map['updatedAt'];
@@ -106,6 +120,8 @@ class GroupModel {
         'groupImageUrl: $groupImageUrl, '
         'members: $members, '
         'recentMessage: ${recentMessage != null ? recentMessage.toString() : null}, '
+        'seenMessage: $seenMessage, '
+        'totalMessage: $totalMessage, '
         'createdBy: $createdBy, '
         'createdAt: $createdAt, '
         'updatedAt: $updatedAt}';

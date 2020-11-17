@@ -47,6 +47,11 @@ class ChatView with ChangeNotifier {
     return user;
   }
 
+  GroupModel unSelectChat() {
+    _selectedChat = null;
+    return _selectedChat;
+  }
+
   GroupModel selectChat(String groupId) {
     _selectedChat = _groups.where((group) => group.groupId == groupId).first;
     selectedChatState = SelectedChatState.Loaded;
@@ -87,8 +92,18 @@ class ChatView with ChangeNotifier {
   Stream<List<GroupModel>> getAllGroups(String userId) {
 
     try{
-      _chatRepo.getAllGroups(userId).listen((event) {
-        _groups = event;
+      _chatRepo.getAllGroups(userId).listen((groupData) {
+        // Eğer bir chat sayfasında değilsek selectedChat boş oluyor. Dolayısıyla eğerki biz bir chat sayfasındaysak
+        // ve o group içerisinde yeni bir mesaj atılmış ise bunu buradan dinleyerek gördüğümüz mesajı database'e görüldü
+        // olarak anlatmak amacıyla kendi gördüğümüz mesaj sayısını arttırıyoruz.
+        if(selectedChat != null) {
+          GroupModel activeGroup = groupData.where((group) => group.groupId == selectedChat.groupId).first;
+          if(activeGroup.totalMessage != activeGroup.seenMessage[userId]) {
+            _chatRepo.messagesMarkAsSeen(userId, activeGroup.groupId, activeGroup.totalMessage);
+          }
+        }
+
+        _groups = groupData;
       });
       return _chatRepo.getAllGroups(userId);
     }catch(err) {

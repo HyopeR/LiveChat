@@ -16,25 +16,28 @@ String calculateTimer(int time) {
   }
 }
 
-Map<String, String> showDate(Timestamp date, DateTime currentDate) {
+Map<String, dynamic> showDate(Timestamp date, DateTime currentDate) {
   DateTime serverDate = date.toDate();
   int differenceDay = currentDate.difference(serverDate).inDays;
 
   var formatterDate = DateFormat.yMd();
   var formatterClock = DateFormat.Hm();
 
-  Map<String, String> dates = {
+  Map<String, dynamic> dates = {
     'date': '',
     'clock': formatterClock.format(serverDate),
+    'showClock': false,
   };
 
   switch(differenceDay) {
     case(0):
       dates.update('date', (value) => 'Bugün');
+      dates.update('showClock', (value) => true);
       return dates;
 
     case(1):
       dates.update('date', (value) => 'Dün');
+      dates.update('showClock', (value) => true);
       return dates;
 
     default:
@@ -46,5 +49,9 @@ Map<String, String> showDate(Timestamp date, DateTime currentDate) {
 
 String showDateComposedString(Timestamp date, DateTime currentDate) {
   Map<String, dynamic> dateMap = showDate(date, currentDate);
-  return '${dateMap['date']} - ${dateMap['clock']}';
+
+  if(dateMap['showClock'])
+    return '${dateMap['date']} - ${dateMap['clock']}';
+  else
+    return '${dateMap['date']}';
 }
