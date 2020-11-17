@@ -167,9 +167,9 @@ class _SignInPageState extends State<SignInPage> {
 
   pageTransition(UserModel user) async {
     if(user != null) {
-      _userView.streamCurrentUser(_userView.user.userId);
+      _userView.streamCurrentUser(_userView.user.userId).first;
       await _chatView.getAllUsers();
-      _chatView.getAllGroups(_userView.user.userId);
+      _chatView.getAllGroups(_userView.user.userId).first;
 
       Navigator.of(context, rootNavigator: true).pushReplacementNamed(
         '/homePage',

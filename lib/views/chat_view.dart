@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ class ChatView with ChangeNotifier {
 
   List<UserModel> _users;
   UserModel interlocutorUser;
+
   List<GroupModel> _groups = [];
   String groupType;
 
@@ -34,7 +36,7 @@ class ChatView with ChangeNotifier {
     notifyListeners();
   }
 
-  bool clearState() {
+  Future<bool> clearState() async {
     _users = null;
     _groups = [];
     _selectedChat = null;
@@ -90,7 +92,6 @@ class ChatView with ChangeNotifier {
   }
 
   Stream<List<GroupModel>> getAllGroups(String userId) {
-
     try{
       _chatRepo.getAllGroups(userId).listen((groupData) {
         // Eğer bir chat sayfasında değilsek selectedChat boş oluyor. Dolayısıyla eğerki biz bir chat sayfasındaysak

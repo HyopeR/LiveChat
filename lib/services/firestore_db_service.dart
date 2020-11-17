@@ -212,6 +212,8 @@ class FireStoreDbService implements DbBase {
 
   @override
   void messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
+    print(userId);
+
     await _fireStore.collection('groups').doc(groupId).update({
       'seenMessage.$userId': totalMessage
     });

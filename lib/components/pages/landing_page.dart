@@ -63,9 +63,9 @@ class _LandingPageState extends State<LandingPage> {
           }
       );
     } else {
-      _userView.streamCurrentUser(_userView.user.userId);
+      _userView.streamCurrentUser(_userView.user.userId).first;
       await _chatView.getAllUsers();
-      _chatView.getAllGroups(_userView.user.userId);
+      _chatView.getAllGroups(_userView.user.userId).first;
 
       Future.delayed(
           Duration(seconds: 2),
