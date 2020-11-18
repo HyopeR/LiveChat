@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   GlobalKey<CustomBottomNavigationState> _customBottomNavigationState = GlobalKey();
   UserView _userView;
 
@@ -31,6 +31,32 @@ class _HomePageState extends State<HomePage> {
       TabItem.Users: UsersPage(),
       TabItem.Profile: ProfilePage(),
     };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state == AppLifecycleState.paused) {
+      // Kullanıcı uygulamayı arka plana attı. Online durumunu güncelle. (false)
+      _userView.logoutUpdate(_userView.user.userId);
+    }
+
+    if(state == AppLifecycleState.resumed) {
+      // Kullanıcı online olmaya devam ediyor. Online durumunu güncelle. (true)
+      _userView.loginUpdate(_userView.user.userId);
+    }
+
   }
 
   @override

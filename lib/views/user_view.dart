@@ -32,6 +32,12 @@ class UserView with ChangeNotifier implements AuthBase {
     try{
       state = UserViewState.Busy;
       _user = await _userRepo.getCurrentUser();
+
+      if(_user != null) {
+        print('Hello');
+        await loginUpdate(_user.userId);
+      }
+
       return _user;
     }catch(err) {
 
@@ -238,6 +244,29 @@ class UserView with ChangeNotifier implements AuthBase {
 
       print('uploadFile Error: ${err.toString()}');
       return null;
+    }
+
+  }
+
+
+  Future<void> loginUpdate(String userId) async {
+
+    try{
+      await _userRepo.loginUpdate(userId);
+
+    }catch(err) {
+      print('loginUpdate Error: ${err.toString()}');
+    }
+
+  }
+
+  Future<void> logoutUpdate(String userId) async {
+
+    try{
+      await _userRepo.logoutUpdate(userId);
+
+    }catch(err) {
+      print('logoutUpdate Error: ${err.toString()}');
     }
 
   }

@@ -123,15 +123,11 @@ class FireStoreDbService implements DbBase {
 
   @override
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
-    print(userId);
-    print(groupType);
-    print(userIdList);
 
     QuerySnapshot groupQuery = await _fireStore.collection('groups')
         .where('members', isEqualTo: userIdList)
         .get();
 
-    print(groupQuery.docs.length.toString());
     groupQuery.docs.forEach((element) {
       print('Foreach: ' + element.data().toString());
     });
@@ -211,11 +207,25 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  void messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
-    print(userId);
-
+  Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     await _fireStore.collection('groups').doc(groupId).update({
       'seenMessage.$userId': totalMessage
+    });
+  }
+
+  @override
+  Future<void> loginUpdate(String userId) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'online': true,
+      'lastSeen': FieldValue.serverTimestamp()
+    });
+  }
+
+  @override
+  Future<void> logoutUpdate(String userId) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'online': false,
+      'lastSeen': FieldValue.serverTimestamp()
     });
   }
 

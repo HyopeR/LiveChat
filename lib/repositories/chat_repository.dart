@@ -54,10 +54,8 @@ class ChatRepository {
     return _firebaseStorageService.uploadImage(groupId, fileType, file);
   }
 
-  void messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
+  Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     return _fireStoreDbService.messagesMarkAsSeen(userId, groupId, totalMessage);
   }
-
-
 
 }

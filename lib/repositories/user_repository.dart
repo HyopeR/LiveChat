@@ -129,4 +129,12 @@ class UserRepository implements AuthBase{
     return fileUploadComplete ? fileUrl : null;
   }
 
+  Future<void> loginUpdate(String userId) async {
+    return _fireStoreDbService.loginUpdate(userId);
+  }
+
+  Future<void> logoutUpdate(String userId) async {
+    return _fireStoreDbService.logoutUpdate(userId);
+  }
+
 }

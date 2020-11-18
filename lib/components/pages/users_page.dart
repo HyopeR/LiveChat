@@ -3,6 +3,7 @@ import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
+import 'package:live_chat/components/pages/search_user_page.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
@@ -25,6 +26,12 @@ class _UsersPageState extends State<UsersPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Users'),
+          actions: [
+            FlatButton(
+                child: Icon(Icons.search),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchUserPage()))
+            )
+          ],
         ),
         body: SafeArea(
           child: ContainerColumn(
