@@ -57,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
+        elevation: 0,
         actions: [
           FlatButton(
               onPressed: () => _signOutControl(), child: Icon(Icons.logout))

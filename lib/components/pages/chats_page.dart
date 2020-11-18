@@ -31,6 +31,7 @@ class _ChatsPageState extends State<ChatsPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Chats'),
+          elevation: 0,
         ),
         body: SafeArea(
             child: ContainerColumn(

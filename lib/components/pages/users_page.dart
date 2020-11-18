@@ -26,6 +26,7 @@ class _UsersPageState extends State<UsersPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Users'),
+          elevation: 0,
           actions: [
             FlatButton(
                 child: Icon(Icons.search),
