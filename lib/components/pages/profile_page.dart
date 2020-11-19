@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -55,14 +56,18 @@ class _ProfilePageState extends State<ProfilePage> {
     _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-        elevation: 0,
-        actions: [
-          FlatButton(
-              onPressed: () => _signOutControl(), child: Icon(Icons.logout))
-        ],
+      appBar: AppbarWidget(
+          titleText: 'Profile',
+          actions: [
+            FlatButton(
+                minWidth: 50,
+                child: Icon(Icons.logout),
+                onPressed: () => _signOutControl()
+            )
+          ]
       ),
+
+
       body: SafeArea(
         child: SingleChildScrollView(
           child: ContainerColumn(

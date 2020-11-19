@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
@@ -24,16 +25,27 @@ class _UsersPageState extends State<UsersPage> {
     _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Users'),
-          elevation: 0,
-          actions: [
+        appBar: AppbarWidget(
+            titleText: 'Users',
+            actions: [
+              FlatButton(
+                  minWidth: 50,
+                  child: Icon(Icons.search),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchUserPage()))
+              )
+            ],
+
+          operationActions: [
             FlatButton(
-                child: Icon(Icons.search),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchUserPage()))
+                minWidth: 50,
+                child: Text('Yeni Grup'),
+                onPressed: () {
+
+                }
             )
           ],
         ),
+
         body: SafeArea(
           child: ContainerColumn(
             padding: EdgeInsets.all(10),
@@ -45,7 +57,6 @@ class _UsersPageState extends State<UsersPage> {
                   builder: (context, futureResult) {
                     if (futureResult.hasData) {
                       List<UserModel> users = futureResult.data;
-                      print(users.toString());
 
                       if (users.length > 0)
                         return RefreshIndicator(

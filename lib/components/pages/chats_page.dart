@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -21,7 +22,10 @@ class _ChatsPageState extends State<ChatsPage> {
   UserView _userView;
   ChatView _chatView;
 
+  GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
   DateTime currentDate = DateTime.now();
+
+  List<String> selectedGroupIdList = List<String>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +33,51 @@ class _ChatsPageState extends State<ChatsPage> {
     _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Chats'),
-          elevation: 0,
+        appBar: AppbarWidget(
+          key: _appbarWidgetState,
+          titleText: 'Chats',
+
+          operationActions: [
+            selectedGroupIdList.length > 0
+                ? Container(
+                    alignment: Alignment.center,
+                    width: 50,
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.black.withOpacity(0.1),
+                        ),
+                        padding: EdgeInsets.all(5),
+                        child: Text(
+                          selectedGroupIdList.length.toString(),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
+                        )
+                    )
+                )
+                : Container(),
+
+            FlatButton(
+                minWidth: 50,
+                child: Icon(Icons.remove_red_eye),
+                onPressed: () {
+                  print('Konuşmayı aç.');
+                }
+            ),
+
+            FlatButton(
+                minWidth: 50,
+                child: Icon(Icons.delete),
+                onPressed: () {
+                  print('Delete işlemleri.');
+                }
+            )
+          ],
+
+          onOperationCancel: () {
+            setState(() {
+              selectedGroupIdList.clear();
+            });
+          },
         ),
         body: SafeArea(
             child: ContainerColumn(
@@ -66,53 +112,81 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                   int unreadMessageCount = currentChat.totalMessage - currentChat.seenMessage[_userView.user.userId];
 
-                                  return GestureDetector(
-                                    onTap: () {
+                                  bool selected = selectedGroupIdList.contains(currentChat.groupId);
 
-                                      _chatView.selectChat(currentChat.groupId);
-                                      _chatView.interlocutorUser = interlocutorUser;
-                                      _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
-                                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: selected ? Colors.grey.withOpacity(0.3) : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
 
-                                    },
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(10),
 
-                                    child: ListTile(
-                                      leading: ImageWidget(
-                                            imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
-                                            imageWidth: 75,
-                                            imageHeight: 75,
-                                            backgroundShape: BoxShape.circle,
-                                            backgroundColor: Colors.grey.withOpacity(0.3),
+                                      onTap: () {
+                                        _chatView.selectChat(currentChat.groupId);
+                                        _chatView.interlocutorUser = interlocutorUser;
+                                        _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
+                                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                                      },
+
+                                      onLongPress: () {
+                                        if(selected) {
+                                          setState(() {
+                                            selectedGroupIdList.removeWhere((groupId) => groupId == currentChat.groupId);
+                                          });
+
+                                          if(selectedGroupIdList.length == 0)
+                                            _appbarWidgetState.currentState.operationCancel();
+
+                                        } else {
+                                          setState(() {
+                                            selectedGroupIdList.add(currentChat.groupId);
+                                          });
+
+                                          _appbarWidgetState.currentState.operationOpen();
+                                        }
+
+                                      },
+
+                                      child: ListTile(
+                                        leading: ImageWidget(
+                                              imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+                                              imageWidth: 75,
+                                              imageHeight: 75,
+                                              backgroundShape: BoxShape.circle,
+                                              backgroundColor: Colors.grey.withOpacity(0.3),
+                                            ),
+
+                                          trailing: ContainerColumn(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                                            children: [
+                                              currentDates != null
+                                                  ? Text(currentDates, textAlign: TextAlign.right,)
+                                                  : Text(' '),
+
+                                              Container(
+                                                padding: EdgeInsets.all(5),
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    color: unreadMessageCount > 0 ? Theme.of(context).primaryColor : Colors.transparent
+                                                ),
+                                                child: Text(
+                                                    unreadMessageCount > 0 ? unreadMessageCount.toString() : ' ',
+                                                    style: TextStyle(fontWeight: FontWeight.bold)),
+                                              )
+
+                                            ],
                                           ),
 
-                                        trailing: ContainerColumn(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          title: Text(currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName),
 
-                                          children: [
-                                            currentDates != null
-                                                ? Text(currentDates, textAlign: TextAlign.right,)
-                                                : Text(' '),
-
-                                            Container(
-                                              padding: EdgeInsets.all(5),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  color: unreadMessageCount > 0 ? Theme.of(context).primaryColor : Colors.transparent
-                                              ),
-                                              child: Text(
-                                                  unreadMessageCount > 0 ? unreadMessageCount.toString() : ' ',
-                                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                                            )
-
-                                          ],
-                                        ),
-
-                                        title: Text(currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName),
-                                        subtitle:
-
-                                        ContainerRow(
-                                          children: currentChat.recentMessage != null ? showMessageText(currentChat) : Text('Yükleniyor...'),
-                                        )
+                                          subtitle:
+                                          ContainerRow(
+                                            children: currentChat.recentMessage != null ? showMessageText(currentChat) : Text('Yükleniyor...'),
+                                          )
+                                      ),
                                     ),
                                   );
                                 });

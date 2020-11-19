@@ -90,8 +90,6 @@ class FireStoreDbService implements DbBase {
   Future<List<UserModel>> searchUsers(String userName) async {
     QuerySnapshot usersQuery;
 
-    print(userName);
-
     if(userName.trim().length > 0) {
       usersQuery = await _fireStore.collection('users').orderBy('userName').startAt([userName]).endAt([userName]).get();
     } else {
@@ -145,10 +143,6 @@ class FireStoreDbService implements DbBase {
     QuerySnapshot groupQuery = await _fireStore.collection('groups')
         .where('members', isEqualTo: userIdList)
         .get();
-
-    groupQuery.docs.forEach((element) {
-      print('Foreach: ' + element.data().toString());
-    });
 
     // Grup varsa var olanı döndürür.
     if(groupQuery.docs.length > 0) {

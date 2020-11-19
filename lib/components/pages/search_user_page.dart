@@ -93,7 +93,9 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     });
 
                     refreshUsers();
-                    _focusNode.previousFocus() ? _focusNode.unfocus() : null;
+                    if(_focusNode.hasPrimaryFocus)
+                      _focusNode.unfocus();
+
                     _controller.clear();
                   },
                   

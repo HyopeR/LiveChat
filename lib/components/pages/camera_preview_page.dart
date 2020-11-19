@@ -94,7 +94,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                       onLeftSideClick: () {
                         popControl();
                       },
-                      titleImageUrl: _chatView.groupType == 'Private'
+                    appBarType: 'Chat',
+                    titleImageUrl: _chatView.groupType == 'Private'
                           ? _chatView.interlocutorUser.userProfilePhotoUrl
                           : _chatView.selectedChat.groupImageUrl,
                       titleText: _chatView.groupType == 'Private'

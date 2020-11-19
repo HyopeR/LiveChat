@@ -49,6 +49,7 @@ class _ChatPageState extends State<ChatPage> {
               Navigator.of(context).pop();
               _chatView.unSelectChat();
               },
+            appBarType: 'Chat',
             titleImageUrl: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userProfilePhotoUrl
                 : _chatView.selectedChat.groupImageUrl,

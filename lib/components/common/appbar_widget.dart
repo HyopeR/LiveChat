@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 
-class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
+class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
+  final String appBarType;
   final VoidCallback onLeftSideClick;
   final VoidCallback onTitleClick;
+  final VoidCallback onOperationCancel;
 
   final String titleText;
   final String titleImageUrl;
@@ -14,51 +16,126 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   final Color textColor;
   final Color backgroundColor;
 
+  final List<Widget> actions;
+  final List<Widget> operationActions;
+
   const AppbarWidget({
     Key key,
+    this.appBarType : 'Default',
     this.onLeftSideClick,
     this.onTitleClick,
+    this.onOperationCancel,
     this.titleText,
     this.titleImageUrl,
     this.textColor : Colors.black,
-    this.backgroundColor : Colors.amber
+    this.backgroundColor : Colors.amber,
+    this.actions,
+    this.operationActions,
   }) : super(key: key);
 
   @override
+  AppbarWidgetState createState() => AppbarWidgetState();
+
+  @override
   Size get preferredSize => Size.fromHeight(56);
+}
+
+class AppbarWidgetState extends State<AppbarWidget> {
+  bool operation = false;
+  Color operationColor = Color(0xFFe7ad01);
+
+  void operationCancel() {
+    setState(() {
+      operation = false;
+    });
+  }
+
+  void operationOpen() {
+    setState(() {
+      operation = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
+    if(!operation) {
+      switch(widget.appBarType) {
+        case('Chat'):
+          return chatAppBar();
+          break;
+
+        case('Default'):
+          return defaultAppBar();
+          break;
+
+        default:
+          return AppBar();
+          break;
+      }
+    } else {
+      return operationAppBar();
+    }
+
+  }
+
+  Widget chatAppBar() {
     return AppBar(
-        elevation: 0,
-        leadingWidth: 85,
+      elevation: 0,
+      leadingWidth: 106,
+      backgroundColor: widget.backgroundColor,
 
-        backgroundColor: backgroundColor,
-
-        leading: InkWell(
-          onTap: onLeftSideClick,
-          child: ContainerRow(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Icon(
-                Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
-                color: textColor,
-              ),
-              ImageWidget(
-                imageUrl: titleImageUrl,
-                imageWidth: 50,
-                imageHeight: 50,
-                backgroundShape: BoxShape.circle,
-              ),
-            ],
-          ),
+      leading: InkWell(
+        onTap: widget.onLeftSideClick,
+        child: ContainerRow(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(
+              Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
+              color: widget.textColor,
+            ),
+            ImageWidget(
+              imageUrl: widget.titleImageUrl,
+              imageWidth: 50,
+              imageHeight: 50,
+              backgroundShape: BoxShape.circle,
+            ),
+          ],
         ),
-        title: InkWell(
-            onTap: onTitleClick,
-            child: Text(titleText, style: TextStyle(color: textColor))
-        )
+      ),
+
+      titleSpacing: 0,
+      title: InkWell(
+          onTap: widget.onTitleClick,
+          child: Text(widget.titleText, style: TextStyle(color: widget.textColor))
+      ),
+
+      actions: widget.actions,
     );
   }
-  
+
+  Widget defaultAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: widget.backgroundColor,
+      title: Text(widget.titleText, style: TextStyle(color: widget.textColor)),
+      actions: widget.actions,
+    );
+  }
+
+  Widget operationAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: operationColor,
+      leading: InkWell(
+        onTap: () {
+          widget.onOperationCancel();
+          operationCancel();
+        },
+        child: Icon(Icons.cancel),
+      ),
+      actions: widget.operationActions,
+    );
+  }
 }
