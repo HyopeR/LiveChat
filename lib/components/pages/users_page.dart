@@ -19,6 +19,9 @@ class _UsersPageState extends State<UsersPage> {
   UserView _userView;
   ChatView _chatView;
 
+  GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
+  List<String> selectedUserIdList = List<String>();
+
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
@@ -26,107 +29,152 @@ class _UsersPageState extends State<UsersPage> {
 
     return Scaffold(
         appBar: AppbarWidget(
-            titleText: 'Users',
-            actions: [
-              FlatButton(
-                  minWidth: 50,
-                  child: Icon(Icons.search),
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchUserPage()))
-              )
-            ],
-
-          operationActions: [
+          key: _appbarWidgetState,
+          titleText: 'Users',
+          actions: [
             FlatButton(
                 minWidth: 50,
-                child: Text('Yeni Grup'),
-                onPressed: () {
-
-                }
-            )
+                child: Icon(Icons.search),
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SearchUserPage())))
           ],
+          operationActions: createOperationActions(),
+          onOperationCancel: () {
+            setState(() {
+              selectedUserIdList.clear();
+            });
+          },
         ),
+        body: WillPopScope(
+          onWillPop: () async {
+            if (_appbarWidgetState.currentState.operation) {
+              _appbarWidgetState.currentState.operationCancel();
+              setState(() {
+                selectedUserIdList.clear();
+              });
+            }
 
-        body: SafeArea(
-          child: ContainerColumn(
-            padding: EdgeInsets.all(10),
-            children: [
-              TitleArea(titleText: 'Kişilerim', icon: Icons.people),
-              Expanded(
-                child: StreamBuilder<List<UserModel>>(
-                  stream: _chatView.getAllContacts(_chatView.contactsIdList),
-                  builder: (context, futureResult) {
-                    if (futureResult.hasData) {
-                      List<UserModel> users = futureResult.data;
+            return false;
+          },
+          child: SafeArea(
+            child: ContainerColumn(
+              padding: EdgeInsets.all(10),
+              children: [
+                TitleArea(titleText: 'Kişilerim', icon: Icons.people),
+                Expanded(
+                  child: StreamBuilder<List<UserModel>>(
+                    stream: _chatView.getAllContacts(_chatView.contactsIdList),
+                    builder: (context, futureResult) {
+                      if (futureResult.hasData) {
+                        List<UserModel> users = futureResult.data;
 
-                      if (users.length > 0)
-                        return RefreshIndicator(
-                          onRefresh: () => refreshUsers(),
-                          child: ListView.builder(
-                              itemCount: users.length,
-                              itemBuilder: (context, index) {
-                                UserModel currentUser = users[index];
+                        if (users.length > 0)
+                          return RefreshIndicator(
+                            onRefresh: () => refreshUsers(),
+                            child: ListView.builder(
+                                itemCount: users.length,
+                                itemBuilder: (context, index) {
+                                  UserModel currentUser = users[index];
+                                  bool selected = selectedUserIdList
+                                      .contains(currentUser.userId);
 
-                                if ((currentUser.userId !=
-                                    _userView.user.userId))
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _chatView.findChatByUserIdList([
-                                        _userView.user.userId,
-                                        currentUser.userId
-                                      ]);
-
-                                      _chatView.interlocutorUser = currentUser;
-                                      _chatView.groupType = 'Private';
-                                      Navigator.of(context, rootNavigator: true)
-                                          .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              ChatPage()));
-                                    },
-                                    child: ListTile(
-                                      leading: ImageWidget(
-                                        imageUrl:
-                                        currentUser.userProfilePhotoUrl,
-                                        imageWidth: 75,
-                                        imageHeight: 75,
-                                        backgroundShape: BoxShape.circle,
-                                        backgroundColor:
-                                        Colors.grey.withOpacity(0.3),
+                                  if ((currentUser.userId !=
+                                      _userView.user.userId)) {
+                                    return Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      decoration: BoxDecoration(
+                                        color: selected
+                                            ? Colors.grey.withOpacity(0.3)
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      title: Text(currentUser.userName),
-                                      subtitle: Text(currentUser.userEmail),
-                                    ),
-                                  );
-                                else
-                                  return Container();
-                              }),
-                        );
-                      else {
-                        return LayoutBuilder(
-                          builder: (context, constraints) => RefreshIndicator(onRefresh: () => refreshUsers(),
-                              child: SingleChildScrollView(
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                        minHeight: constraints.maxHeight),
-                                    child: ContainerColumn(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Icon(Icons.people, size: 100),
-                                        Text(
-                                          'Kayıtlı kullanıcı bulunmamaktadır.',
-                                          textAlign: TextAlign.center,
-                                        )
-                                      ],
-                                    ),
-                                  ))),
-                        );
-                      }
-                    } else
-                      return Center(child: CircularProgressIndicator());
-                  },
-                ),
-              )
-            ],
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: () {
+                                          _chatView.findChatByUserIdList([
+                                            _userView.user.userId,
+                                            currentUser.userId
+                                          ]);
+
+                                          _chatView.interlocutorUser =
+                                              currentUser;
+                                          _chatView.groupType = 'Private';
+                                          Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .push(MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatPage()));
+                                        },
+                                        onLongPress: () {
+                                          if (selected) {
+                                            setState(() {
+                                              selectedUserIdList.removeWhere(
+                                                  (userId) =>
+                                                      userId ==
+                                                      currentUser.userId);
+                                            });
+
+                                            if (selectedUserIdList.length == 0)
+                                              _appbarWidgetState.currentState
+                                                  .operationCancel();
+                                          } else {
+                                            setState(() {
+                                              selectedUserIdList
+                                                  .add(currentUser.userId);
+                                            });
+
+                                            _appbarWidgetState.currentState
+                                                .operationOpen();
+                                          }
+                                        },
+                                        child: ListTile(
+                                          leading: ImageWidget(
+                                            imageUrl:
+                                                currentUser.userProfilePhotoUrl,
+                                            imageWidth: 75,
+                                            imageHeight: 75,
+                                            backgroundShape: BoxShape.circle,
+                                            backgroundColor:
+                                                Colors.grey.withOpacity(0.3),
+                                          ),
+                                          title: Text(currentUser.userName),
+                                          subtitle: Text(currentUser.userEmail),
+                                        ),
+                                      ),
+                                    );
+                                  } else
+                                    return Container();
+                                }),
+                          );
+                        else {
+                          return LayoutBuilder(
+                            builder: (context, constraints) => RefreshIndicator(
+                                onRefresh: () => refreshUsers(),
+                                child: SingleChildScrollView(
+                                    physics: AlwaysScrollableScrollPhysics(),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                          minHeight: constraints.maxHeight),
+                                      child: ContainerColumn(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Icon(Icons.people, size: 100),
+                                          Text(
+                                            'Kayıtlı kullanıcı bulunmamaktadır.',
+                                            textAlign: TextAlign.center,
+                                          )
+                                        ],
+                                      ),
+                                    ))),
+                          );
+                        }
+                      } else
+                        return Center(child: CircularProgressIndicator());
+                    },
+                  ),
+                )
+              ],
+            ),
           ),
         ));
   }
@@ -135,5 +183,35 @@ class _UsersPageState extends State<UsersPage> {
     await Future.delayed(Duration(seconds: 2), () {
       setState(() {});
     });
+  }
+
+  List<Widget> createOperationActions() {
+    return [
+      selectedUserIdList.length > 0
+          ? Container(
+              alignment: Alignment.center,
+              width: 50,
+              child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black.withOpacity(0.1),
+                  ),
+                  padding: EdgeInsets.all(5),
+                  child: Text(selectedUserIdList.length.toString(),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20))))
+          : Container(),
+
+      selectedUserIdList.length == 1
+          ? FlatButton(
+              minWidth: 50,
+              child: Icon(Icons.remove_red_eye),
+              onPressed: () {
+                print('Konuşmayı aç.');
+              })
+          : Container(),
+
+      FlatButton(minWidth: 50, child: Text('Yeni Grup'), onPressed: () {})
+    ];
   }
 }

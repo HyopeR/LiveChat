@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -23,12 +24,14 @@ class _ChatPageState extends State<ChatPage> {
   UserView _userView;
 
   LocalFileSystem _localFileSystem = LocalFileSystem();
+  GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
 
   bool permissionStatus = false;
   MessageModel markedMessage;
   List<Map<String, dynamic>> attachFileList;
+  List<String> selectedMessagesIdList = List<String>();
 
   @override
   void initState() {
@@ -43,136 +46,191 @@ class _ChatPageState extends State<ChatPage> {
     _userView = Provider.of<UserView>(context);
     _chatView = Provider.of<ChatView>(context);
 
-    return Scaffold(
-        appBar: AppbarWidget(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_appbarWidgetState.currentState.operation) {
+          _appbarWidgetState.currentState.operationCancel();
+          setState(() {
+            selectedMessagesIdList.clear();
+          });
+        }
+
+        return false;
+      },
+
+      child: Scaffold(
+          appBar: AppbarWidget(
+            key: _appbarWidgetState,
             onLeftSideClick: () {
               Navigator.of(context).pop();
               _chatView.unSelectChat();
-              },
+            },
             appBarType: 'Chat',
             titleImageUrl: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userProfilePhotoUrl
                 : _chatView.selectedChat.groupImageUrl,
             titleText: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userName
-                : _chatView.selectedChat.groupName),
-        body: SafeArea(
-          child: ContainerColumn(
-            padding: EdgeInsets.all(10),
-            children: [
-
-              _chatView.selectedChatState == SelectedChatState.Loaded
-                  ? Expanded(
-                  child: StreamBuilder<List<MessageModel>>(
-                    stream: _chatView.getMessages(_chatView.selectedChat.groupId),
-                    builder: (context, streamData) {
-
-                      if (streamData.hasData) {
-                        List<MessageModel> messages = streamData.data;
-
-                        if (messages.isNotEmpty) {
-                          return Align(
-                            alignment: Alignment.topCenter,
-                            child: ListView.builder(
-                                reverse: true,
-                                shrinkWrap: true,
-                                controller: _scrollController,
-                                itemCount: messages.length,
-                                itemBuilder: (context, index) {
-
-                                  MessageModel currentMessage = messages[index];
-                                  bool fromMe = currentMessage.sendBy == _userView.user.userId;
-                                  currentMessage.fromMe = fromMe;
-
-                                  if(_chatView.groupType == 'Private') {
-                                    currentMessage.ownerImageUrl = fromMe ? _userView.user.userProfilePhotoUrl : _chatView.interlocutorUser.userProfilePhotoUrl;
-                                    currentMessage.ownerUsername = fromMe ? _userView.user.userName : _chatView.interlocutorUser.userName;
-
-                                    if(currentMessage.markedMessage != null) {
-                                      bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
-                                      currentMessage.markedMessage.ownerImageUrl = markedFromMe ? _userView.user.userProfilePhotoUrl : _chatView.interlocutorUser.userProfilePhotoUrl;
-                                      currentMessage.markedMessage.ownerUsername = markedFromMe ? _userView.user.userName : _chatView.interlocutorUser.userName;
-                                    }
-                                  }
-
-                                  return Dismissible(
-                                      key: Key(currentMessage.messageId),
-                                      direction: DismissDirection.startToEnd,
-                                      // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
-                                      confirmDismiss: (direction) async {
-                                        _messageCreatorState.currentState..setMarkedMessage(
-                                            MessageMarked(
-                                              message: currentMessage,
-                                              mainAxisSize: MainAxisSize.max,
-                                              forwardCancel: () {
-                                                _messageCreatorState.currentState.setMarkedMessage(null);
-                                                markedMessage = null;
-                                              },
-                                            )
-                                        );
-
-
-                                        markedMessage = currentMessage;
-                                        return false;
-                                      },
-
-                                      child: MessageBubble(
-                                        message: currentMessage,
-                                        color: currentMessage.fromMe ? Theme.of(context).primaryColor.withOpacity(0.8) : Colors.grey.shade300.withOpacity(0.8),
-                                      )
-                                  );
-                                }),
-                          );
-                        } else
-                          return Container();
-                      } else
-                        return Container();
-                    },
-                  ))
-
-                  : Expanded(child: Container(child: Center(child: Text('Bir konuşma başlat.')))),
-              MessageCreatorWidget(
-                margin: EdgeInsets.only(top: 10),
-                key: _messageCreatorState,
-                hintText: 'Bir mesaj yazın.',
-                textAreaColor: Colors.grey.shade300.withOpacity(0.8),
-                buttonColor: Theme.of(context).primaryColor,
-                permissionsAllowed: permissionStatus,
-
-                onPressed: () => saveMessage('Text'),
-
-                onLongPressStart: () async {
-                  if (permissionStatus)
-                    _chatView.recordStart();
-                  else
-                    requestPermission();
-                },
-
-                onLongPressEnd: () async {
-                  if (permissionStatus) {
-                    await _chatView.recordStop();
-                    saveMessage('Voice');
-                  }
-                },
-
-                useCamera: () async {
-                  if(permissionStatus)
-                    addAttach();
-                  else{
-                    bool allowControl = await requestPermission();
-                    if(allowControl)
-                      addAttach();
-                  }
-
-                },
-
-                useAttach: () {
-
-                },
-              )
-            ],
+                : _chatView.selectedChat.groupName,
+            operationActions: createOperationActions(),
+            onOperationCancel: () {
+              setState(() {
+                selectedMessagesIdList.clear();
+              });
+            },
           ),
-        ));
+
+          body: SafeArea(
+            child: ContainerColumn(
+              padding: EdgeInsets.all(10),
+              children: [
+                _chatView.selectedChatState == SelectedChatState.Loaded
+                    ? Expanded(
+                        child: StreamBuilder<List<MessageModel>>(
+                        stream:
+                            _chatView.getMessages(_chatView.selectedChat.groupId),
+                        builder: (context, streamData) {
+                          if (streamData.hasData) {
+                            List<MessageModel> messages = streamData.data;
+
+                            if (messages.isNotEmpty) {
+                              return Align(
+                                alignment: Alignment.topCenter,
+                                child: ListView.builder(
+                                    reverse: true,
+                                    shrinkWrap: true,
+                                    controller: _scrollController,
+                                    itemCount: messages.length,
+                                    itemBuilder: (context, index) {
+                                      MessageModel currentMessage = messages[index];
+                                      bool fromMe = currentMessage.sendBy == _userView.user.userId;
+                                      currentMessage.fromMe = fromMe;
+
+                                      if (_chatView.groupType == 'Private') {
+                                        currentMessage.ownerImageUrl = fromMe
+                                            ? _userView.user.userProfilePhotoUrl
+                                            : _chatView.interlocutorUser.userProfilePhotoUrl;
+
+                                        currentMessage.ownerUsername = fromMe
+                                            ? _userView.user.userName
+                                            : _chatView.interlocutorUser.userName;
+
+                                        if (currentMessage.markedMessage != null) {
+                                          bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
+
+                                          currentMessage.markedMessage.ownerImageUrl = markedFromMe
+                                                  ? _userView.user.userProfilePhotoUrl
+                                                  : _chatView.interlocutorUser.userProfilePhotoUrl;
+
+                                          currentMessage.markedMessage.ownerUsername = markedFromMe
+                                                  ? _userView.user.userName
+                                                  : _chatView.interlocutorUser.userName;
+                                        }
+                                      }
+
+                                      bool selected = selectedMessagesIdList.contains(currentMessage.messageId);
+
+                                      return Dismissible(
+                                          key: Key(currentMessage.messageId),
+                                          direction: DismissDirection.startToEnd,
+                                          // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
+                                          confirmDismiss: (direction) async {
+                                            _messageCreatorState.currentState
+                                              ..setMarkedMessage(MessageMarked(
+                                                message: currentMessage,
+                                                mainAxisSize: MainAxisSize.max,
+                                                forwardCancel: () {
+                                                  _messageCreatorState
+                                                      .currentState
+                                                      .setMarkedMessage(null);
+                                                  markedMessage = null;
+                                                },
+                                              ));
+
+                                            markedMessage = currentMessage;
+                                            return false;
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: selected ? Colors.black.withOpacity(0.3) : Colors.transparent,
+                                            ),
+
+                                            child: InkWell(
+                                              onLongPress: () {
+                                                if (selected) {
+                                                  setState(() {
+                                                    selectedMessagesIdList.removeWhere((messageId) => messageId == currentMessage.messageId);
+                                                  });
+
+                                                  if (selectedMessagesIdList.length == 0) _appbarWidgetState.currentState.operationCancel();
+                                                } else {
+                                                  setState(() {
+                                                    selectedMessagesIdList.add(currentMessage.messageId);
+                                                  });
+
+                                                  _appbarWidgetState.currentState
+                                                      .operationOpen();
+                                                }
+                                              },
+
+                                              child: MessageBubble(
+                                                message: currentMessage,
+                                                color: currentMessage.fromMe
+                                                    ? Theme.of(context).primaryColor.withOpacity(0.8)
+                                                    : Colors.grey.shade300.withOpacity(0.8),
+                                              ),
+                                            ),
+                                          ));
+                                    }),
+                              );
+                            } else
+                              return Container();
+                          } else
+                            return Container();
+                        },
+                      ))
+                    : Expanded(
+                        child: Container(
+                            child: Center(child: Text('Bir konuşma başlat.')))),
+
+                MessageCreatorWidget(
+                  margin: EdgeInsets.only(top: 10),
+                  key: _messageCreatorState,
+                  hintText: 'Bir mesaj yazın.',
+                  textAreaColor: Colors.grey.shade300.withOpacity(0.8),
+                  buttonColor: Theme.of(context).primaryColor,
+                  permissionsAllowed: permissionStatus,
+                  onPressed: () => saveMessage('Text'),
+
+                  onLongPressStart: () async {
+                    if (permissionStatus)
+                      _chatView.recordStart();
+                    else
+                      requestPermission();
+                  },
+
+                  onLongPressEnd: () async {
+                    if (permissionStatus) {
+                      await _chatView.recordStop();
+                      saveMessage('Voice');
+                    }
+                  },
+
+                  useCamera: () async {
+                    if (permissionStatus)
+                      addAttach();
+                    else {
+                      bool allowControl = await requestPermission();
+                      if (allowControl) addAttach();
+                    }
+                  },
+
+                  useAttach: () {},
+                )
+              ],
+            ),
+          )),
+    );
   }
 
   void saveMessage(String messageType) async {
@@ -201,7 +259,8 @@ class _ChatPageState extends State<ChatPage> {
 
     switch (messageType) {
       case ('Text'):
-        savingMessage.message = _messageCreatorState.currentState.controller.text;
+        savingMessage.message =
+            _messageCreatorState.currentState.controller.text;
 
         bool result = await _chatView.saveMessage(
             savingMessage, _userView.user, _chatView.selectedChat.groupId);
@@ -216,7 +275,8 @@ class _ChatPageState extends State<ChatPage> {
         break;
 
       case ('Voice'):
-        String voiceUrl = await _chatView.uploadVoiceNote(_chatView.selectedChat.groupId, 'Voice_Notes', _chatView.voiceFile);
+        String voiceUrl = await _chatView.uploadVoiceNote(
+            _chatView.selectedChat.groupId, 'Voice_Notes', _chatView.voiceFile);
 
         if (voiceUrl != null) {
           savingMessage.message = voiceUrl;
@@ -238,14 +298,16 @@ class _ChatPageState extends State<ChatPage> {
 
       case ('Image'):
         attachFileList.forEach((Map<String, dynamic> map) async {
-          String imageUrl = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
+          String imageUrl = await _chatView.uploadImage(
+              _chatView.selectedChat.groupId, 'Images', map['file']);
           print(imageUrl);
 
           if (imageUrl != null) {
             savingMessage.attach = imageUrl;
             savingMessage.message = map['text'];
 
-            bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
+            bool result = await _chatView.saveMessage(
+                savingMessage, _userView.user, _chatView.selectedChat.groupId);
             if (result) {
               markedMessage = null;
 
@@ -256,10 +318,11 @@ class _ChatPageState extends State<ChatPage> {
           }
 
           // Telefona gönderilen resmin kaydedilmesi.
-          bool saveStatus = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
+          bool saveStatus = await GallerySaver.saveImage(map['file'].path,
+              albumName: 'Live Chat Images');
 
           // Local cache'den cameradan eklenen resmin silinmesi.
-          if(saveStatus)
+          if (saveStatus)
             await _localFileSystem.file(map['file'].path).delete();
         });
 
@@ -276,17 +339,16 @@ class _ChatPageState extends State<ChatPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => CameraPreviewPage()))
         .then((listData) async {
-
-          if(listData.length > 0) {
-            attachFileList = listData;
-            saveMessage('Image');
-          }
-
-        });
+      if (listData.length > 0) {
+        attachFileList = listData;
+        saveMessage('Image');
+      }
+    });
   }
 
   getPermissionStatus() async {
-    if (await Permission.microphone.isGranted && await Permission.storage.isGranted) {
+    if (await Permission.microphone.isGranted &&
+        await Permission.storage.isGranted) {
       _messageCreatorState.currentState.permissionAllow();
       setState(() {
         permissionStatus = true;
@@ -295,8 +357,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<bool> requestPermission() async {
-    Map<Permission, PermissionStatus> result = await [Permission.microphone, Permission.storage].request();
-    if(result[Permission.microphone].isGranted && result[Permission.storage].isGranted) {
+    Map<Permission, PermissionStatus> result =
+        await [Permission.microphone, Permission.storage].request();
+    if (result[Permission.microphone].isGranted &&
+        result[Permission.storage].isGranted) {
       _messageCreatorState.currentState.permissionAllow();
 
       setState(() {
@@ -306,5 +370,35 @@ class _ChatPageState extends State<ChatPage> {
       return true;
     } else
       return false;
+  }
+
+  List<Widget> createOperationActions() {
+    return [
+      selectedMessagesIdList.length > 0
+          ? Container(
+              alignment: Alignment.center,
+              width: 50,
+              child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black.withOpacity(0.1),
+                  ),
+                  padding: EdgeInsets.all(5),
+                  child: Text(selectedMessagesIdList.length.toString(),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20))))
+          : Container(),
+
+      FlatButton(
+          minWidth: 50,
+          child: Transform(
+              child: Icon(Icons.reply),
+              alignment: Alignment.center,
+              transform: Matrix4.rotationY(math.pi)
+          ),
+          onPressed: () {
+            print('Mesajları iletme işlemleri.');
+          })
+    ];
   }
 }
