@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
+import 'package:live_chat/components/common/image_widget.dart';
+import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/views/chat_view.dart';
+import 'package:live_chat/views/user_view.dart';
+import 'package:provider/provider.dart';
 
 class SearchUserPage extends StatefulWidget {
   @override
@@ -8,8 +13,32 @@ class SearchUserPage extends StatefulWidget {
 }
 
 class _SearchUserPageState extends State<SearchUserPage> {
+  ChatView _chatView;
+  UserView _userView;
+
+  String searchedText = '';
+  TextEditingController _controller;
+  FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _chatView = Provider.of<ChatView>(context);
+    _userView = Provider.of<UserView>(context);
+
     double marginWithoutWidth = MediaQuery.of(context).size.width - 20;
 
     return Scaffold(
@@ -38,6 +67,8 @@ class _SearchUserPageState extends State<SearchUserPage> {
                 ),
 
                 child: TextField(
+                  focusNode: _focusNode,
+                  controller: _controller,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     isDense: true,
@@ -56,8 +87,14 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     bottomRight: Radius.circular(10),
                   ),
 
-                  onTap: () {
-                    
+                  onTap: () async {
+                    setState(() {
+                      searchedText = _controller.text;
+                    });
+
+                    refreshUsers();
+                    _focusNode.previousFocus() ? _focusNode.unfocus() : null;
+                    _controller.clear();
                   },
                   
                   child: ContainerRow(
@@ -83,27 +120,111 @@ class _SearchUserPageState extends State<SearchUserPage> {
           ),
 
           SizedBox(height: 10),
+          searchedText.trim().length > 0
+            ? Container(
+              padding: EdgeInsets.all(10),
+              alignment: Alignment.centerLeft,
+                child: RichText(
+                    text: TextSpan(
+                        style: TextStyle(color: Colors.black),
+                        children: [
+                          TextSpan(text: 'Aranılan kelime: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(text: searchedText),
+                        ]
+                    ),
+                )
+            )
+
+          : Container(),
 
           Expanded(
-            child: ListView(
-              children: [
+            child: FutureBuilder<List<UserModel>>(
+              future: _chatView.searchUsers(searchedText),
+              builder: (context, futureResult) {
+                if (futureResult.hasData) {
+                  List<UserModel> users = futureResult.data;
 
-                ListTile(
-                  onTap: () {
+                  if (users.length > 0)
+                    return RefreshIndicator(
+                      onRefresh: () => refreshUsers(),
+                      child: ListView.builder(
+                          itemCount: users.length,
+                          itemBuilder: (context, index) {
+                            UserModel currentUser = users[index];
 
-                  },
+                            if ((currentUser.userId != _userView.user.userId)) {
+                              bool myContact = _chatView.searchUserInContacts(currentUser.userId);
 
-                  leading: Icon(Icons.ac_unit),
-                  title: Text('Title'),
-                  subtitle: Text('Subtitle'),
-                  trailing: Icon(Icons.add),
-                )
+                              return GestureDetector(
+                                onTap: () {
+                                  _chatView.findChatByUserIdList([
+                                    _userView.user.userId,
+                                    currentUser.userId
+                                  ]);
+                                },
+                                child: ListTile(
+                                  leading: ImageWidget(
+                                    imageUrl: currentUser.userProfilePhotoUrl,
+                                    imageWidth: 75,
+                                    imageHeight: 75,
+                                    backgroundShape: BoxShape.circle,
+                                    backgroundColor:
+                                    Colors.grey.withOpacity(0.3),
+                                  ),
 
-              ],
+                                  trailing: IconButton(
+                                    splashRadius: 25,
+                                    icon: myContact ? Icon(Icons.mobile_friendly) : Icon(Icons.add),
+                                    onPressed: () async {
+                                      if(!myContact) {
+                                        await _chatView.addContact(_userView.user.userId, currentUser.userId);
+                                        refreshUsers();
+                                      }
+                                    },
+                                  ),
+
+                                  title: Text(currentUser.userName),
+                                  subtitle: Text(currentUser.userEmail),
+                                ),
+                              );
+                            } else
+                              return Container();
+                          }),
+                    );
+                  else {
+                    return LayoutBuilder(
+                      builder: (context, constraints) => RefreshIndicator(onRefresh: () => refreshUsers(),
+                          child: SingleChildScrollView(
+                              physics: AlwaysScrollableScrollPhysics(),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                    minHeight: constraints.maxHeight),
+                                child: ContainerColumn(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(Icons.people, size: 100),
+                                    Text(
+                                      '$searchedText kullanıcısı bulunamadı.',
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                              ))),
+                    );
+                  }
+                } else
+                  return Center(child: CircularProgressIndicator());
+              },
             ),
           )
         ],
       ),
     );
+  }
+
+  refreshUsers() async {
+    await Future.delayed(Duration(seconds: 2), () {
+      setState(() {});
+    });
   }
 }

@@ -40,13 +40,14 @@ class _UsersPageState extends State<UsersPage> {
             children: [
               TitleArea(titleText: 'Kişilerim', icon: Icons.people),
               Expanded(
-                child: FutureBuilder<List<UserModel>>(
-                  future: _chatView.getAllUsers(),
+                child: StreamBuilder<List<UserModel>>(
+                  stream: _chatView.getAllContacts(_chatView.contactsIdList),
                   builder: (context, futureResult) {
                     if (futureResult.hasData) {
                       List<UserModel> users = futureResult.data;
+                      print(users.toString());
 
-                      if (users.length - 1 > 0)
+                      if (users.length > 0)
                         return RefreshIndicator(
                           onRefresh: () => refreshUsers(),
                           child: ListView.builder(
@@ -67,18 +68,18 @@ class _UsersPageState extends State<UsersPage> {
                                       _chatView.groupType = 'Private';
                                       Navigator.of(context, rootNavigator: true)
                                           .push(MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChatPage()));
+                                          builder: (context) =>
+                                              ChatPage()));
                                     },
                                     child: ListTile(
                                       leading: ImageWidget(
                                         imageUrl:
-                                            currentUser.userProfilePhotoUrl,
+                                        currentUser.userProfilePhotoUrl,
                                         imageWidth: 75,
                                         imageHeight: 75,
                                         backgroundShape: BoxShape.circle,
                                         backgroundColor:
-                                            Colors.grey.withOpacity(0.3),
+                                        Colors.grey.withOpacity(0.3),
                                       ),
                                       title: Text(currentUser.userName),
                                       subtitle: Text(currentUser.userEmail),

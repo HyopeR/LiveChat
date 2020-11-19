@@ -16,10 +16,11 @@ class ChatView with ChangeNotifier {
 
   ChatRepository _chatRepo = locator<ChatRepository>();
 
-  List<UserModel> _users;
+  List<dynamic> contactsIdList;
+  List<UserModel> _contacts;
   UserModel interlocutorUser;
 
-  List<GroupModel> _groups = [];
+  List<GroupModel> _groups;
   String groupType;
 
   GroupModel _selectedChat;
@@ -28,6 +29,7 @@ class ChatView with ChangeNotifier {
   File voiceFile;
 
   List<GroupModel> get groups => _groups;
+  List<UserModel> get contacts => _contacts;
   GroupModel get selectedChat => _selectedChat;
   SelectedChatState get selectedChatState => _selectedChatState;
 
@@ -37,15 +39,20 @@ class ChatView with ChangeNotifier {
   }
 
   Future<bool> clearState() async {
-    _users = null;
+    _contacts = null;
     _groups = [];
     _selectedChat = null;
     selectedChatState = SelectedChatState.Empty;
     return true;
   }
 
+  bool searchUserInContacts(String userId) {
+    UserModel searchUser = contacts.firstWhere((contact) => contact.userId == userId, orElse: () => null);
+    return searchUser == null ? false : true;
+  }
+
   UserModel selectChatUser(String userId) {
-    UserModel user = _users.where((user) => user.userId == userId).first;
+    UserModel user = _contacts.where((user) => user.userId == userId).first;
     return user;
   }
 
@@ -81,10 +88,22 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Future<List<UserModel>> getAllUsers() async {
+  Future<List<UserModel>> searchUsers(String userName) async {
     try{
-      _users = await _chatRepo.getAllUsers();
-      return _users;
+      return _chatRepo.searchUsers(userName);
+    } catch(err) {
+      print('searchUsers Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+    try{
+      _chatRepo.getAllContacts(contactsIdList).listen((contacts) {
+        _contacts = contacts;
+      });
+
+      return _chatRepo.getAllContacts(contactsIdList);
     }catch(err) {
       print('getAllUsers Error: ${err.toString()}');
       return null;
@@ -145,6 +164,36 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
+    try{
+      return _chatRepo.uploadVoiceNote(groupId, fileType, file);
+    }catch(err) {
+      print('uploadVoiceNote Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+  Future<String> uploadImage(String groupId, String fileType, File file) async {
+    try{
+      return _chatRepo.uploadVoiceNote(groupId, fileType, file);
+    }catch(err) {
+      print('uploadImage Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+
+  Future<bool> addContact(String userId, String interlocutorUserId) async {
+    try{
+      return _chatRepo.addContact(userId, interlocutorUserId);
+    } catch(err) {
+      print('addContact Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+
+  // Voice record ile ilgili fonksiyonlar.
   void recordStart() async {
     return _chatRepo.recordStart();
   }
@@ -156,14 +205,6 @@ class ChatView with ChangeNotifier {
 
   Future<bool> clearStorage() async {
     return _chatRepo.clearStorage();
-  }
-
-  Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
-    return _chatRepo.uploadVoiceNote(groupId, fileType, file);
-  }
-
-  Future<String> uploadImage(String groupId, String fileType, File file) async {
-    return _chatRepo.uploadVoiceNote(groupId, fileType, file);
   }
 
 

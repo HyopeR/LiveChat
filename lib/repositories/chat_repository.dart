@@ -14,8 +14,12 @@ class ChatRepository {
   FirebaseStorageService _firebaseStorageService = locator<FirebaseStorageService>();
   VoiceRecordService _voiceRecordService = locator<VoiceRecordService>();
 
-  Future<List<UserModel>> getAllUsers() async {
-    return await _fireStoreDbService.getAllUsers();
+  Future<List<UserModel>> searchUsers(String userName) async {
+    return _fireStoreDbService.searchUsers(userName);
+  }
+
+  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+    return _fireStoreDbService.getAllContacts(contactsIdList);
   }
 
   Stream<List<GroupModel>> getAllGroups(String userId) {
@@ -56,6 +60,10 @@ class ChatRepository {
 
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     return _fireStoreDbService.messagesMarkAsSeen(userId, groupId, totalMessage);
+  }
+
+  Future<bool> addContact(String userId, String interlocutorUserId) async {
+    return _fireStoreDbService.addContact(userId, interlocutorUserId);
   }
 
 }

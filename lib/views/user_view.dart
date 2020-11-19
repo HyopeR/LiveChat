@@ -34,7 +34,6 @@ class UserView with ChangeNotifier implements AuthBase {
       _user = await _userRepo.getCurrentUser();
 
       if(_user != null) {
-        print('Hello');
         await loginUpdate(_user.userId);
       }
 

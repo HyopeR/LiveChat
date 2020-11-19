@@ -87,17 +87,35 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Future<List<UserModel>> getAllUsers() async {
-    QuerySnapshot usersQuery = await _fireStore.collection('users').get();
-    List<UserModel> users =
-        usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
+  Future<List<UserModel>> searchUsers(String userName) async {
+    QuerySnapshot usersQuery;
 
+    print(userName);
+
+    if(userName.trim().length > 0) {
+      usersQuery = await _fireStore.collection('users').orderBy('userName').startAt([userName]).endAt([userName]).get();
+    } else {
+      usersQuery = await _fireStore.collection('users').get();
+    }
+
+    List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
     return users;
   }
 
   @override
+  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+    Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')
+        .where('userId', whereIn: contactsIdList)
+        .snapshots();
+
+    return contactsQuery.map((contacts) => contacts.docs
+        .map((contact) => UserModel.fromMap(contact.data()))
+        .toList());
+  }
+
+  @override
   Stream<List<GroupModel>> getAllGroups(String userId) {
-    var groupsQuery =  _fireStore.collection('groups')
+    Stream<QuerySnapshot> groupsQuery =  _fireStore.collection('groups')
         .where('members', arrayContains: userId)
         .orderBy('recentMessage.date', descending: true)
         .snapshots();
@@ -227,6 +245,19 @@ class FireStoreDbService implements DbBase {
       'online': false,
       'lastSeen': FieldValue.serverTimestamp()
     });
+  }
+
+  @override
+  Future<bool> addContact(String userId, String interlocutorUserId) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'contacts': FieldValue.arrayUnion([interlocutorUserId]),
+    });
+
+    await _fireStore.collection('users').doc(interlocutorUserId).update({
+      'contacts': FieldValue.arrayUnion([userId]),
+    });
+
+    return true;
   }
 
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
@@ -63,8 +64,9 @@ class _LandingPageState extends State<LandingPage> {
           }
       );
     } else {
-      _userView.streamCurrentUser(_userView.user.userId).first;
-      await _chatView.getAllUsers();
+      UserModel user = await _userView.streamCurrentUser(_userView.user.userId).first;
+      _chatView.contactsIdList = user.contacts;
+      _chatView.getAllContacts(user.contacts).first;
       _chatView.getAllGroups(_userView.user.userId).first;
 
       Future.delayed(

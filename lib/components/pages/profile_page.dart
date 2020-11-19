@@ -78,6 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     if (_userView.user.userName != null) {
                       _controllerUserName.text = _userView.user.userName;
+                      _chatView.contactsIdList = _userView.user.contacts;
 
                       return ContainerColumn(
                         children: [
