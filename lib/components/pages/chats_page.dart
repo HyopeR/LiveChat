@@ -25,6 +25,7 @@ class _ChatsPageState extends State<ChatsPage> {
   GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
   DateTime currentDate = DateTime.now();
 
+  List<GroupModel> chats;
   List<String> selectedGroupIdList = List<String>();
 
   @override
@@ -62,12 +63,12 @@ class _ChatsPageState extends State<ChatsPage> {
                     stream: _chatView.getAllGroups(_userView.user.userId),
                     builder: (context, streamData) {
                       if (streamData.hasData) {
-                        List<GroupModel> chats = streamData.data;
+                        chats = streamData.data;
 
                         if (chats.isNotEmpty)
                           return ListView.builder(
                               itemCount: _chatView.groups.length,
-                              itemBuilder: (context, index) => createItem(chats, index)
+                              itemBuilder: (context, index) => createItem(index)
                               );
                         else
                           return SizedBox.expand(
@@ -131,7 +132,7 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
-  Widget createItem(List<GroupModel> chats, int index) {
+  Widget createItem(int index) {
 
     GroupModel currentChat = chats[index];
 

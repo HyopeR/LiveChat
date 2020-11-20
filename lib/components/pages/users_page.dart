@@ -20,6 +20,8 @@ class _UsersPageState extends State<UsersPage> {
   ChatView _chatView;
 
   GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
+
+  List<UserModel> users;
   List<String> selectedUserIdList = List<String>();
 
   @override
@@ -67,20 +69,20 @@ class _UsersPageState extends State<UsersPage> {
                 Expanded(
                   child: StreamBuilder<List<UserModel>>(
                     stream: _chatView.getAllContacts(_userView.contactsIdList),
-                    builder: (context, futureResult) {
+                    builder: (context, streamData) {
 
-                      if (futureResult.hasData) {
-                        List<UserModel> users = futureResult.data;
+                      if (streamData.hasData) {
+                        users = streamData.data;
 
-                        if (users.length > 0)
+                        if (users.isNotEmpty) {
                           return RefreshIndicator(
                             onRefresh: () => refreshUsers(),
                             child: ListView.builder(
                                 itemCount: users.length,
-                                itemBuilder: (context, index) => createItem(users, index)
-                                ),
+                                itemBuilder: (context, index) => createItem(index)
+                            ),
                           );
-                        else {
+                        } else {
                           return LayoutBuilder(
                             builder: (context, constraints) => RefreshIndicator(
                                 onRefresh: () => refreshUsers(),
@@ -119,8 +121,7 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
-  Widget createItem(List<UserModel> users, int index) {
-
+  Widget createItem(int index) {
     UserModel currentUser = users[index];
     bool selected = selectedUserIdList.contains(currentUser.userId);
 

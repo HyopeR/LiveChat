@@ -17,10 +17,11 @@ class _SearchUserPageState extends State<SearchUserPage> {
   ChatView _chatView;
   UserView _userView;
 
-  String searchedText = '';
   TextEditingController _controller;
   FocusNode _focusNode;
 
+  List<UserModel> users;
+  String searchedText = '';
   bool updatedContacts = false;
 
   @override
@@ -156,57 +157,15 @@ class _SearchUserPageState extends State<SearchUserPage> {
                   future: _chatView.searchUsers(searchedText),
                   builder: (context, futureResult) {
                     if (futureResult.hasData) {
-
-                      List<UserModel> users = futureResult.data;
+                      users = futureResult.data;
 
                       if (users.length > 0)
                         return RefreshIndicator(
                           onRefresh: () => refreshUsers(),
                           child: ListView.builder(
                               itemCount: users.length,
-                              itemBuilder: (context, index) {
-                                UserModel currentUser = users[index];
-
-                                if ((currentUser.userId != _userView.user.userId)) {
-                                  bool myContact = _userView.searchUserInContacts(currentUser.userId);
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _chatView.findChatByUserIdList([
-                                        _userView.user.userId,
-                                        currentUser.userId
-                                      ]);
-                                    },
-                                    child: ListTile(
-                                      leading: ImageWidget(
-                                        imageUrl: currentUser.userProfilePhotoUrl,
-                                        imageWidth: 75,
-                                        imageHeight: 75,
-                                        backgroundShape: BoxShape.circle,
-                                        backgroundColor:
-                                        Colors.grey.withOpacity(0.3),
-                                      ),
-
-                                      trailing: IconButton(
-                                        splashRadius: 25,
-                                        icon: myContact ? Icon(Icons.mobile_friendly) : Icon(Icons.add),
-                                        onPressed: () async {
-                                          if(!myContact) {
-                                            await _chatView.addContact(_userView.user.userId, currentUser.userId);
-                                            setState(() {
-                                              updatedContacts = true;
-                                            });
-                                          }
-                                        },
-                                      ),
-
-                                      title: Text(currentUser.userName),
-                                      subtitle: Text(currentUser.userEmail),
-                                    ),
-                                  );
-                                } else
-                                  return Container();
-                              }),
+                              itemBuilder: (context, index) => createItem(index)
+                              ),
                         );
                       else {
                         return LayoutBuilder(
@@ -245,5 +204,51 @@ class _SearchUserPageState extends State<SearchUserPage> {
     await Future.delayed(Duration(seconds: 2), () {
       setState(() {});
     });
+  }
+
+  Widget createItem(int index) {
+
+    UserModel currentUser = users[index];
+
+    if ((currentUser.userId != _userView.user.userId)) {
+      bool myContact = _userView.searchUserInContacts(currentUser.userId);
+
+      return GestureDetector(
+        onTap: () {
+          _chatView.findChatByUserIdList([
+            _userView.user.userId,
+            currentUser.userId
+          ]);
+        },
+        child: ListTile(
+          leading: ImageWidget(
+            imageUrl: currentUser.userProfilePhotoUrl,
+            imageWidth: 75,
+            imageHeight: 75,
+            backgroundShape: BoxShape.circle,
+            backgroundColor:
+            Colors.grey.withOpacity(0.3),
+          ),
+
+          trailing: IconButton(
+            splashRadius: 25,
+            icon: myContact ? Icon(Icons.mobile_friendly) : Icon(Icons.add),
+            onPressed: () async {
+              if(!myContact) {
+                await _chatView.addContact(_userView.user.userId, currentUser.userId);
+                setState(() {
+                  updatedContacts = true;
+                });
+              }
+            },
+          ),
+
+          title: Text(currentUser.userName),
+          subtitle: Text(currentUser.userEmail),
+        ),
+      );
+    } else
+      return Container();
+
   }
 }

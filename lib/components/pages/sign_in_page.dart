@@ -168,7 +168,7 @@ class _SignInPageState extends State<SignInPage> {
   pageTransition(UserModel user) async {
     if(user != null) {
       _userView.streamCurrentUser(_userView.user.userId).listen((user) {
-        _chatView.getAllContacts(user.contacts).first;
+        _chatView.getAllContacts(_userView.user.contacts).first;
         _chatView.getAllGroups(_userView.user.userId).first;
       });
 

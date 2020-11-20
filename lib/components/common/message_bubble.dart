@@ -34,8 +34,8 @@ class MessageBubble extends StatelessWidget {
     }
     return ContainerColumn(
       margin: message.fromMe
-          ? EdgeInsets.only(top: 3, bottom: 3, left: MediaQuery.of(context).size.width * bubbleMarginRate)
-          : EdgeInsets.only(top: 3, bottom: 3, right: MediaQuery.of(context).size.width * bubbleMarginRate),
+          ? EdgeInsets.only(top: 3, bottom: 3, right: 10, left: MediaQuery.of(context).size.width * bubbleMarginRate)
+          : EdgeInsets.only(top: 3, bottom: 3, left: 10, right: MediaQuery.of(context).size.width * bubbleMarginRate),
 
       crossAxisAlignment: message.fromMe
           ? CrossAxisAlignment.end

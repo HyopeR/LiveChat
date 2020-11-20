@@ -102,6 +102,10 @@ class FireStoreDbService implements DbBase {
 
   @override
   Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+    List<dynamic> whereList = contactsIdList;
+    if(contactsIdList.length < 1)
+      whereList.add('EmptyId');
+
     Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')
         .where('userId', whereIn: contactsIdList)
         .snapshots();
@@ -175,6 +179,12 @@ class FireStoreDbService implements DbBase {
       });
 
       await _fireStore.collection('groups').doc(groupId).set(createGroup.toMapPrivate());
+
+      // 0 eylem yapmıyor, 1 yazıyor, 2 ses kaydediyor.
+      await _fireStore.collection('chats').doc(groupId).set({
+        'action': seenMessage
+      });
+
       return createGroup;
     }
   }
@@ -189,9 +199,11 @@ class FireStoreDbService implements DbBase {
     Map<String, dynamic> messageMap = message.toMap();
     messageMap['messageId'] = messageId;
 
+    // Mesaj tipi voice değil ise duration key silinir.
     if(message.messageType != 'Voice')
       messageMap.remove('duration');
 
+    // Resim gönderilerinde text olarak mesaj alanı boş ise key silinir.
     if(message.message.trim().length < 1)
       messageMap.remove('message');
 

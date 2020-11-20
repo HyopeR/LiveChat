@@ -99,7 +99,7 @@ class ChatView with ChangeNotifier {
 
       return _chatRepo.getAllContacts(contactsIdList);
     }catch(err) {
-      print('getAllUsers Error: ${err.toString()}');
+      print('getAllContacts Error: ${err.toString()}');
       return null;
     }
   }
@@ -110,8 +110,13 @@ class ChatView with ChangeNotifier {
         // Eğer bir chat sayfasında değilsek selectedChat boş oluyor. Dolayısıyla eğerki biz bir chat sayfasındaysak
         // ve o group içerisinde yeni bir mesaj atılmış ise bunu buradan dinleyerek gördüğümüz mesajı database'e görüldü
         // olarak anlatmak amacıyla kendi gördüğümüz mesaj sayısını arttırıyoruz.
-        if(selectedChat != null) {
+        if(selectedChat != null && groupData.isNotEmpty) {
           GroupModel activeGroup = groupData.where((group) => group.groupId == selectedChat.groupId).first;
+
+          // print('groupData: ' + groupData.toString());
+          // print('SELECTED CHAT: ' + selectedChat.toString());
+          // print('ACTIVE GROUP: ' + activeGroup.toString());
+
           if(activeGroup.totalMessage != activeGroup.seenMessage[userId]) {
             _chatRepo.messagesMarkAsSeen(userId, activeGroup.groupId, activeGroup.totalMessage);
           }
