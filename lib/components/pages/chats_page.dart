@@ -56,157 +56,38 @@ class _ChatsPageState extends State<ChatsPage> {
           },
           child: SafeArea(
               child: ContainerColumn(padding: EdgeInsets.all(10), children: [
-            TitleArea(titleText: 'Konuşmalarım', icon: Icons.chat),
-            Expanded(
-              child: StreamBuilder<List<GroupModel>>(
-                stream: _chatView.getAllGroups(_userView.user.userId),
-                builder: (context, streamData) {
-                  if (streamData.hasData) {
-                    List<GroupModel> chats = streamData.data;
+                TitleArea(titleText: 'Konuşmalarım', icon: Icons.chat),
+                Expanded(
+                  child: StreamBuilder<List<GroupModel>>(
+                    stream: _chatView.getAllGroups(_userView.user.userId),
+                    builder: (context, streamData) {
+                      if (streamData.hasData) {
+                        List<GroupModel> chats = streamData.data;
 
-                    if (chats.isNotEmpty)
-                      return ListView.builder(
-                          itemCount: _chatView.groups.length,
-                          itemBuilder: (context, index) {
-                            GroupModel currentChat = chats[index];
-
-                            UserModel interlocutorUser;
-                            if (currentChat.groupType == 'Private') {
-                              String userId = currentChat.members
-                                  .where((memberUserId) =>
-                                      memberUserId != _userView.user.userId)
-                                  .first;
-                              interlocutorUser =
-                                  _chatView.selectChatUser(userId);
-                            }
-
-                            String currentDates =
-                                currentChat.recentMessage.date != null
-                                    ? showDateComposedString(
-                                        currentChat.recentMessage.date,
-                                        currentDate)
-                                    : null;
-
-                            int unreadMessageCount = currentChat.totalMessage -
-                                currentChat.seenMessage[_userView.user.userId];
-
-                            bool selected = selectedGroupIdList.contains(currentChat.groupId);
-
-                            return Container(
-                              margin: EdgeInsets.only(top: 5),
-                              decoration: BoxDecoration(
-                                color: selected
-                                    ? Colors.grey.withOpacity(0.3)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: () {
-                                  _chatView.selectChat(currentChat.groupId);
-                                  _chatView.interlocutorUser = interlocutorUser;
-                                  _chatView.groupType =
-                                      currentChat.groupType == 'Private'
-                                          ? 'Private'
-                                          : 'Plural';
-                                  Navigator.of(context, rootNavigator: true)
-                                      .push(MaterialPageRoute(
-                                          builder: (context) => ChatPage()));
-                                },
-                                onLongPress: () {
-                                  if (selected) {
-                                    setState(() {
-                                      selectedGroupIdList.removeWhere(
-                                          (groupId) =>
-                                              groupId == currentChat.groupId);
-                                    });
-
-                                    if (selectedGroupIdList.length == 0)
-                                      _appbarWidgetState.currentState
-                                          .operationCancel();
-                                  } else {
-                                    setState(() {
-                                      selectedGroupIdList
-                                          .add(currentChat.groupId);
-                                    });
-
-                                    _appbarWidgetState.currentState
-                                        .operationOpen();
-                                  }
-                                },
-                                child: ListTile(
-                                    leading: ImageWidget(
-                                      imageUrl: currentChat.groupType ==
-                                              'Private'
-                                          ? interlocutorUser.userProfilePhotoUrl
-                                          : currentChat.groupImageUrl,
-                                      imageWidth: 75,
-                                      imageHeight: 75,
-                                      backgroundShape: BoxShape.circle,
-                                      backgroundColor:
-                                          Colors.grey.withOpacity(0.3),
-                                    ),
-                                    trailing: ContainerColumn(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        currentDates != null
-                                            ? Text(
-                                                currentDates,
-                                                textAlign: TextAlign.right,
-                                              )
-                                            : Text(' '),
-                                        Container(
-                                          padding: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              color: unreadMessageCount > 0
-                                                  ? Theme.of(context)
-                                                      .primaryColor
-                                                  : Colors.transparent),
-                                          child: Text(
-                                              unreadMessageCount > 0
-                                                  ? unreadMessageCount
-                                                      .toString()
-                                                  : ' ',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        )
-                                      ],
-                                    ),
-                                    title: Text(
-                                        currentChat.groupType == 'Private'
-                                            ? interlocutorUser.userName
-                                            : currentChat.groupName),
-                                    subtitle: ContainerRow(
-                                      children:
-                                          currentChat.recentMessage != null
-                                              ? showMessageText(currentChat)
-                                              : Text('Yükleniyor...'),
-                                    )),
-                              ),
-                            );
-                          });
-                    else
-                      return SizedBox.expand(
-                        child: ContainerColumn(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat, size: 100),
-                            Text(
-                              'Kaydedilmiş konuşma yok.',
-                              textAlign: TextAlign.center,
-                            )
-                          ],
-                        ),
-                      );
-                  } else
-                    return Container();
-                },
-              ),
-            ),
+                        if (chats.isNotEmpty)
+                          return ListView.builder(
+                              itemCount: _chatView.groups.length,
+                              itemBuilder: (context, index) => createItem(chats, index)
+                              );
+                        else
+                          return SizedBox.expand(
+                            child: ContainerColumn(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.chat, size: 100),
+                                Text(
+                                  'Kaydedilmiş konuşma yok.',
+                                  textAlign: TextAlign.center,
+                                )
+                              ],
+                            ),
+                          );
+                      } else
+                        return Container();
+                    },
+                  ),
+                ),
           ])),
         ));
   }
@@ -248,6 +129,106 @@ class _ChatsPageState extends State<ChatsPage> {
         return [];
         break;
     }
+  }
+
+  Widget createItem(List<GroupModel> chats, int index) {
+
+    GroupModel currentChat = chats[index];
+
+    UserModel interlocutorUser;
+    if (currentChat.groupType == 'Private') {
+      String userId = currentChat.members.where((memberUserId) => memberUserId != _userView.user.userId).first;
+      interlocutorUser = _chatView.selectChatUser(userId);
+    }
+
+    String currentDates =
+    currentChat.recentMessage.date != null
+        ? showDateComposedString(currentChat.recentMessage.date, currentDate)
+        : null;
+
+    int unreadMessageCount = currentChat.totalMessage - currentChat.seenMessage[_userView.user.userId];
+    bool selected = selectedGroupIdList.contains(currentChat.groupId);
+
+    return Container(
+      margin: EdgeInsets.only(top: 5),
+      decoration: BoxDecoration(
+        color: selected ? Colors.grey.withOpacity(0.3) : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () {
+          _chatView.selectChat(currentChat.groupId);
+          _chatView.interlocutorUser = interlocutorUser;
+          _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
+
+          Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+        },
+        onLongPress: () {
+          if (selected) {
+            setState(() {
+              selectedGroupIdList.removeWhere((groupId) => groupId == currentChat.groupId);
+            });
+
+            if (selectedGroupIdList.length == 0)
+              _appbarWidgetState.currentState.operationCancel();
+          } else {
+            setState(() {
+              selectedGroupIdList.add(currentChat.groupId);
+            });
+
+            _appbarWidgetState.currentState.operationOpen();
+          }
+        },
+        child: ListTile(
+            leading: ImageWidget(
+              imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+              imageWidth: 75,
+              imageHeight: 75,
+              backgroundShape: BoxShape.circle,
+              backgroundColor:
+              Colors.grey.withOpacity(0.3),
+            ),
+            trailing: ContainerColumn(
+              mainAxisAlignment:
+              MainAxisAlignment.spaceEvenly,
+              children: [
+                currentDates != null
+                    ? Text(
+                  currentDates,
+                  textAlign: TextAlign.right,
+                )
+                    : Text(' '),
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      borderRadius:
+                      BorderRadius.circular(10),
+                      color: unreadMessageCount > 0
+                          ? Theme.of(context).primaryColor
+                          : Colors.transparent),
+                  child: Text(
+                      unreadMessageCount > 0
+                          ? unreadMessageCount.toString()
+                          : ' ',
+
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
+            title: Text(
+                currentChat.groupType == 'Private'
+                    ? interlocutorUser.userName
+                    : currentChat.groupName),
+            subtitle: ContainerRow(
+              children:
+              currentChat.recentMessage != null
+                  ? showMessageText(currentChat)
+                  : Text('Yükleniyor...'),
+            )),
+      ),
+    );
+
   }
 
   List<Widget> createOperationActions() {

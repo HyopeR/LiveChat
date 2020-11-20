@@ -16,7 +16,6 @@ class ChatView with ChangeNotifier {
 
   ChatRepository _chatRepo = locator<ChatRepository>();
 
-  List<dynamic> contactsIdList;
   List<UserModel> _contacts;
   UserModel interlocutorUser;
 
@@ -44,11 +43,6 @@ class ChatView with ChangeNotifier {
     _selectedChat = null;
     selectedChatState = SelectedChatState.Empty;
     return true;
-  }
-
-  bool searchUserInContacts(String userId) {
-    UserModel searchUser = contacts.firstWhere((contact) => contact.userId == userId, orElse: () => null);
-    return searchUser == null ? false : true;
   }
 
   UserModel selectChatUser(String userId) {

@@ -66,7 +66,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
           break;
 
         case('Default'):
-          return defaultAppBar();
+          return widget.onLeftSideClick != null ? backDefaultAppBar() : defaultAppBar();
           break;
 
         default:
@@ -111,6 +111,19 @@ class AppbarWidgetState extends State<AppbarWidget> {
           child: Text(widget.titleText, style: TextStyle(color: widget.textColor))
       ),
 
+      actions: widget.actions,
+    );
+  }
+
+  Widget backDefaultAppBar() {
+    return AppBar(
+      elevation: 0,
+      leading: InkWell(
+        onTap: widget.onLeftSideClick,
+        child: Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios),
+      ),
+      backgroundColor: widget.backgroundColor,
+      title: Text(widget.titleText, style: TextStyle(color: widget.textColor)),
       actions: widget.actions,
     );
   }

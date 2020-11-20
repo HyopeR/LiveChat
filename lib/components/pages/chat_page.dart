@@ -31,7 +31,7 @@ class _ChatPageState extends State<ChatPage> {
   bool permissionStatus = false;
   MessageModel markedMessage;
   List<Map<String, dynamic>> attachFileList;
-  List<String> selectedMessagesIdList = List<String>();
+  List<MessageModel> selectedMessagesIdList = List<MessageModel>();
 
   @override
   void initState() {
@@ -53,6 +53,8 @@ class _ChatPageState extends State<ChatPage> {
           setState(() {
             selectedMessagesIdList.clear();
           });
+        } else {
+          Navigator.of(context).pop();
         }
 
         return false;
@@ -69,10 +71,13 @@ class _ChatPageState extends State<ChatPage> {
             titleImageUrl: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userProfilePhotoUrl
                 : _chatView.selectedChat.groupImageUrl,
+
             titleText: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userName
                 : _chatView.selectedChat.groupName,
+
             operationActions: createOperationActions(),
+
             onOperationCancel: () {
               setState(() {
                 selectedMessagesIdList.clear();
@@ -128,7 +133,7 @@ class _ChatPageState extends State<ChatPage> {
                                         }
                                       }
 
-                                      bool selected = selectedMessagesIdList.contains(currentMessage.messageId);
+                                      bool selected = selectedMessagesIdList.map((e) => e.messageId).contains(currentMessage.messageId);
 
                                       return Dismissible(
                                           key: Key(currentMessage.messageId),
@@ -159,13 +164,13 @@ class _ChatPageState extends State<ChatPage> {
                                               onLongPress: () {
                                                 if (selected) {
                                                   setState(() {
-                                                    selectedMessagesIdList.removeWhere((messageId) => messageId == currentMessage.messageId);
+                                                    selectedMessagesIdList.removeWhere((message) => message.messageId == currentMessage.messageId);
                                                   });
 
                                                   if (selectedMessagesIdList.length == 0) _appbarWidgetState.currentState.operationCancel();
                                                 } else {
                                                   setState(() {
-                                                    selectedMessagesIdList.add(currentMessage.messageId);
+                                                    selectedMessagesIdList.add(currentMessage);
                                                   });
 
                                                   _appbarWidgetState.currentState
@@ -180,7 +185,8 @@ class _ChatPageState extends State<ChatPage> {
                                                     : Colors.grey.shade300.withOpacity(0.8),
                                               ),
                                             ),
-                                          ));
+                                          )
+                                      );
                                     }),
                               );
                             } else
@@ -298,9 +304,7 @@ class _ChatPageState extends State<ChatPage> {
 
       case ('Image'):
         attachFileList.forEach((Map<String, dynamic> map) async {
-          String imageUrl = await _chatView.uploadImage(
-              _chatView.selectedChat.groupId, 'Images', map['file']);
-          print(imageUrl);
+          String imageUrl = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
 
           if (imageUrl != null) {
             savingMessage.attach = imageUrl;

@@ -35,8 +35,11 @@ class _UsersPageState extends State<UsersPage> {
             FlatButton(
                 minWidth: 50,
                 child: Icon(Icons.search),
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SearchUserPage())))
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchUserPage())).then((updatedContacts) {
+                      if(updatedContacts)
+                        setState(() {});
+                })
+            )
           ],
           operationActions: createOperationActions(),
           onOperationCancel: () {
@@ -63,8 +66,9 @@ class _UsersPageState extends State<UsersPage> {
                 TitleArea(titleText: 'Kişilerim', icon: Icons.people),
                 Expanded(
                   child: StreamBuilder<List<UserModel>>(
-                    stream: _chatView.getAllContacts(_chatView.contactsIdList),
+                    stream: _chatView.getAllContacts(_userView.contactsIdList),
                     builder: (context, futureResult) {
+
                       if (futureResult.hasData) {
                         List<UserModel> users = futureResult.data;
 
@@ -73,78 +77,8 @@ class _UsersPageState extends State<UsersPage> {
                             onRefresh: () => refreshUsers(),
                             child: ListView.builder(
                                 itemCount: users.length,
-                                itemBuilder: (context, index) {
-                                  UserModel currentUser = users[index];
-                                  bool selected = selectedUserIdList
-                                      .contains(currentUser.userId);
-
-                                  if ((currentUser.userId !=
-                                      _userView.user.userId)) {
-                                    return Container(
-                                      margin: EdgeInsets.only(top: 5),
-                                      decoration: BoxDecoration(
-                                        color: selected
-                                            ? Colors.grey.withOpacity(0.3)
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(10),
-                                        onTap: () {
-                                          _chatView.findChatByUserIdList([
-                                            _userView.user.userId,
-                                            currentUser.userId
-                                          ]);
-
-                                          _chatView.interlocutorUser =
-                                              currentUser;
-                                          _chatView.groupType = 'Private';
-                                          Navigator.of(context,
-                                                  rootNavigator: true)
-                                              .push(MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ChatPage()));
-                                        },
-                                        onLongPress: () {
-                                          if (selected) {
-                                            setState(() {
-                                              selectedUserIdList.removeWhere(
-                                                  (userId) =>
-                                                      userId ==
-                                                      currentUser.userId);
-                                            });
-
-                                            if (selectedUserIdList.length == 0)
-                                              _appbarWidgetState.currentState
-                                                  .operationCancel();
-                                          } else {
-                                            setState(() {
-                                              selectedUserIdList
-                                                  .add(currentUser.userId);
-                                            });
-
-                                            _appbarWidgetState.currentState
-                                                .operationOpen();
-                                          }
-                                        },
-                                        child: ListTile(
-                                          leading: ImageWidget(
-                                            imageUrl:
-                                                currentUser.userProfilePhotoUrl,
-                                            imageWidth: 75,
-                                            imageHeight: 75,
-                                            backgroundShape: BoxShape.circle,
-                                            backgroundColor:
-                                                Colors.grey.withOpacity(0.3),
-                                          ),
-                                          title: Text(currentUser.userName),
-                                          subtitle: Text(currentUser.userEmail),
-                                        ),
-                                      ),
-                                    );
-                                  } else
-                                    return Container();
-                                }),
+                                itemBuilder: (context, index) => createItem(users, index)
+                                ),
                           );
                         else {
                           return LayoutBuilder(
@@ -183,6 +117,68 @@ class _UsersPageState extends State<UsersPage> {
     await Future.delayed(Duration(seconds: 2), () {
       setState(() {});
     });
+  }
+
+  Widget createItem(List<UserModel> users, int index) {
+
+    UserModel currentUser = users[index];
+    bool selected = selectedUserIdList.contains(currentUser.userId);
+
+    if ((currentUser.userId != _userView.user.userId)) {
+      return Container(
+        margin: EdgeInsets.only(top: 5),
+        decoration: BoxDecoration(
+          color: selected
+              ? Colors.grey.withOpacity(0.3)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            _chatView.findChatByUserIdList([
+              _userView.user.userId,
+              currentUser.userId
+            ]);
+
+            _chatView.interlocutorUser = currentUser;
+            _chatView.groupType = 'Private';
+            Navigator.of(context, rootNavigator: true)
+                .push(MaterialPageRoute(builder: (context) => ChatPage()));
+          },
+          onLongPress: () {
+            if (selected) {
+              setState(() {
+                selectedUserIdList.removeWhere((userId) => userId == currentUser.userId);
+              });
+
+              if (selectedUserIdList.length == 0)
+                _appbarWidgetState.currentState.operationCancel();
+            } else {
+              setState(() {
+                selectedUserIdList.add(currentUser.userId);
+              });
+
+              _appbarWidgetState.currentState.operationOpen();
+            }
+          },
+          child: ListTile(
+            leading: ImageWidget(
+              imageUrl: currentUser.userProfilePhotoUrl,
+              imageWidth: 75,
+              imageHeight: 75,
+              backgroundShape: BoxShape.circle,
+              backgroundColor:
+              Colors.grey.withOpacity(0.3),
+            ),
+            title: Text(currentUser.userName),
+            subtitle: Text(currentUser.userEmail),
+          ),
+        ),
+      );
+    } else
+      return Container();
+
   }
 
   List<Widget> createOperationActions() {

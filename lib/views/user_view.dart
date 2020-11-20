@@ -15,6 +15,8 @@ class UserView with ChangeNotifier implements AuthBase {
   UserRepository _userRepo = locator<UserRepository>();
   UserModel _user;
 
+  List<dynamic> contactsIdList;
+
   String emailErrorMessage;
   String passwordErrorMessage;
   String userErrorMessage;
@@ -25,6 +27,10 @@ class UserView with ChangeNotifier implements AuthBase {
   set state(UserViewState value) {
     _state = value;
     notifyListeners();
+  }
+
+  bool searchUserInContacts(String userId) {
+    return contactsIdList.contains(userId);
   }
 
   @override
@@ -49,11 +55,12 @@ class UserView with ChangeNotifier implements AuthBase {
   }
 
   Stream<UserModel> streamCurrentUser(String userId) {
+
     try{
       _userRepo.streamCurrentUser(userId).listen((user) {
+        contactsIdList = user.contacts;
         _user = user;
       });
-
       return _userRepo.streamCurrentUser(userId);
     }catch(err) {
 
