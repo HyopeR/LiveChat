@@ -22,6 +22,9 @@ class MessageCreatorWidget extends StatefulWidget {
 
   final bool permissionsAllowed;
 
+  final VoidCallback onWriting;
+  final VoidCallback onWritingStop;
+
   final VoidCallback onPressed;
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
@@ -42,6 +45,8 @@ class MessageCreatorWidget extends StatefulWidget {
       this.iconColor: Colors.black,
       this.buttonColor: Colors.amber,
       this.permissionsAllowed: false,
+      this.onWriting,
+      this.onWritingStop,
       this.onPressed,
       this.onLongPressStart,
       this.onLongPressEnd,
@@ -73,6 +78,16 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
     controller = TextEditingController();
     focusNode = FocusNode();
     permissionsAllowed = widget.permissionsAllowed;
+
+    controller.addListener(() {
+      if(controller.text.isNotEmpty) {
+        if(controller.text.trim().length == 1)
+          widget.onWriting();
+      } else {
+        widget.onWritingStop();
+      }
+
+    });
   }
 
   @override

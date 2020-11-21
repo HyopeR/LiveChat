@@ -94,8 +94,8 @@ class ChatView with ChangeNotifier {
 
   Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
     try{
-      _chatRepo.getAllContacts(contactsIdList).listen((contacts) {
-        contacts = contacts;
+      _chatRepo.getAllContacts(contactsIdList).listen((contactsData) {
+        contacts = contactsData;
       });
 
       return _chatRepo.getAllContacts(contactsIdList);
@@ -114,11 +114,13 @@ class ChatView with ChangeNotifier {
         if(selectedChat != null && groupData.isNotEmpty) {
           GroupModel activeGroup = groupData.where((group) => group.groupId == selectedChat.groupId).first;
 
+          print('Groups: ' + groupData.toString());
+
           // print('groupData: ' + groupData.toString());
           // print('SELECTED CHAT: ' + selectedChat.toString());
           // print('ACTIVE GROUP: ' + activeGroup.toString());
 
-          if(activeGroup.totalMessage != activeGroup.seenMessage[userId]) {
+          if(activeGroup.totalMessage != activeGroup.actions[userId]['seenMessage']) {
             _chatRepo.messagesMarkAsSeen(userId, activeGroup.groupId, activeGroup.totalMessage);
           }
         }
@@ -164,6 +166,14 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
+    try{
+      return _chatRepo.updateMessageAction(actionCode, userId, groupId);
+    }catch(err) {
+      print('updateMessageAction Error: ${err.toString()}');
+    }
+  }
+
   Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
     try{
       return _chatRepo.uploadVoiceNote(groupId, fileType, file);
@@ -181,17 +191,6 @@ class ChatView with ChangeNotifier {
       return null;
     }
   }
-
-
-  Future<bool> addContact(String userId, String interlocutorUserId) async {
-    try{
-      return _chatRepo.addContact(userId, interlocutorUserId);
-    } catch(err) {
-      print('addContact Error: ${err.toString()}');
-      return null;
-    }
-  }
-
 
   // Voice record ile ilgili fonksiyonlar.
   void recordStart() async {

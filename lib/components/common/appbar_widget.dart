@@ -11,6 +11,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback onOperationCancel;
 
   final String titleText;
+  final String subTitleText;
   final String titleImageUrl;
 
   final Color textColor;
@@ -26,6 +27,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
     this.onTitleClick,
     this.onOperationCancel,
     this.titleText,
+    this.subTitleText,
     this.titleImageUrl,
     this.textColor : Colors.black,
     this.backgroundColor : Colors.amber,
@@ -41,8 +43,10 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class AppbarWidgetState extends State<AppbarWidget> {
+
   bool operation = false;
   Color operationColor = Color(0xFFe7ad01);
+  String subTitle;
 
   void operationCancel() {
     setState(() {
@@ -54,6 +58,13 @@ class AppbarWidgetState extends State<AppbarWidget> {
     setState(() {
       operation = true;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.subTitleText != null)
+      subTitle = widget.subTitleText;
   }
 
   @override
@@ -108,7 +119,14 @@ class AppbarWidgetState extends State<AppbarWidget> {
       titleSpacing: 0,
       title: InkWell(
           onTap: widget.onTitleClick,
-          child: Text(widget.titleText, style: TextStyle(color: widget.textColor))
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Text(widget.titleText),
+              subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 11, color: Colors.black54)) : Container(),
+            ],
+          ),
       ),
 
       actions: widget.actions,

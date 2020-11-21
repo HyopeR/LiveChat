@@ -138,7 +138,6 @@ class FireStoreDbService implements DbBase {
     return messagesQuery.map((messages) => messages.docs
         .map((message) => MessageModel.fromMap(message.data()))
         .toList());
-
   }
 
   @override
@@ -158,14 +157,14 @@ class FireStoreDbService implements DbBase {
       String groupId = _fireStore.collection('groups').doc().id;
 
       // Grupta olacak her bir user için okunmamış mesaj değerlerini tutacak bir map yapısı oluşturuyoruz.
-      Map<String, int> seenMessage = {};
-      userIdList.forEach((userId) => seenMessage[userId] = 0);
+      Map<String, Map<String, dynamic>> actions = {};
+      userIdList.forEach((userId) => actions[userId] = {'seenMessage': 0, 'action': 0});
 
       GroupModel createGroup = GroupModel.private(
         groupId: groupId,
         groupType: groupType,
         members: userIdList,
-        seenMessage: seenMessage,
+        actions: actions,
         totalMessage: 0,
         createdBy: userId,
       );
@@ -179,11 +178,6 @@ class FireStoreDbService implements DbBase {
       });
 
       await _fireStore.collection('groups').doc(groupId).set(createGroup.toMapPrivate());
-
-      // 0 eylem yapmıyor, 1 yazıyor, 2 ses kaydediyor.
-      await _fireStore.collection('chats').doc(groupId).set({
-        'action': seenMessage
-      });
 
       return createGroup;
     }
@@ -224,7 +218,7 @@ class FireStoreDbService implements DbBase {
     await _fireStore.collection('groups').doc(groupId).update({
       'recentMessage': messageMap,
       'totalMessage': FieldValue.increment(1),
-      'seenMessage.${messageOwner.userId}': FieldValue.increment(1)
+      'actions.${messageOwner.userId}.seenMessage': FieldValue.increment(1)
     });
 
     return true;
@@ -233,7 +227,7 @@ class FireStoreDbService implements DbBase {
   @override
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     await _fireStore.collection('groups').doc(groupId).update({
-      'seenMessage.$userId': totalMessage
+      'seenMessage.$userId.seenMessage': totalMessage
     });
   }
 
@@ -264,6 +258,13 @@ class FireStoreDbService implements DbBase {
     });
 
     return true;
+  }
+
+  @override
+  Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
+    await _fireStore.collection('groups').doc(groupId).update({
+      'actions.$userId.action': actionCode
+    });
   }
 
 }

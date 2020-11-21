@@ -38,6 +38,10 @@ class ChatRepository {
     return _fireStoreDbService.saveMessage(message, messageOwner, groupId);
   }
 
+  Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
+    return _fireStoreDbService.updateMessageAction(actionCode, userId, groupId);
+  }
+
   void recordStart() async {
     return _voiceRecordService.recordStart();
   }
@@ -60,10 +64,6 @@ class ChatRepository {
 
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     return _fireStoreDbService.messagesMarkAsSeen(userId, groupId, totalMessage);
-  }
-
-  Future<bool> addContact(String userId, String interlocutorUserId) async {
-    return _fireStoreDbService.addContact(userId, interlocutorUserId);
   }
 
 }

@@ -26,6 +26,7 @@ abstract class DbBase {
 
   // Mesaj kayıt işlemi.
   Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId);
+  Future<void> updateMessageAction(int actionCode, String userId, String groupId); // 0 eylemde değil, 1 yazıyor, 2 ses kaydediyor.
 
   // Görülen mesajlara göre sayaç arttırılması.
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage);

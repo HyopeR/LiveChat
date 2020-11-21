@@ -50,6 +50,20 @@ class _ChatPageState extends State<ChatPage> {
     _userView = Provider.of<UserView>(context);
     _chatView = Provider.of<ChatView>(context);
 
+    String appBarImageUrl = _chatView.groupType == 'Private'
+        ? _chatView.interlocutorUser.userProfilePhotoUrl
+        : _chatView.selectedChat.groupImageUrl;
+
+    String appBarTitle = _chatView.groupType == 'Private'
+        ? _chatView.interlocutorUser.userName
+        : _chatView.selectedChat.groupName;
+
+    String appBarSubtitle = _chatView.groupType == 'Private'
+        ? _chatView.selectChatUser(_chatView.interlocutorUser.userId).online
+          ? 'Online'
+          : 'Son görülme: ' + showDateComposedString(_chatView.interlocutorUser.lastSeen)
+        : 'Group';
+
     return WillPopScope(
       onWillPop: () async {
         if (_appbarWidgetState.currentState.operation) {
@@ -58,6 +72,10 @@ class _ChatPageState extends State<ChatPage> {
             selectedMessagesIdList.clear();
           });
         } else {
+          if(_messageCreatorState.currentState.controller.text.trim().length > 0) {
+            _messageCreatorState.currentState.controller.clear();
+            updateMessageAction(0);
+          }
           Navigator.of(context).pop();
         }
 
@@ -68,17 +86,18 @@ class _ChatPageState extends State<ChatPage> {
           appBar: AppbarWidget(
             key: _appbarWidgetState,
             onLeftSideClick: () {
+              if(_messageCreatorState.currentState.controller.text.trim().length > 0) {
+                _messageCreatorState.currentState.controller.clear();
+                updateMessageAction(0);
+              }
               Navigator.of(context).pop();
               _chatView.unSelectChat();
             },
             appBarType: 'Chat',
-            titleImageUrl: _chatView.groupType == 'Private'
-                ? _chatView.interlocutorUser.userProfilePhotoUrl
-                : _chatView.selectedChat.groupImageUrl,
 
-            titleText: _chatView.groupType == 'Private'
-                ? _chatView.interlocutorUser.userName
-                : _chatView.selectedChat.groupName,
+            titleImageUrl: appBarImageUrl,
+            titleText: appBarTitle,
+            subTitleText: appBarSubtitle,
 
             onTitleClick: () async {
               Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
@@ -96,7 +115,6 @@ class _ChatPageState extends State<ChatPage> {
 
           body: SafeArea(
             child: ContainerColumn(
-              // padding: EdgeInsets.all(10),
               children: [
                 _chatView.selectedChatState == SelectedChatState.Loaded
                     ? Expanded(
@@ -134,19 +152,34 @@ class _ChatPageState extends State<ChatPage> {
                   textAreaColor: Colors.grey.shade300.withOpacity(0.8),
                   buttonColor: Theme.of(context).primaryColor,
                   permissionsAllowed: permissionStatus,
+
+
+                  // onWriting: () {
+                  //
+                  // },
+                  // onWritingStop: () {
+                  //
+                  // },
+
+                  onWriting: () => updateMessageAction(1),
+                  onWritingStop: () => updateMessageAction(0),
+
                   onPressed: () => saveMessage('Text'),
 
                   onLongPressStart: () async {
-                    if (permissionStatus)
+                    if (permissionStatus) {
                       _chatView.recordStart();
-                    else
+                      updateMessageAction(2);
+                    } else {
                       requestPermission();
+                    }
                   },
 
                   onLongPressEnd: () async {
                     if (permissionStatus) {
                       await _chatView.recordStop();
                       saveMessage('Voice');
+                      updateMessageAction(0);
                     }
                   },
 
@@ -165,6 +198,11 @@ class _ChatPageState extends State<ChatPage> {
             ),
           )),
     );
+  }
+
+  void updateMessageAction(int actionCode) {
+    if(_chatView.selectedChat != null)
+      _chatView.updateMessageAction(actionCode, _userView.user.userId, _chatView.selectedChat.groupId);
   }
 
   void saveMessage(String messageType) async {

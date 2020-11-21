@@ -134,6 +134,16 @@ class _ChatsPageState extends State<ChatsPage> {
   Widget createItem(int index) {
     GroupModel currentChat = chats[index];
 
+    String controlAction;
+    UserModel controlActionUser;
+
+    currentChat.actions.forEach((key, value) {
+      if(value['action'] != 0 && key != _userView.user.userId) {
+        controlAction = value['action'] == 1 ? 'Yazıyor...' : 'Ses kaydediyor...';
+        controlActionUser = _chatView.selectChatUser(key);
+      }
+    });
+
     UserModel interlocutorUser;
     if (currentChat.groupType == 'Private') {
       String userId = currentChat.members.where((memberUserId) => memberUserId != _userView.user.userId).first;
@@ -144,7 +154,7 @@ class _ChatsPageState extends State<ChatsPage> {
         ? showDateComposedString(currentChat.recentMessage.date)
         : null;
 
-    int unreadMessageCount = currentChat.totalMessage - currentChat.seenMessage[_userView.user.userId];
+    int unreadMessageCount = currentChat.totalMessage - currentChat.actions[_userView.user.userId]['seenMessage'];
     bool selected = selectedGroupIdList.contains(currentChat.groupId);
 
     return Container(
@@ -220,9 +230,12 @@ class _ChatsPageState extends State<ChatsPage> {
                     : currentChat.groupName),
             subtitle: ContainerRow(
               children:
-              currentChat.recentMessage != null
-                  ? showMessageText(currentChat)
-                  : Text('Yükleniyor...'),
+
+              controlAction != null
+                  ? [Text(controlActionUser.userName + ' ' + controlAction)]
+                  : currentChat.recentMessage != null
+                    ? showMessageText(currentChat)
+                    : [Text('Yükleniyor...')],
             )),
       ),
     );

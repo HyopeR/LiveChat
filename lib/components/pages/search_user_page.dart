@@ -235,7 +235,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
             icon: myContact ? Icon(Icons.mobile_friendly) : Icon(Icons.add),
             onPressed: () async {
               if(!myContact) {
-                await _chatView.addContact(_userView.user.userId, currentUser.userId);
+                await _userView.addContact(_userView.user.userId, currentUser.userId);
                 setState(() {
                   updatedContacts = true;
                 });

@@ -14,6 +14,7 @@ class UserView with ChangeNotifier implements AuthBase {
   UserViewState _state = UserViewState.Idle;
   UserRepository _userRepo = locator<UserRepository>();
   UserModel _user;
+  UserModel interlocutorUser;
 
   List<dynamic> contactsIdList;
 
@@ -253,6 +254,15 @@ class UserView with ChangeNotifier implements AuthBase {
       return null;
     }
 
+  }
+
+  Future<bool> addContact(String userId, String interlocutorUserId) async {
+    try{
+      return _userRepo.addContact(userId, interlocutorUserId);
+    } catch(err) {
+      print('addContact Error: ${err.toString()}');
+      return null;
+    }
   }
 
 
