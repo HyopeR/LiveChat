@@ -16,7 +16,7 @@ class ChatView with ChangeNotifier {
 
   ChatRepository _chatRepo = locator<ChatRepository>();
 
-  List<UserModel> _contacts;
+  List<UserModel> contacts;
   UserModel interlocutorUser;
 
   List<GroupModel> _groups;
@@ -28,7 +28,6 @@ class ChatView with ChangeNotifier {
   File voiceFile;
 
   List<GroupModel> get groups => _groups;
-  List<UserModel> get contacts => _contacts;
   GroupModel get selectedChat => _selectedChat;
   SelectedChatState get selectedChatState => _selectedChatState;
 
@@ -38,15 +37,17 @@ class ChatView with ChangeNotifier {
   }
 
   Future<bool> clearState() async {
-    _contacts = null;
-    _groups = [];
+    contacts = List<UserModel>();
+    _groups = List<GroupModel>();
+    groupType = null;
     _selectedChat = null;
+    interlocutorUser = null;
     selectedChatState = SelectedChatState.Empty;
     return true;
   }
 
   UserModel selectChatUser(String userId) {
-    UserModel user = _contacts.where((user) => user.userId == userId).first;
+    UserModel user = contacts.where((user) => user.userId == userId).first;
     return user;
   }
 
@@ -94,7 +95,7 @@ class ChatView with ChangeNotifier {
   Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
     try{
       _chatRepo.getAllContacts(contactsIdList).listen((contacts) {
-        _contacts = contacts;
+        contacts = contacts;
       });
 
       return _chatRepo.getAllContacts(contactsIdList);

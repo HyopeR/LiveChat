@@ -24,7 +24,6 @@ class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
   ChatView _chatView;
 
-  DateTime currentDate = DateTime.now();
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
   ImagePicker picker = ImagePicker();
@@ -220,10 +219,10 @@ class _ProfilePageState extends State<ProfilePage> {
     return [
       userDataWidget('Name', _userView.user.userName),
       userDataWidget('Email', _userView.user.userEmail),
-      userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen, currentDate) : 'Yükleniyor...'),
-      userDataWidget('Online', _userView.user.online),
-      userDataWidget('Registered', _userView.user.createdAt != null ? showDate(_userView.user.createdAt, currentDate)['date'] : 'Yükleniyor...'),
-      userDataWidget('Updated', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.updatedAt, currentDate) : 'Yükleniyor...'),
+      userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen) : 'Yükleniyor...'),
+      userDataWidget('Status', _userView.user.online ? 'Online' : 'Offline'),
+      userDataWidget('Registered', _userView.user.createdAt != null ? showDate(_userView.user.createdAt)['date'] : 'Yükleniyor...'),
+      userDataWidget('Updated', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.updatedAt) : 'Yükleniyor...'),
     ];
   }
 
@@ -260,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void photoFromCamera() async {
-    var pickedFile = await picker.getImage(source: ImageSource.camera);
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
     if (pickedFile != null) {
       _profilePhoto = File(pickedFile.path);
       _alertContainerWidgetState.currentState
@@ -334,9 +333,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   _signOut() async {
+    _userView.logoutUpdate(_userView.user.userId);
     _chatView.clearState();
     _userView.signOut();
-    Navigator.of(context, rootNavigator: true)
-        .pushReplacementNamed('/signInPage');
+    Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
   }
 }

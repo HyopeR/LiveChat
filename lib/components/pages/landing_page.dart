@@ -28,7 +28,7 @@ class _LandingPageState extends State<LandingPage> {
     _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
-        
+
         body: SafeArea(
           child: Container(
             color: Colors.white,
@@ -58,21 +58,21 @@ class _LandingPageState extends State<LandingPage> {
       Future.delayed(
           Duration(seconds: 2),
           () {
-            Navigator.of(context).pushReplacementNamed(
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(
               '/signInPage',
             );
           }
       );
     } else {
-      _userView.streamCurrentUser(_userView.user.userId).listen((user) {
-        _chatView.getAllContacts(_userView.user.contacts).first;
-        _chatView.getAllGroups(_userView.user.userId).first;
-      });
+      UserModel user = await _userView.streamCurrentUser(_userView.user.userId).first;
+      await _userView.loginUpdate(user.userId);
+      _chatView.contacts = await _chatView.getAllContacts(user.contacts).first;
+      await _chatView.getAllGroups(user.userId).first;
 
       Future.delayed(
           Duration(seconds: 2),
           () {
-            Navigator.of(context).pushReplacementNamed(
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(
               '/homePage',
             );
           }

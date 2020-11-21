@@ -93,6 +93,7 @@ class UserView with ChangeNotifier implements AuthBase {
     try{
       state = UserViewState.Busy;
       _user = null;
+      contactsIdList = null;
       bool result = await _userRepo.signOut();
       return result;
 

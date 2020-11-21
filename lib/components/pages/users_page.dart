@@ -74,7 +74,7 @@ class _UsersPageState extends State<UsersPage> {
                       if (streamData.hasData) {
                         users = streamData.data;
 
-                        if (users.isNotEmpty) {
+                        if (streamData.data.isNotEmpty) {
                           return RefreshIndicator(
                             onRefresh: () => refreshUsers(),
                             child: ListView.builder(

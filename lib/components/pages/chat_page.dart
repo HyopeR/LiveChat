@@ -8,7 +8,9 @@ import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/pages/camera_preview_page.dart';
+import 'package:live_chat/components/pages/user_preview_page.dart';
 import 'package:live_chat/models/message_model.dart';
+import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -77,6 +79,11 @@ class _ChatPageState extends State<ChatPage> {
             titleText: _chatView.groupType == 'Private'
                 ? _chatView.interlocutorUser.userName
                 : _chatView.selectedChat.groupName,
+
+            onTitleClick: () async {
+              Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
+              await Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+            },
 
             operationActions: createOperationActions(),
 
@@ -407,4 +414,5 @@ class _ChatPageState extends State<ChatPage> {
         )
     );
   }
+
 }

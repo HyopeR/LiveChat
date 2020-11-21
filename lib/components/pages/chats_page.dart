@@ -23,7 +23,6 @@ class _ChatsPageState extends State<ChatsPage> {
   ChatView _chatView;
 
   GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
-  DateTime currentDate = DateTime.now();
 
   List<GroupModel> chats;
   List<String> selectedGroupIdList = List<String>();
@@ -65,7 +64,7 @@ class _ChatsPageState extends State<ChatsPage> {
                       if (streamData.hasData) {
                         chats = streamData.data;
 
-                        if (chats.isNotEmpty)
+                        if (chats.length > 0)
                           return ListView.builder(
                               itemCount: _chatView.groups.length,
                               itemBuilder: (context, index) => createItem(index)
@@ -133,7 +132,6 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   Widget createItem(int index) {
-
     GroupModel currentChat = chats[index];
 
     UserModel interlocutorUser;
@@ -142,9 +140,8 @@ class _ChatsPageState extends State<ChatsPage> {
       interlocutorUser = _chatView.selectChatUser(userId);
     }
 
-    String currentDates =
-    currentChat.recentMessage.date != null
-        ? showDateComposedString(currentChat.recentMessage.date, currentDate)
+    String currentDates = currentChat.recentMessage.date != null
+        ? showDateComposedString(currentChat.recentMessage.date)
         : null;
 
     int unreadMessageCount = currentChat.totalMessage - currentChat.seenMessage[_userView.user.userId];
