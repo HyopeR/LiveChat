@@ -42,6 +42,14 @@ class ChatRepository {
     return _fireStoreDbService.updateMessageAction(actionCode, userId, groupId);
   }
 
+  Stream<GroupModel> streamOneGroup(String groupId) {
+    return _fireStoreDbService.streamOneGroup(groupId);
+  }
+
+  Stream<UserModel> streamOneUser(String userId) {
+    return _fireStoreDbService.streamOneUser(userId);
+  }
+
   void recordStart() async {
     return _voiceRecordService.recordStart();
   }

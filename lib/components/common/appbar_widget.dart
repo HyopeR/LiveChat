@@ -48,6 +48,12 @@ class AppbarWidgetState extends State<AppbarWidget> {
   Color operationColor = Color(0xFFe7ad01);
   String subTitle;
 
+  void updateSubtitle(String text) {
+    setState(() {
+      subTitle = text;
+    });
+  }
+
   void operationCancel() {
     setState(() {
       operation = false;

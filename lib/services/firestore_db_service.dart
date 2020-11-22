@@ -227,7 +227,7 @@ class FireStoreDbService implements DbBase {
   @override
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     await _fireStore.collection('groups').doc(groupId).update({
-      'seenMessage.$userId.seenMessage': totalMessage
+      'actions.$userId.seenMessage': totalMessage
     });
   }
 
@@ -265,6 +265,25 @@ class FireStoreDbService implements DbBase {
     await _fireStore.collection('groups').doc(groupId).update({
       'actions.$userId.action': actionCode
     });
+  }
+
+  @override
+  Stream<GroupModel> streamOneGroup(String groupId) {
+    Stream<DocumentSnapshot> groupDoc =  _fireStore.collection('groups').doc(groupId).snapshots();
+
+    return groupDoc.map((group) {
+      if(group.data()['groupType'] == 'Private')
+        return GroupModel.fromMapPrivate(group.data());
+      else
+        return GroupModel.fromMapPlural(group.data());
+    });
+  }
+
+  @override
+  Stream<UserModel> streamOneUser(String userId) {
+    Stream<DocumentSnapshot> userDoc =  _fireStore.collection('users').doc(userId).snapshots();
+
+    return userDoc.map((user) => UserModel.fromMap(user.data()));
   }
 
 }

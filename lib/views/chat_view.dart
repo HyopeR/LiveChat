@@ -112,17 +112,12 @@ class ChatView with ChangeNotifier {
         // ve o group içerisinde yeni bir mesaj atılmış ise bunu buradan dinleyerek gördüğümüz mesajı database'e görüldü
         // olarak anlatmak amacıyla kendi gördüğümüz mesaj sayısını arttırıyoruz.
         if(selectedChat != null && groupData.isNotEmpty) {
-          GroupModel activeGroup = groupData.where((group) => group.groupId == selectedChat.groupId).first;
+          GroupModel activeGroup = groupData.firstWhere((group) => group.groupId == selectedChat.groupId, orElse: () => null);
 
-          print('Groups: ' + groupData.toString());
-
-          // print('groupData: ' + groupData.toString());
-          // print('SELECTED CHAT: ' + selectedChat.toString());
-          // print('ACTIVE GROUP: ' + activeGroup.toString());
-
-          if(activeGroup.totalMessage != activeGroup.actions[userId]['seenMessage']) {
-            _chatRepo.messagesMarkAsSeen(userId, activeGroup.groupId, activeGroup.totalMessage);
-          }
+          if(activeGroup != null)
+            if(activeGroup.totalMessage != activeGroup.actions[userId]['seenMessage']) {
+              _chatRepo.messagesMarkAsSeen(userId, activeGroup.groupId, activeGroup.totalMessage);
+            }
         }
 
         _groups = groupData;
@@ -188,6 +183,25 @@ class ChatView with ChangeNotifier {
       return _chatRepo.uploadVoiceNote(groupId, fileType, file);
     }catch(err) {
       print('uploadImage Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+
+  Stream<GroupModel> streamOneGroup(String groupId) {
+    try{
+      return _chatRepo.streamOneGroup(groupId);
+    }catch(err) {
+      print('streamOneGroup Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+  Stream<UserModel> streamOneUser(String userId) {
+    try{
+      return _chatRepo.streamOneUser(userId);
+    }catch(err) {
+      print('streamOneUser Error: ${err.toString()}');
       return null;
     }
   }

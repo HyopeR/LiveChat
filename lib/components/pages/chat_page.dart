@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:math' as math;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -9,7 +11,9 @@ import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/pages/camera_preview_page.dart';
 import 'package:live_chat/components/pages/user_preview_page.dart';
+import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/message_model.dart';
+import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
@@ -31,6 +35,12 @@ class _ChatPageState extends State<ChatPage> {
   ScrollController _scrollController = ScrollController();
 
   bool permissionStatus = false;
+
+  StreamSubscription<UserModel> _subscriptionUser;
+  StreamSubscription<GroupModel> _subscriptionGroup;
+
+  UserModel interlocutorUser;
+
   MessageModel markedMessage;
   List<Map<String, dynamic>> attachFileList;
 
@@ -41,8 +51,54 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
       getPermissionStatus();
+
+      if(_chatView.groupType == 'Private') {
+        _subscriptionUser = _chatView.streamOneUser(_chatView.interlocutorUser.userId).listen((user) {
+          print('CHAT PAGE: ' + user.toString());
+          interlocutorUser = user;
+          String subTitleText = user.online
+              ? 'Online'
+              : 'Son görülme: ' + showDateComposedString(user.lastSeen);
+
+          _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
+        });
+      }
+
+      if(_chatView.selectedChat != null) {
+        _subscriptionGroup = _chatView.streamOneGroup(_chatView.selectedChat.groupId).listen((group) {
+          String controlAction;
+          UserModel controlActionUser;
+
+          group.actions.forEach((key, value) {
+            if(value['action'] != 0 && key != _userView.user.userId) {
+              controlAction = value['action'] == 1 ? 'Yazıyor...' : 'Ses kaydediyor...';
+              controlActionUser = _chatView.selectChatUser(key);
+            }
+          });
+
+          if(controlAction != null)
+            _appbarWidgetState.currentState.updateSubtitle(controlActionUser.userName + ' ' + controlAction);
+          else if(_chatView.groupType == 'Private') {
+            String subTitleText = interlocutorUser.online
+                ? 'Online'
+                : 'Son görülme: ' + showDateComposedString(interlocutorUser.lastSeen);
+
+            _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
+          }
+
+        });
+      }
+
     });
+  }
+
+  @override
+  void dispose() {
+    _subscriptionUser.cancel();
+    _subscriptionGroup.cancel();
+    super.dispose();
   }
 
   @override

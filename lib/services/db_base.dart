@@ -21,6 +21,9 @@ abstract class DbBase {
   Stream<List<GroupModel>> getAllGroups(String userId);
   Stream<List<MessageModel>> getMessages(String groupId);
 
+  Stream<GroupModel> streamOneGroup(String groupId);
+  Stream<UserModel> streamOneUser(String userId);
+
   // User Id'listesiyle böyle bir konuşma oluşturulmuşmu kontrolü.
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList);
 
