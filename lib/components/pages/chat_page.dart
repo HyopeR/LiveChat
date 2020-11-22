@@ -29,22 +29,20 @@ class _ChatPageState extends State<ChatPage> {
   ChatView _chatView;
   UserView _userView;
 
+  StreamSubscription<UserModel> _subscriptionUser;
+  StreamSubscription<GroupModel> _subscriptionGroup;
+  UserModel interlocutorUser;
+
   LocalFileSystem _localFileSystem = LocalFileSystem();
   GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
   GlobalKey<MessageCreatorWidgetState> _messageCreatorState = GlobalKey();
   ScrollController _scrollController = ScrollController();
 
   bool permissionStatus = false;
-
-  StreamSubscription<UserModel> _subscriptionUser;
-  StreamSubscription<GroupModel> _subscriptionGroup;
-
-  UserModel interlocutorUser;
-
   MessageModel markedMessage;
   List<Map<String, dynamic>> attachFileList;
 
-  List<MessageModel> selectedMessagesIdList = List<MessageModel>();
+  List<MessageModel> selectedMessagesList = List<MessageModel>();
   List<MessageModel> messages;
 
   @override
@@ -56,7 +54,6 @@ class _ChatPageState extends State<ChatPage> {
 
       if(_chatView.groupType == 'Private') {
         _subscriptionUser = _chatView.streamOneUser(_chatView.interlocutorUser.userId).listen((user) {
-          print('CHAT PAGE: ' + user.toString());
           interlocutorUser = user;
           String subTitleText = user.online
               ? 'Online'
@@ -125,7 +122,7 @@ class _ChatPageState extends State<ChatPage> {
         if (_appbarWidgetState.currentState.operation) {
           _appbarWidgetState.currentState.operationCancel();
           setState(() {
-            selectedMessagesIdList.clear();
+            selectedMessagesList.clear();
           });
         } else {
           if(_messageCreatorState.currentState.controller.text.trim().length > 0) {
@@ -164,7 +161,7 @@ class _ChatPageState extends State<ChatPage> {
 
             onOperationCancel: () {
               setState(() {
-                selectedMessagesIdList.clear();
+                selectedMessagesList.clear();
               });
             },
           ),
@@ -398,36 +395,6 @@ class _ChatPageState extends State<ChatPage> {
       return false;
   }
 
-  List<Widget> createOperationActions() {
-    return [
-      selectedMessagesIdList.length > 0
-          ? Container(
-              alignment: Alignment.center,
-              width: 50,
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black.withOpacity(0.1),
-                  ),
-                  padding: EdgeInsets.all(5),
-                  child: Text(selectedMessagesIdList.length.toString(),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20))))
-          : Container(),
-
-      FlatButton(
-          minWidth: 50,
-          child: Transform(
-              child: Icon(Icons.reply),
-              alignment: Alignment.center,
-              transform: Matrix4.rotationY(math.pi)
-          ),
-          onPressed: () {
-            print('Mesajları iletme işlemleri.');
-          })
-    ];
-  }
-
   Widget createItem(int index) {
     MessageModel currentMessage = messages[index];
     bool fromMe = currentMessage.sendBy == _userView.user.userId;
@@ -455,7 +422,7 @@ class _ChatPageState extends State<ChatPage> {
       }
     }
 
-    bool selected = selectedMessagesIdList.map((e) => e.messageId).contains(currentMessage.messageId);
+    bool selected = selectedMessagesList.map((e) => e.messageId).contains(currentMessage.messageId);
 
     return Dismissible(
         key: Key(currentMessage.messageId),
@@ -463,7 +430,7 @@ class _ChatPageState extends State<ChatPage> {
         // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
         confirmDismiss: (direction) async {
           _messageCreatorState.currentState
-            ..setMarkedMessage(MessageMarked(
+            .setMarkedMessage(MessageMarked(
               message: currentMessage,
               mainAxisSize: MainAxisSize.max,
               forwardCancel: () {
@@ -484,13 +451,13 @@ class _ChatPageState extends State<ChatPage> {
             onLongPress: () {
               if (selected) {
                 setState(() {
-                  selectedMessagesIdList.removeWhere((message) => message.messageId == currentMessage.messageId);
+                  selectedMessagesList.removeWhere((message) => message.messageId == currentMessage.messageId);
                 });
 
-                if (selectedMessagesIdList.length == 0) _appbarWidgetState.currentState.operationCancel();
+                if (selectedMessagesList.length == 0) _appbarWidgetState.currentState.operationCancel();
               } else {
                 setState(() {
-                  selectedMessagesIdList.add(currentMessage);
+                  selectedMessagesList.add(currentMessage);
                 });
 
                 _appbarWidgetState.currentState
@@ -507,6 +474,61 @@ class _ChatPageState extends State<ChatPage> {
           ),
         )
     );
+  }
+
+
+  List<Widget> createOperationActions() {
+    return [
+      selectedMessagesList.length > 0
+          ? Container(
+          alignment: Alignment.center,
+          width: 50,
+          child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.black.withOpacity(0.1),
+              ),
+              padding: EdgeInsets.all(5),
+              child: Text(selectedMessagesList.length.toString(),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20))))
+          : Container(),
+
+      selectedMessagesList.length == 1
+
+      ? FlatButton(
+          minWidth: 50,
+          child: Icon(Icons.reply),
+          onPressed: () {
+            setState(() {
+              markedMessage = selectedMessagesList[0];
+              _messageCreatorState.currentState.setMarkedMessage(MessageMarked(
+                message: markedMessage,
+                mainAxisSize: MainAxisSize.max,
+                forwardCancel: () {
+                  _messageCreatorState.currentState.setMarkedMessage(null);
+                  markedMessage = null;
+                },
+              ));
+            });
+
+            _appbarWidgetState.currentState.operationCancel();
+            selectedMessagesList.clear();
+          })
+
+      : Container(),
+
+      FlatButton(
+          minWidth: 50,
+          child: Transform(
+              child: Icon(Icons.reply),
+              alignment: Alignment.center,
+              transform: Matrix4.rotationY(math.pi)
+          ),
+          onPressed: () {
+            print('Mesajları iletme işlemleri.');
+          })
+    ];
   }
 
 }

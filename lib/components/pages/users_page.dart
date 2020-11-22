@@ -32,7 +32,7 @@ class _UsersPageState extends State<UsersPage> {
     return Scaffold(
         appBar: AppbarWidget(
           key: _appbarWidgetState,
-          titleText: 'Users',
+          titleText: 'Live Chat',
           actions: [
             FlatButton(
                 minWidth: 50,
@@ -204,7 +204,17 @@ class _UsersPageState extends State<UsersPage> {
               minWidth: 50,
               child: Icon(Icons.remove_red_eye),
               onPressed: () {
-                print('Konuşmayı aç.');
+                _chatView.findChatByUserIdList([
+                  _userView.user.userId,
+                  selectedUserIdList[0]
+                ]);
+
+                _chatView.interlocutorUser = _chatView.selectChatUser(selectedUserIdList[0]);
+                _chatView.groupType = 'Private';
+
+                _appbarWidgetState.currentState.operationCancel();
+                selectedUserIdList.clear();
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
               })
           : Container(),
 

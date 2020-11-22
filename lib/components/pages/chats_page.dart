@@ -35,7 +35,7 @@ class _ChatsPageState extends State<ChatsPage> {
     return Scaffold(
         appBar: AppbarWidget(
           key: _appbarWidgetState,
-          titleText: 'Chats',
+          titleText: 'Live Chat',
           operationActions: createOperationActions(),
           onOperationCancel: () {
             setState(() {
@@ -167,8 +167,10 @@ class _ChatsPageState extends State<ChatsPage> {
         borderRadius: BorderRadius.circular(10),
         onTap: () {
           _chatView.selectChat(currentChat.groupId);
-          _chatView.interlocutorUser = interlocutorUser;
           _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
+
+          if(_chatView.groupType == 'Private')
+            _chatView.interlocutorUser = interlocutorUser;
 
           Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
         },
@@ -264,7 +266,17 @@ class _ChatsPageState extends State<ChatsPage> {
               minWidth: 50,
               child: Icon(Icons.remove_red_eye),
               onPressed: () {
-                print('Konuşmayı aç.');
+                GroupModel currentGroup = _chatView.selectChat(selectedGroupIdList[0]);
+                _chatView.groupType = currentGroup.groupType;
+
+                if(_chatView.groupType == 'Private') {
+                  String interlocutorUserId = currentGroup.members.firstWhere((memberUserId) => memberUserId != _userView.user.userId, orElse: () => null);
+                  _chatView.interlocutorUser = _chatView.selectChatUser(interlocutorUserId);
+                }
+
+                _appbarWidgetState.currentState.operationCancel();
+                selectedGroupIdList.clear();
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
               })
           : Container(),
 

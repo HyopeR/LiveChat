@@ -56,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppbarWidget(
-          titleText: 'Profile',
+          titleText: 'Live Chat',
           actions: [
             FlatButton(
                 minWidth: 50,
@@ -95,37 +95,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                           onTap: () {
                                             showModalBottomSheet(
                                                 context: context,
-                                                builder: (context) {
-                                                  return SafeArea(
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        ListTile(
-                                                          leading: Icon(
-                                                              Icons.camera_alt),
-                                                          title: Text(
-                                                              'Kamera Kullan'),
-                                                          onTap: () =>
-                                                              photoFromCamera(),
-                                                        ),
-                                                        ListTile(
-                                                          leading:
-                                                              Icon(Icons.image),
-                                                          title: Text(
-                                                              'Geleriden Seç'),
-                                                          onTap: () =>
-                                                              photoFromGallery(),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  );
-                                                });
+                                                builder: (context) => showModal());
                                           },
                                           child: ImageWidget(
                                             key: _imageWidgetState,
-                                            imageUrl: _userView
-                                                .user.userProfilePhotoUrl,
+                                            imageUrl: _userView.user.userProfilePhotoUrl,
                                             backgroundShape: BoxShape.circle,
                                             backgroundColor:
                                                 Colors.grey.withOpacity(0.3),
@@ -133,9 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       Container(
                                         margin: EdgeInsets.only(top: 10),
                                         child: IconButton(
-                                            icon: Icon(!showForm
-                                                ? Icons.edit
-                                                : Icons.close),
+                                            icon: Icon(!showForm ? Icons.edit : Icons.close),
                                             splashRadius: 25,
                                             onPressed: () {
                                               setState(() {
@@ -167,19 +139,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                     TextFormField(
                                       controller: _controllerUserName,
                                       decoration: InputDecoration(
-                                          errorText:
-                                              updateControllerUserName != null
-                                                  ? updateControllerUserName
-                                                  : null,
+                                          errorText: updateControllerUserName != null ? updateControllerUserName : null,
                                           labelText: 'Username',
                                           hintText: 'Enter username',
                                           border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10))),
+                                              borderRadius: BorderRadius.circular(10)
+                                          )
+                                      ),
                                     ),
                                     LoginButton(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 10),
+                                      margin: EdgeInsets.symmetric(vertical: 10),
                                       buttonText: 'Değişiklikleri Kaydet',
                                       buttonRadius: 10,
                                       buttonHeight: 40,
@@ -328,8 +297,33 @@ class _ProfilePageState extends State<ProfilePage> {
       completeActionText: 'Evet',
       cancelActionText: 'Vazgeç',
     ).show(context).then((value) {
-      if (value) _signOut();
+      if (value)
+        _signOut();
     });
+  }
+
+  showModal() {
+    return SafeArea(
+      child: Column(
+        mainAxisSize:
+        MainAxisSize.min,
+        children: [
+
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text('Kamera Kullan'),
+            onTap: () => photoFromCamera(),
+          ),
+
+          ListTile(
+            leading:
+            Icon(Icons.image),
+            title: Text('Geleriden Seç'),
+            onTap: () => photoFromGallery(),
+          )
+        ],
+      ),
+    );
   }
 
   _signOut() async {
@@ -338,4 +332,5 @@ class _ProfilePageState extends State<ProfilePage> {
     _userView.signOut();
     Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
   }
+
 }
