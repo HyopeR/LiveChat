@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
+import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -191,13 +192,22 @@ class _ChatsPageState extends State<ChatsPage> {
           }
         },
         child: ListTile(
-            leading: ImageWidget(
-              imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
-              imageWidth: 75,
-              imageHeight: 75,
-              backgroundShape: BoxShape.circle,
-              backgroundColor:
-              Colors.grey.withOpacity(0.3),
+            leading: InkWell(
+              onTap: () {
+                UserDialogWidget(
+                  userName: 'Username',
+                ).show(context).then((value) {
+
+                });
+              },
+              child: ImageWidget(
+                imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+                imageWidth: 75,
+                imageHeight: 75,
+                backgroundShape: BoxShape.circle,
+                backgroundColor:
+                Colors.grey.withOpacity(0.3),
+              ),
             ),
             trailing: ContainerColumn(
               mainAxisAlignment:

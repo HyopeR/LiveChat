@@ -98,6 +98,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget chatAppBar() {
     return AppBar(
+      centerTitle: false,
       elevation: 0,
       leadingWidth: 106,
       backgroundColor: widget.backgroundColor,
@@ -141,6 +142,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget backDefaultAppBar() {
     return AppBar(
+      centerTitle: false,
       elevation: 0,
       leading: InkWell(
         onTap: widget.onLeftSideClick,
@@ -154,6 +156,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget defaultAppBar() {
     return AppBar(
+      centerTitle: false,
       elevation: 0,
       backgroundColor: widget.backgroundColor,
       title: Text(widget.titleText, style: TextStyle(color: widget.textColor)),
