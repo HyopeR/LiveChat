@@ -61,7 +61,11 @@ String showDateComposedString(Timestamp date) {
 
 Future<Color> getDynamicColor(String imageUrl) async {
   PaletteGenerator palette = await PaletteGenerator.fromImageProvider(NetworkImage(imageUrl));
-  Color color = palette.vibrantColor != null ? palette.vibrantColor.color : palette.lightVibrantColor.color;
+  Color color = palette.vibrantColor != null
+      ? palette.vibrantColor.color
+      : palette.lightVibrantColor != null
+        ? palette.lightVibrantColor.color
+        : palette.dominantColor.color;
 
   return color;
 }

@@ -16,6 +16,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 
   final Color textColor;
   final Color backgroundColor;
+  final Brightness brightness;
 
   final List<Widget> actions;
   final List<Widget> operationActions;
@@ -31,6 +32,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
     this.titleImageUrl,
     this.textColor : Colors.black,
     this.backgroundColor : Colors.amber,
+    this.brightness : Brightness.light,
     this.actions,
     this.operationActions,
   }) : super(key: key);
@@ -98,6 +100,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget chatAppBar() {
     return AppBar(
+      brightness: widget.brightness,
       centerTitle: false,
       elevation: 0,
       leadingWidth: 106,
@@ -142,6 +145,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget backDefaultAppBar() {
     return AppBar(
+      brightness: widget.brightness,
       centerTitle: false,
       elevation: 0,
       leading: InkWell(
@@ -156,6 +160,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget defaultAppBar() {
     return AppBar(
+      brightness: widget.brightness,
       centerTitle: false,
       elevation: 0,
       backgroundColor: widget.backgroundColor,
@@ -166,6 +171,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget operationAppBar() {
     return AppBar(
+      brightness: widget.brightness,
       elevation: 0,
       backgroundColor: operationColor,
       leading: InkWell(
