@@ -11,10 +11,14 @@ class MessageCreatorWidget extends StatefulWidget {
   final EdgeInsets padding;
 
   final String hintText;
+
   final Color textAreaColor;
+  final double textAreaMaxHeight;
+  final CrossAxisAlignment textAreaCrossAxisAlignment;
   final double textAreaRadius;
   final Color textColor;
 
+  final Alignment iconAlignment;
   final double iconSize;
   final Color iconColor;
 
@@ -39,8 +43,11 @@ class MessageCreatorWidget extends StatefulWidget {
       this.padding: EdgeInsets.zero,
       this.hintText: '',
       this.textAreaColor: Colors.transparent,
+      this.textAreaMaxHeight,
+      this.textAreaCrossAxisAlignment: CrossAxisAlignment.end,
       this.textAreaRadius: 10,
       this.textColor: Colors.black,
+      this.iconAlignment: Alignment.topCenter,
       this.iconSize: 32,
       this.iconColor: Colors.black,
       this.buttonColor: Colors.amber,
@@ -136,7 +143,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
                     constraints: BoxConstraints(minHeight: widget.height),
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: widget.textAreaCrossAxisAlignment,
                     children: defaultArea(),
                   )
 
@@ -165,7 +172,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   List<Widget> defaultArea() {
     return [
       Container(
-          alignment: Alignment.topCenter,
+          alignment: widget.iconAlignment,
           width: widget.iconSize,
           height: widget.iconSize,
           child: InkWell(
@@ -179,8 +186,9 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
       ),
       Expanded(
         child: Container(
-          constraints: BoxConstraints(
-            maxHeight: 150,
+          constraints:
+          BoxConstraints(
+            maxHeight: widget.textAreaMaxHeight,
           ),
           child: TextField(
             maxLines: null,
@@ -198,27 +206,34 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
           ),
         ),
       ),
-      InkWell(
-        onTap: widget.useAttach,
-        child: Container(
-            alignment: Alignment.topCenter,
-            width: widget.iconSize,
-            height: widget.iconSize,
-            child: Icon(Icons.attach_file, color: widget.iconColor)),
-      ),
-      AnimatedOpacity(
-        duration: Duration(milliseconds: 500),
-        opacity: controller.text.length <= 0 ? 1 : 0,
-        child: InkWell(
-                onTap: widget.useCamera,
-                child: AnimatedContainer(
-                    alignment: Alignment.topCenter,
-                    duration: Duration(milliseconds: 250),
-                    width: controller.text.length <= 0 ? widget.iconSize : 0,
-                    height: controller.text.length <= 0 ? widget.iconSize : 0,
-                    child: Icon(Icons.camera_alt, color: widget.iconColor)),
-              )
-      )
+
+      widget.useAttach != null
+          ? InkWell(
+              onTap: widget.useAttach,
+              child: Container(
+                  alignment: widget.iconAlignment,
+                  width: widget.iconSize,
+                  height: widget.iconSize,
+                  child: Icon(Icons.attach_file, color: widget.iconColor)),
+            )
+          : Container(),
+
+      widget.useCamera != null
+          ? AnimatedOpacity(
+            duration: Duration(milliseconds: 500),
+            opacity: controller.text.length <= 0 ? 1 : 0,
+            child: InkWell(
+                    onTap: widget.useCamera,
+                    child: AnimatedContainer(
+                        alignment: widget.iconAlignment,
+                        duration: Duration(milliseconds: 250),
+                        width: controller.text.length <= 0 ? widget.iconSize : 0,
+                        height: controller.text.length <= 0 ? widget.iconSize : 0,
+                        child: Icon(Icons.camera_alt, color: widget.iconColor)),
+                  )
+          )
+
+          : Container(),
     ];
   }
 
@@ -237,132 +252,138 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   }
 
   Widget defaultButton() {
-    return GestureDetector(
-      onTap: widget.onPressed,
-      child: Container(
-        constraints: BoxConstraints(
-          minHeight: widget.height,
-          minWidth: widget.height,
-        ),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: widget.buttonColor,
-        ),
-        child: Container(
-            width: widget.iconSize,
-            height: widget.iconSize,
-            child: Icon(Icons.send, color: widget.iconColor)),
-      ),
-    );
+    return widget.onPressed != null
+        ? GestureDetector(
+          onTap: widget.onPressed,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: widget.height,
+              minWidth: widget.height,
+            ),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.buttonColor,
+            ),
+            child: Container(
+                width: widget.iconSize,
+                height: widget.iconSize,
+                child: Icon(Icons.send, color: widget.iconColor)),
+          ),
+        )
+
+        : Container();
   }
 
   Widget voiceRecordButton() {
-    return Column(
-      children: [
-        timerRun
-            ? DragTarget(
-                builder: (context, List<int> candidateData, rejectedData) {
-                  return Center(
-                      child: Container(
-                          color: widget.textAreaColor,
-                          width: 50,
-                          height: 50,
-                          child: Icon(Icons.delete)));
-                },
-                onAccept: (data) {
-                  setState(() {
-                    voiceRecordCancelled = true;
-                  });
-                },
-              )
-            : Container(),
-        SizedBox(height: 10),
-        Container(
-          child: CombineGestureWidget(
-            onLongPressStart: () {
+    return (widget.onLongPressStart != null && widget.onLongPressEnd != null)
+        ? Column(
+            children: [
+              timerRun
+                  ? DragTarget(
+                      builder: (context, List<int> candidateData, rejectedData) {
+                        return Center(
+                            child: Container(
+                                color: widget.textAreaColor,
+                                width: 50,
+                                height: 50,
+                                child: Icon(Icons.delete)));
+                      },
+                      onAccept: (data) {
+                        setState(() {
+                          voiceRecordCancelled = true;
+                        });
+                      },
+                    )
+                  : Container(),
+              SizedBox(height: 10),
+              Container(
+                child: CombineGestureWidget(
+                  onLongPressStart: () {
 
-              if(permissionsAllowed) {
-                setState(() {
-                  voiceRecordCancelled = false;
-                  timerRun = true;
-                });
-              }
+                    if(permissionsAllowed) {
+                      setState(() {
+                        voiceRecordCancelled = false;
+                        timerRun = true;
+                      });
+                    }
 
-              widget.onLongPressStart();
-            },
+                    widget.onLongPressStart();
+                  },
 
-            onLongPress: () {
+                  onLongPress: () {
 
-              if(permissionsAllowed) {
-                Timer.periodic(Duration(seconds: 1), (Timer timer) {
-                  if (timerRun)
-                    setState(() => time = time + 1);
-                  else
-                    timer.cancel();
-                });
-              }
+                    if(permissionsAllowed) {
+                      Timer.periodic(Duration(seconds: 1), (Timer timer) {
+                        if (timerRun)
+                          setState(() => time = time + 1);
+                        else
+                          timer.cancel();
+                      });
+                    }
 
-            },
+                  },
 
-            onLongPressEnd: () {
+                  onLongPressEnd: () {
 
-              if(permissionsAllowed) {
-                setState(() {
-                  if(time < 1)
-                    voiceRecordCancelled = true;
-                  oldTime = time;
-                  time = 0;
-                  timerRun = false;
-                });
-              }
+                    if(permissionsAllowed) {
+                      setState(() {
+                        if(time < 1)
+                          voiceRecordCancelled = true;
+                        oldTime = time;
+                        time = 0;
+                        timerRun = false;
+                      });
+                    }
 
-              widget.onLongPressEnd();
-            },
-            child: LongPressDraggable(
-              data: 1,
-              axis: Axis.vertical,
-              dragAnchor: DragAnchor.child,
+                    widget.onLongPressEnd();
+                  },
+                  child: LongPressDraggable(
+                    data: 1,
+                    axis: Axis.vertical,
+                    dragAnchor: DragAnchor.child,
 
-              feedback: Container(
-                constraints: BoxConstraints(
-                  minHeight: widget.height,
-                  minWidth: widget.height,
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: widget.buttonColor.withGreen(120),
-                ),
-                child: Container(
-                    width: widget.iconSize,
-                    height: widget.iconSize,
-                    child: Icon(Icons.mic, color: widget.iconColor)),
-              ),
-
-              childWhenDragging: Container(
-                  constraints: BoxConstraints(
-                    minHeight: widget.height,
-                    minWidth: widget.height,
-                  )
-              ),
-
-              child: Container(
+                    feedback: Container(
                       constraints: BoxConstraints(
                         minHeight: widget.height,
                         minWidth: widget.height,
                       ),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: widget.buttonColor,
+                        color: widget.buttonColor.withGreen(120),
                       ),
                       child: Container(
                           width: widget.iconSize,
                           height: widget.iconSize,
                           child: Icon(Icons.mic, color: widget.iconColor)),
                     ),
-            ),
-          ),
-        )
-      ],
-    );
+
+                    childWhenDragging: Container(
+                        constraints: BoxConstraints(
+                          minHeight: widget.height,
+                          minWidth: widget.height,
+                        )
+                    ),
+
+                    child: Container(
+                            constraints: BoxConstraints(
+                              minHeight: widget.height,
+                              minWidth: widget.height,
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: widget.buttonColor,
+                            ),
+                            child: Container(
+                                width: widget.iconSize,
+                                height: widget.iconSize,
+                                child: Icon(Icons.mic, color: widget.iconColor)),
+                          ),
+                  ),
+                ),
+              )
+            ],
+          )
+
+        : Container();
   }
 }

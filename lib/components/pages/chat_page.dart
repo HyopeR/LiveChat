@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/message_bubble.dart';
 import 'package:live_chat/components/common/message_creator_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
@@ -51,39 +52,50 @@ class _ChatPageState extends State<ChatPage> {
 
       getPermissionStatus();
 
+      if(_messageCreatorState.currentState != null)
+        _messageCreatorState.currentState.focusNode.addListener(() {
+          setState(() {});
+        });
+
       if(_chatView.groupType == 'Private') {
         _subscriptionUser = _chatView.streamOneUser(_chatView.interlocutorUser.userId).listen((user) {
-          interlocutorUser = user;
-          String subTitleText = user.online
-              ? 'Online'
-              : 'Son görülme: ' + showDateComposedString(user.lastSeen);
 
-          _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
+          if(_appbarWidgetState.currentState != null) {
+            interlocutorUser = user;
+            String subTitleText = user.online
+                ? 'Online'
+                : 'Son görülme: ' + showDateComposedString(user.lastSeen);
+            _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
+          }
+
         });
       }
 
       if(_chatView.selectedChat != null) {
         _subscriptionGroup = _chatView.streamOneGroup(_chatView.selectedChat.groupId).listen((group) {
-          String controlAction;
-          UserModel controlActionUser;
+          if(_appbarWidgetState.currentState != null) {
 
-          group.actions.forEach((key, value) {
-            if(value['action'] != 0 && key != _userView.user.userId) {
-              controlAction = value['action'] == 1 ? 'Yazıyor...' : 'Ses kaydediyor...';
-              controlActionUser = _chatView.selectChatUser(key);
+            String controlAction;
+            UserModel controlActionUser;
+
+            group.actions.forEach((key, value) {
+              if(value['action'] != 0 && key != _userView.user.userId) {
+                controlAction = value['action'] == 1 ? 'Yazıyor...' : 'Ses kaydediyor...';
+                controlActionUser = _chatView.selectChatUser(key);
+              }
+            });
+
+            if(controlAction != null)
+              _appbarWidgetState.currentState.updateSubtitle(controlActionUser.userName + ' ' + controlAction);
+            else if(_chatView.groupType == 'Private') {
+              String subTitleText = interlocutorUser.online
+                  ? 'Online'
+                  : 'Son görülme: ' + showDateComposedString(interlocutorUser.lastSeen);
+
+              _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
             }
-          });
 
-          if(controlAction != null)
-            _appbarWidgetState.currentState.updateSubtitle(controlActionUser.userName + ' ' + controlAction);
-          else if(_chatView.groupType == 'Private') {
-            String subTitleText = interlocutorUser.online
-                ? 'Online'
-                : 'Son görülme: ' + showDateComposedString(interlocutorUser.lastSeen);
-
-            _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
           }
-
         });
       }
 
@@ -102,6 +114,70 @@ class _ChatPageState extends State<ChatPage> {
     _userView = Provider.of<UserView>(context);
     _chatView = Provider.of<ChatView>(context);
 
+    return SafeArea(
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          bool status = true;
+
+          if(_messageCreatorState.currentState != null) {
+            status = !(orientation == Orientation.landscape && _messageCreatorState.currentState.focusNode.hasPrimaryFocus);
+          }
+
+          return status
+              ? defaultPage()
+              : textAreaPage();
+        },
+      ),
+    );
+  }
+
+  Widget textAreaPage() {
+    return WillPopScope(
+      onWillPop: () async {
+        FocusScope.of(context).unfocus();
+        return false;
+      },
+      child: Scaffold(
+        body: ContainerRow(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                child: MessageCreatorWidget(
+                  margin: EdgeInsets.all(10),
+                  key: _messageCreatorState,
+                  hintText: 'Bir mesaj yazın.',
+                  textAreaColor: Colors.grey.shade300.withOpacity(0.8),
+                  textAreaMaxHeight: MediaQuery.of(context).size.height,
+                  textAreaCrossAxisAlignment: CrossAxisAlignment.start,
+                  iconAlignment: Alignment.bottomCenter,
+                  buttonColor: Theme.of(context).primaryColor,
+                  permissionsAllowed: permissionStatus,
+
+                  onWriting: () => updateMessageAction(1),
+                  onWritingStop: () => updateMessageAction(0),
+                ),
+              ),
+            ),
+
+            InkWell(
+              onTap: () async {
+                FocusScope.of(context).unfocus();
+              },
+              child: Container(
+                width: 50,
+                height: MediaQuery.of(context).size.height,
+                color: Theme.of(context).primaryColor,
+                child: Icon(Icons.done),
+              ),
+            ),
+          ],
+        ),
+      )
+    );
+  }
+
+  Widget defaultPage() {
     String appBarImageUrl = _chatView.groupType == 'Private'
         ? _chatView.interlocutorUser.userProfilePhotoUrl
         : _chatView.selectedChat.groupImageUrl;
@@ -112,8 +188,8 @@ class _ChatPageState extends State<ChatPage> {
 
     String appBarSubtitle = _chatView.groupType == 'Private'
         ? _chatView.selectChatUser(_chatView.interlocutorUser.userId).online
-          ? 'Online'
-          : 'Son görülme: ' + showDateComposedString(_chatView.interlocutorUser.lastSeen)
+        ? 'Online'
+        : 'Son görülme: ' + showDateComposedString(_chatView.interlocutorUser.lastSeen)
         : 'Group';
 
     return WillPopScope(
@@ -168,50 +244,43 @@ class _ChatPageState extends State<ChatPage> {
           body: SafeArea(
             child: ContainerColumn(
               children: [
-                _chatView.selectedChatState == SelectedChatState.Loaded
+                _chatView.selectedChatState == SelectedChatState.Loaded && _chatView.selectedChat != null
                     ? Expanded(
-                        child: StreamBuilder<List<MessageModel>>(
-                        stream: _chatView.getMessages(_chatView.selectedChat.groupId),
-                        builder: (context, streamData) {
-                          if (streamData.hasData) {
-                            messages = streamData.data;
+                    child: StreamBuilder<List<MessageModel>>(
+                      stream: _chatView.getMessages(_chatView.selectedChat.groupId),
+                      builder: (context, streamData) {
+                        if (streamData.hasData) {
+                          messages = streamData.data;
 
-                            if (messages.isNotEmpty) {
-                              return Align(
-                                alignment: Alignment.topCenter,
-                                child: ListView.builder(
-                                    reverse: true,
-                                    shrinkWrap: true,
-                                    controller: _scrollController,
-                                    itemCount: messages.length,
-                                    itemBuilder: (context, index) => createItem(index)
-                                    ),
-                              );
-                            } else
-                              return Container();
+                          if (messages.isNotEmpty) {
+                            return Align(
+                              alignment: Alignment.topCenter,
+                              child: ListView.builder(
+                                  reverse: true,
+                                  shrinkWrap: true,
+                                  controller: _scrollController,
+                                  itemCount: messages.length,
+                                  itemBuilder: (context, index) => createItem(index)
+                              ),
+                            );
                           } else
                             return Container();
-                        },
-                      ))
+                        } else
+                          return Container();
+                      },
+                    ))
                     : Expanded(
-                        child: Container(
-                            child: Center(child: Text('Bir konuşma başlat.')))),
+                    child: Container(
+                        child: Center(child: Text('Bir konuşma başlat.')))),
 
                 MessageCreatorWidget(
                   margin: EdgeInsets.all(10),
                   key: _messageCreatorState,
                   hintText: 'Bir mesaj yazın.',
                   textAreaColor: Colors.grey.shade300.withOpacity(0.8),
+                  textAreaMaxHeight: 150,
                   buttonColor: Theme.of(context).primaryColor,
                   permissionsAllowed: permissionStatus,
-
-
-                  // onWriting: () {
-                  //
-                  // },
-                  // onWritingStop: () {
-                  //
-                  // },
 
                   onWriting: () => updateMessageAction(1),
                   onWritingStop: () => updateMessageAction(0),
@@ -328,20 +397,17 @@ class _ChatPageState extends State<ChatPage> {
             savingMessage.attach = imageUrl;
             savingMessage.message = map['text'];
 
-            bool result = await _chatView.saveMessage(
-                savingMessage, _userView.user, _chatView.selectedChat.groupId);
+            bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
             if (result) {
               markedMessage = null;
 
               _messageCreatorState.currentState.setMarkedMessage(null);
-              _scrollController.animateTo(0,
-                  duration: Duration(microseconds: 50), curve: Curves.easeOut);
+              _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
             }
           }
 
           // Telefona gönderilen resmin kaydedilmesi.
-          bool saveStatus = await GallerySaver.saveImage(map['file'].path,
-              albumName: 'Live Chat Images');
+          bool saveStatus = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
 
           // Local cache'den cameradan eklenen resmin silinmesi.
           if (saveStatus)

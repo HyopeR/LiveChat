@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
@@ -58,15 +60,24 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   Widget build(BuildContext context) {
     _chatView = Provider.of<ChatView>(context);
 
-    return Theme(
-      data: ThemeData(brightness: Brightness.dark),
-      child: OrientationBuilder(
-        builder: (context, orientation) {
-          print(_focusNodeDefault.hasFocus.toString());
-          bool status = !(orientation == Orientation.landscape && _focusNodeDefault.hasFocus);
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: Theme(
+        data: ThemeData.dark(),
+        child: SafeArea(
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              bool status = !(orientation == Orientation.landscape && _focusNodeDefault.hasFocus);
+              if(!status)
+                _focusNodeDefault.unfocus();
 
-          return status ? defaultPage() : textAreaPage();
-        }
+              return status ? defaultPage() : textAreaPage();
+            }
+          ),
+        ),
       ),
     );
   }
@@ -78,60 +89,58 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
         _focusNodeDefault.unfocus();
         return false;
       },
-      child: SafeArea(
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: ContainerRow(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: IconButton(
-                      splashRadius: 25,
-                      icon: Icon(Icons.keyboard),
-                      onPressed: () {}
-                      ),
-                ),
-                Flexible(
-                  child: TextField(
-                    // textInputAction: TextInputAction.done,
-                    // onSubmitted: (value) {
-                    //   _focusNodeOther.unfocus();
-                    //   _focusNodeDefault.unfocus();
-                    // },
-                    maxLines: null,
-                    showCursor: true,
-                    autofocus: true,
-                    focusNode: _focusNodeOther,
-                    keyboardType: TextInputType.multiline,
-                    controller: controller,
-                    onChanged: (value) => attachTexts[selectedImageIndex] = value,
-                    decoration: InputDecoration(
-                      hintText: 'Başlık ekleyin...',
-                      border: InputBorder.none,
-                      // isDense: true,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: ContainerRow(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                alignment: Alignment.topCenter,
+                child: IconButton(
+                    splashRadius: 25,
+                    icon: Icon(Icons.keyboard),
+                    onPressed: () {}
                     ),
+              ),
+              Flexible(
+                child: TextField(
+                  // textInputAction: TextInputAction.done,
+                  // onSubmitted: (value) {
+                  //   _focusNodeOther.unfocus();
+                  //   _focusNodeDefault.unfocus();
+                  // },
+                  maxLines: null,
+                  showCursor: true,
+                  autofocus: true,
+                  focusNode: _focusNodeOther,
+                  keyboardType: TextInputType.multiline,
+                  controller: controller,
+                  onChanged: (value) => attachTexts[selectedImageIndex] = value,
+                  decoration: InputDecoration(
+                    hintText: 'Başlık ekleyin...',
+                    border: InputBorder.none,
+                    // isDense: true,
                   ),
                 ),
+              ),
 
-                InkWell(
-                  onTap: () {
-                    _focusNodeOther.unfocus();
-                    _focusNodeDefault.unfocus();
-                  },
-                  child: Container(
-                    width: 50,
-                    color: Theme.of(context).primaryColor,
-                    child: Icon(Icons.done),
-                  ),
-                )
-              ],
-            ),
+              InkWell(
+                onTap: () {
+                  _focusNodeOther.unfocus();
+                  _focusNodeDefault.unfocus();
+                },
+                child: Container(
+                  width: 50,
+                  color: Theme.of(context).primaryColor,
+                  child: Icon(Icons.done),
+                ),
+              )
+            ],
           ),
         ),
       ),
@@ -170,7 +179,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
             Align(
               alignment: Alignment.topCenter,
               child: Container(
-                height: 80,
+                height: 56,
                 child: AppbarWidget(
                   textColor: Colors.white,
                   backgroundColor: Colors.black.withOpacity(0.5),

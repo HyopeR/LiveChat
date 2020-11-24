@@ -157,13 +157,8 @@ class _ChatsPageState extends State<ChatsPage> {
     }
 
     String currentDates = currentChat.recentMessage.date != null
-        ? showDateComposedString(currentChat.recentMessage.date)
+        ? showDateComposedStringColumn(currentChat.recentMessage.date)
         : null;
-
-    if(currentDates.contains('-')){
-      List<String> dateSplit = currentDates.split('-');
-      currentDates = dateSplit[0] + '\n' + dateSplit[1];
-    }
 
     int unreadMessageCount = currentChat.totalMessage - currentChat.actions[_userView.user.userId]['seenMessage'];
     bool selected = selectedGroupIdList.contains(currentChat.groupId);
