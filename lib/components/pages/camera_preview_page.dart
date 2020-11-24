@@ -20,7 +20,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   LocalFileSystem _localFileSystem = LocalFileSystem();
   ImagePicker picker = ImagePicker();
   TextEditingController controller;
-  FocusNode _focusNode;
+  FocusNode _focusNodeDefault;
+  FocusNode _focusNodeOther;
 
   bool visibilityDataTarget = false;
   bool innerDeleteArea = false;
@@ -35,7 +36,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   void initState() {
     super.initState();
     controller = TextEditingController();
-    _focusNode = FocusNode();
+    _focusNodeDefault = FocusNode();
+    _focusNodeOther = FocusNode();
 
     controller.addListener(() {
       attachTexts[selectedImageIndex] = controller.text;
@@ -46,7 +48,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    _focusNodeDefault.dispose();
+    _focusNodeOther.dispose();
     controller.dispose();
     super.dispose();
   }
@@ -57,257 +60,323 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
 
     return Theme(
       data: ThemeData(brightness: Brightness.dark),
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          print(_focusNodeDefault.hasFocus.toString());
+          bool status = !(orientation == Orientation.landscape && _focusNodeDefault.hasFocus);
+
+          return status ? defaultPage() : textAreaPage();
+        }
+      ),
+    );
+  }
+
+  Widget textAreaPage() {
+    return WillPopScope(
+      onWillPop: () async {
+        _focusNodeOther.unfocus();
+        _focusNodeDefault.unfocus();
+        return false;
+      },
+      child: SafeArea(
         child: Material(
-          child: Stack(
-            children: [
-              InteractiveViewer(
-                panEnabled: false, // Set it to false to prevent panning.
-                minScale: 1,
-                maxScale: 4,
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  decoration: attachFiles.length > 0
-                      ? BoxDecoration(
-                          color: Colors.black,
-                          image: DecorationImage(
-                            image: FileImage(selectedImage),
-                            // image: NetworkImage(attachFiles[0]),
-                            fit: BoxFit.contain,
-                          ))
-                      : BoxDecoration(
-                          color: Colors.black,
-                        ),
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: ContainerRow(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  alignment: Alignment.topCenter,
+                  child: IconButton(
+                      splashRadius: 25,
+                      icon: Icon(Icons.keyboard),
+                      onPressed: () {}
+                      ),
                 ),
-              ),
-
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  height: 80,
-                  child: AppbarWidget(
-                      textColor: Colors.white,
-                      backgroundColor: Colors.black.withOpacity(0.5),
-                      onLeftSideClick: () {
-                        popControl();
-                      },
-                    appBarType: 'Chat',
-                    titleImageUrl: _chatView.groupType == 'Private'
-                          ? _chatView.interlocutorUser.userProfilePhotoUrl
-                          : _chatView.selectedChat.groupImageUrl,
-                      titleText: _chatView.groupType == 'Private'
-                          ? _chatView.interlocutorUser.userName
-                          : _chatView.selectedChat.groupName,
+                Flexible(
+                  child: TextField(
+                    // textInputAction: TextInputAction.done,
+                    // onSubmitted: (value) {
+                    //   _focusNodeOther.unfocus();
+                    //   _focusNodeDefault.unfocus();
+                    // },
+                    maxLines: null,
+                    showCursor: true,
+                    autofocus: true,
+                    focusNode: _focusNodeOther,
+                    keyboardType: TextInputType.multiline,
+                    controller: controller,
+                    onChanged: (value) => attachTexts[selectedImageIndex] = value,
+                    decoration: InputDecoration(
+                      hintText: 'Başlık ekleyin...',
+                      border: InputBorder.none,
+                      // isDense: true,
                     ),
+                  ),
+                ),
+
+                InkWell(
+                  onTap: () {
+                    _focusNodeOther.unfocus();
+                    _focusNodeDefault.unfocus();
+                  },
+                  child: Container(
+                    width: 50,
+                    color: Theme.of(context).primaryColor,
+                    child: Icon(Icons.done),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget defaultPage() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+
+      child: Material(
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              panEnabled: false, // Set it to false to prevent panning.
+              minScale: 1,
+              maxScale: 4,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                decoration: attachFiles.length > 0
+                    ? BoxDecoration(
+                    color: Colors.black,
+                    image: DecorationImage(
+                      image: FileImage(selectedImage),
+                      // image: NetworkImage(attachFiles[0]),
+                      fit: BoxFit.contain,
+                    ))
+                    : BoxDecoration(
+                  color: Colors.black,
                 ),
               ),
+            ),
 
-              visibilityDataTarget
-                  ? Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                          child: DragTarget(
-                        builder:
-                            (context, List<int> candidateData, rejectedData) {
-                          return AnimatedContainer(
-                            duration: Duration(milliseconds: 300),
-                            width: 100,
-                            height: 100,
-                            color: visibilityDataTarget
-                                ? Colors.black.withOpacity(0.5)
-                                : Colors.transparent,
-                            child: visibilityDataTarget
-                                ? Icon(Icons.delete,
-                                    size: 32,
-                                    color: innerDeleteArea
-                                        ? Colors.amber
-                                        : Colors.white)
-                                : Container(),
-                          );
-                        },
-                        onWillAccept: (data) {
-                          setState(() {
-                            innerDeleteArea = true;
-                          });
-                          return true;
-                        },
-                        onLeave: (data) {
-                          setState(() {
-                            innerDeleteArea = false;
-                          });
-                        },
-                        onAccept: (data) {
-                          _localFileSystem.file(attachFiles[data].path).delete();
-
-                          bool sameItem =
-                              selectedImage.path == attachFiles[data].path;
-
-                          setState(() {
-                            attachFiles.removeAt(data);
-                            attachTexts.removeAt(data);
-
-                            if (sameItem && attachFiles.length > 1) {
-                              selectedImage = attachFiles[0];
-                              selectedImageIndex = 0;
-                              controller.text = attachTexts[0];
-                            } else {
-                              selectedImage = null;
-                              controller.text = '';
-                            }
-                            innerDeleteArea = false;
-                          });
-
-                          if (attachFiles.length < 1) popControl();
-                        },
-                      )),
-                    )
-                  : Container(),
-
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: WillPopScope(
-                  onWillPop: () async {
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: 80,
+                child: AppbarWidget(
+                  textColor: Colors.white,
+                  backgroundColor: Colors.black.withOpacity(0.5),
+                  onLeftSideClick: () {
                     popControl();
-                    return false;
                   },
-                  child: ContainerColumn(
-                    // color: Colors.red,
-                    height: MediaQuery.of(context).size.height * 0.4,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ContainerRow(
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          margin: EdgeInsets.only(bottom: 10),
-                          height: 50,
-                          children: [
-                            InkWell(
-                              onTap: () => addAttach(),
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 5),
-                                width: 50,
-                                height: 50,
+                  appBarType: 'Chat',
+                  titleImageUrl: _chatView.groupType == 'Private'
+                      ? _chatView.interlocutorUser.userProfilePhotoUrl
+                      : _chatView.selectedChat.groupImageUrl,
+                  titleText: _chatView.groupType == 'Private'
+                      ? _chatView.interlocutorUser.userName
+                      : _chatView.selectedChat.groupName,
+                ),
+              ),
+            ),
+
+            visibilityDataTarget
+                ? Align(
+              alignment: Alignment.center,
+              child: Container(
+                  child: DragTarget(
+                    builder: (context, List<int> candidateData, rejectedData) {
+                      return AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        width: 100,
+                        height: 100,
+                        color: visibilityDataTarget
+                            ? Colors.black.withOpacity(0.5)
+                            : Colors.transparent,
+                        child: visibilityDataTarget
+                            ? Icon(Icons.delete,
+                            size: 32,
+                            color: innerDeleteArea
+                                ? Colors.amber
+                                : Colors.white)
+                            : Container(),
+                      );
+                    },
+                    onWillAccept: (data) {
+                      setState(() {
+                        innerDeleteArea = true;
+                      });
+                      return true;
+                    },
+                    onLeave: (data) {
+                      setState(() {
+                        innerDeleteArea = false;
+                      });
+                    },
+                    onAccept: (data) {
+                      _localFileSystem.file(attachFiles[data].path).delete();
+
+                      bool sameItem =
+                          selectedImage.path == attachFiles[data].path;
+
+                      setState(() {
+                        attachFiles.removeAt(data);
+                        attachTexts.removeAt(data);
+
+                        if (sameItem && attachFiles.length > 1) {
+                          selectedImage = attachFiles[0];
+                          selectedImageIndex = 0;
+                          controller.text = attachTexts[0];
+                        } else {
+                          selectedImage = null;
+                          controller.text = '';
+                        }
+                        innerDeleteArea = false;
+                      });
+
+                      if (attachFiles.length < 1) popControl();
+                    },
+                  )),
+            )
+                : Container(),
+
+            Positioned(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              child: WillPopScope(
+                onWillPop: () async {
+                  popControl();
+                  return false;
+                },
+                child: ContainerColumn(
+                  // color: Colors.red,
+                  // height: MediaQuery.of(context).size.height * 0.4,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Stack(
+                        children: [
+                          ContainerColumn(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            // color: Colors.red,
+
+                            children: [
+                              Container(
+                                height: 35,
+                                color: Colors.transparent,
+                              ),
+                              ContainerColumn(
+                                mainAxisSize: MainAxisSize.min,
+                                padding: EdgeInsets.all(10),
+                                constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
+                                width: MediaQuery.of(context).size.width,
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.5),
                                 ),
-                                child: Icon(Icons.add),
-                              ),
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: attachFiles.length,
-                                scrollDirection: Axis.horizontal,
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) =>
-                                    childPhoto(index),
-                              ),
-                            ),
-                          ]),
-
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Stack(
-                          children: [
-                            ContainerColumn(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              // color: Colors.red,
-
-                              children: [
-                                Container(
-                                  height: 35,
-                                  color: Colors.transparent,
-                                ),
-                                ContainerColumn(
-                                  mainAxisSize: MainAxisSize.min,
-                                  padding: EdgeInsets.all(10),
-                                  constraints: BoxConstraints(
-                                      minHeight: 100, maxHeight: 150),
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.5),
-                                    // color: Colors.blue
-                                  ),
-                                  children: [
-                                    ContainerRow(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        IconButton(
-                                            splashRadius: 25,
-                                            icon: Icon(Icons.keyboard),
-                                            onPressed: () {
-                                              _focusNode.hasPrimaryFocus
-                                                  ? _focusNode.unfocus()
-                                                  : _focusNode.requestFocus();
-                                            }),
-                                        Flexible(
-                                          child: Container(
-                                            constraints:
-                                                BoxConstraints(maxHeight: 90),
-                                            child: TextField(
-                                              maxLines: null,
-                                              showCursor: true,
-                                              keyboardType:
-                                                  TextInputType.multiline,
-                                              controller: controller,
-                                              onChanged: (value) => attachTexts[
-                                                  selectedImageIndex] = value,
-                                              focusNode: _focusNode,
-                                              decoration: InputDecoration(
-                                                hintText: 'Başlık ekleyin...',
-                                                border: InputBorder.none,
-                                                // isDense: true,
-                                              ),
+                                children: [
+                                  ContainerRow(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      IconButton(
+                                          splashRadius: 25,
+                                          icon: Icon(Icons.keyboard),
+                                          onPressed: () {
+                                            _focusNodeDefault.hasPrimaryFocus
+                                                ? _focusNodeDefault.unfocus()
+                                                : _focusNodeDefault.requestFocus();
+                                          }),
+                                      Flexible(
+                                        child: Container(
+                                          constraints:
+                                          BoxConstraints(maxHeight: 90),
+                                          child: TextField(
+                                            maxLines: null,
+                                            showCursor: true,
+                                            keyboardType: TextInputType.multiline,
+                                            controller: controller,
+                                            onChanged: (value) => attachTexts[selectedImageIndex] = value,
+                                            focusNode: _focusNodeDefault,
+                                            decoration: InputDecoration(
+                                              hintText: 'Başlık ekleyin...',
+                                              border: InputBorder.none,
+                                              // isDense: true,
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                    Divider(thickness: 1, height: 5),
-                                    ContainerRow(
-                                      height: 25,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(thickness: 1, height: 5),
+                                  ContainerRow(
+                                    height: 25,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.arrow_right),
+                                      Text(_chatView.groupType == 'Private'
+                                          ? _chatView.interlocutorUser.userName
+                                          : _chatView.selectedChat.groupName
+                                      )
+                                    ],
+                                  ),
+
+                                  ContainerRow(
+                                      padding: EdgeInsets.symmetric(horizontal: 5),
+                                      margin: EdgeInsets.only(top: 10),
+                                      height: 50,
                                       children: [
-                                        Icon(Icons.arrow_right),
-                                        Text(_chatView.groupType == 'Private'
-                                            ? _chatView
-                                                .interlocutorUser.userName
-                                            : _chatView.selectedChat.groupName)
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Positioned(
-                              right: 10,
-                              top: 0,
-                              child: Container(
-                                // color: Colors.red,
-                                child: defaultButton(),
+                                        InkWell(
+                                          onTap: () => addAttach(),
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              // color: Colors.black.withOpacity(0.5),
+                                            ),
+                                            child: Icon(Icons.add),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: ListView.builder(
+                                            itemCount: attachFiles.length,
+                                            scrollDirection: Axis.horizontal,
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) => childPhoto(index),
+                                          ),
+                                        ),
+                                      ]
+                                  ),
+                                ],
                               ),
+                            ],
+                          ),
+                          Positioned(
+                            right: 10,
+                            top: 0,
+                            child: Container(
+                              // color: Colors.red,
+                              child: defaultButton(),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
