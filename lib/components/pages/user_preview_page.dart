@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/title_area.dart';
+import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
@@ -18,9 +21,26 @@ class UserPreviewPage extends StatefulWidget {
 class _UserPreviewPageState extends State<UserPreviewPage> {
   ChatView _chatView;
 
+  StreamSubscription<UserModel> _subscriptionUser;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (_chatView.groupType == 'Private') {
+        _subscriptionUser = _chatView.streamOneUser(_chatView.interlocutorUser.userId).listen((user) {
+          _chatView.interlocutorUser = user;
+          setState(() {});
+        });
+      }
+
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscriptionUser.cancel();
+    super.dispose();
   }
 
   @override

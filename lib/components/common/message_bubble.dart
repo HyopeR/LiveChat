@@ -93,8 +93,13 @@ class MessageBubble extends StatelessWidget {
           child: ContainerColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImageWidget(imageWidth: imageSize, imageHeight: imageSize, imageUrl: message.attach, imageFit: BoxFit.cover),
-              message.message != null ? Text(message.message) : Container(width: 0),
+              ImageWidget(backgroundPadding: 0, imageWidth: imageSize, imageHeight: imageSize, imageUrl: message.attach, imageFit: BoxFit.cover),
+              message.message != null
+                  ? Container(
+                    margin: EdgeInsets.only(top: 5),
+                    child: Text(message.message)
+                  )
+                  : Container(width: 0),
             ],
           ),
         );

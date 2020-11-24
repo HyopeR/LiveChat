@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
+import 'package:live_chat/components/pages/user_preview_page.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -100,9 +101,13 @@ class _ChatsPageState extends State<ChatsPage> {
           currentChat.groupType == 'Private'
               ? Container()
               : Text('${currentChat.recentMessage.ownerUsername}: '),
-          Text(currentChat.recentMessage.message.length > 32
-              ? currentChat.recentMessage.message.substring(0, 28) + '...'
-              : currentChat.recentMessage.message)
+
+          Flexible(
+            child: Text(
+              currentChat.recentMessage.message,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )
         ];
         break;
 
@@ -155,6 +160,11 @@ class _ChatsPageState extends State<ChatsPage> {
         ? showDateComposedString(currentChat.recentMessage.date)
         : null;
 
+    if(currentDates.contains('-')){
+      List<String> dateSplit = currentDates.split('-');
+      currentDates = dateSplit[0] + '\n' + dateSplit[1];
+    }
+
     int unreadMessageCount = currentChat.totalMessage - currentChat.actions[_userView.user.userId]['seenMessage'];
     bool selected = selectedGroupIdList.contains(currentChat.groupId);
 
@@ -195,10 +205,27 @@ class _ChatsPageState extends State<ChatsPage> {
             leading: InkWell(
               onTap: () {
                 UserDialogWidget(
-                  userName: 'Username',
-                ).show(context).then((value) {
+                  name: currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName,
+                  photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+                  onChatClick: () {
+                    _chatView.selectChat(currentChat.groupId);
+                    _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
 
-                });
+                    if(_chatView.groupType == 'Private')
+                      _chatView.interlocutorUser = interlocutorUser;
+
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                  },
+
+                  onDetailClick: () async {
+                    _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
+                    if(_chatView.groupType == 'Private') {
+                      _chatView.interlocutorUser = interlocutorUser;
+                      Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+                    }
+                  },
+                ).show(context);
               },
               child: ImageWidget(
                 imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
@@ -215,9 +242,10 @@ class _ChatsPageState extends State<ChatsPage> {
               children: [
                 currentDates != null
                     ? Text(
-                  currentDates,
-                  textAlign: TextAlign.right,
-                )
+                      currentDates,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 10),
+                    )
                     : Text(' '),
                 Container(
                   padding: EdgeInsets.all(5),

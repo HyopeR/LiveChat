@@ -60,6 +60,10 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
       child: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        
         child: Material(
           child: Stack(
             children: [
@@ -205,6 +209,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                               ),
                             ),
                           ]),
+
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Stack(

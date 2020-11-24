@@ -29,6 +29,7 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
   @override
   Widget buildAndroidWidget(BuildContext context) {
     return AlertDialog(
+      elevation: 0,
       title: Text(alertTitle),
       content: Text(alertContent),
       actions: _dialogButtons(context),

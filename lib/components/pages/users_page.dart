@@ -3,9 +3,12 @@ import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
+import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
 import 'package:live_chat/components/pages/search_user_page.dart';
+import 'package:live_chat/components/pages/user_preview_page.dart';
 import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
@@ -144,8 +147,7 @@ class _UsersPageState extends State<UsersPage> {
 
             _chatView.interlocutorUser = currentUser;
             _chatView.groupType = 'Private';
-            Navigator.of(context, rootNavigator: true)
-                .push(MaterialPageRoute(builder: (context) => ChatPage()));
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
           },
           onLongPress: () {
             if (selected) {
@@ -164,13 +166,38 @@ class _UsersPageState extends State<UsersPage> {
             }
           },
           child: ListTile(
-            leading: ImageWidget(
-              imageUrl: currentUser.userProfilePhotoUrl,
-              imageWidth: 75,
-              imageHeight: 75,
-              backgroundShape: BoxShape.circle,
-              backgroundColor:
-              Colors.grey.withOpacity(0.3),
+            leading: InkWell(
+              onTap: () {
+                UserDialogWidget(
+                  name: currentUser.userName,
+                  photoUrl: currentUser.userProfilePhotoUrl,
+                  onChatClick: () {
+                    _chatView.findChatByUserIdList([
+                      _userView.user.userId,
+                      currentUser.userId
+                    ]);
+
+                    _chatView.interlocutorUser = currentUser;
+                    _chatView.groupType = 'Private';
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                  },
+
+                  onDetailClick: () async {
+                    _chatView.groupType = 'Private';
+                    _chatView.interlocutorUser = currentUser;
+                    Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+                  },
+                ).show(context);
+              },
+              child: ImageWidget(
+                imageUrl: currentUser.userProfilePhotoUrl,
+                imageWidth: 75,
+                imageHeight: 75,
+                backgroundShape: BoxShape.circle,
+                backgroundColor:
+                Colors.grey.withOpacity(0.3),
+              ),
             ),
             title: Text(currentUser.userName),
             subtitle: Text(currentUser.userEmail),
