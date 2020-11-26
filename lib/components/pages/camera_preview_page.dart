@@ -231,16 +231,10 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                       });
                     },
                     onAccept: (data) {
-                      _localFileSystem.file(attachFiles[data].path).delete();
-
-                      bool sameItem =
-                          selectedImage.path == attachFiles[data].path;
+                      bool sameItem = selectedImage.path == attachFiles[data].path;
 
                       setState(() {
-                        attachFiles.removeAt(data);
-                        attachTexts.removeAt(data);
-
-                        if (sameItem && attachFiles.length > 1) {
+                        if (sameItem && (attachFiles.length - 1) > 1) {
                           selectedImage = attachFiles[0];
                           selectedImageIndex = 0;
                           controller.text = attachTexts[0];
@@ -251,7 +245,12 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                         innerDeleteArea = false;
                       });
 
-                      if (attachFiles.length < 1) popControl();
+                      attachFiles.removeAt(data);
+                      attachTexts.removeAt(data);
+                      _localFileSystem.file(attachFiles[data].path).delete();
+
+                      if (attachFiles.length < 1)
+                        popControl();
                     },
                   )),
             )

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -48,6 +49,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
 
       getPermissionStatus();
@@ -106,6 +108,7 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     _subscriptionUser.cancel();
     _subscriptionGroup.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -115,17 +118,22 @@ class _ChatPageState extends State<ChatPage> {
     _chatView = Provider.of<ChatView>(context);
 
     return SafeArea(
-      child: OrientationBuilder(
-        builder: (context, orientation) {
-          bool status = true;
+      child: KeyboardVisibilityBuilder(
+        builder: (context, isVisible) {
+          return OrientationBuilder(
+            builder: (context, orientation) {
+              bool status = true;
+              bool orientationLandscape = orientation == Orientation.landscape;
+              if(_messageCreatorState.currentState != null) {
+                status = !(orientationLandscape && _messageCreatorState.currentState.focusNode.hasPrimaryFocus);
+              }
 
-          if(_messageCreatorState.currentState != null) {
-            status = !(orientation == Orientation.landscape && _messageCreatorState.currentState.focusNode.hasPrimaryFocus);
-          }
-
-          return status
-              ? defaultPage()
-              : textAreaPage();
+              if(orientationLandscape)
+                return status && !isVisible ? defaultPage() : textAreaPage();
+              else
+                return defaultPage();
+            },
+          );
         },
       ),
     );
@@ -160,10 +168,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
 
-            InkWell(
-              onTap: () async {
-                FocusScope.of(context).unfocus();
-              },
+            KeyboardDismissOnTap(
               child: Container(
                 width: 50,
                 height: MediaQuery.of(context).size.height,
@@ -278,7 +283,7 @@ class _ChatPageState extends State<ChatPage> {
                   key: _messageCreatorState,
                   hintText: 'Bir mesaj yazın.',
                   textAreaColor: Colors.grey.shade300.withOpacity(0.8),
-                  textAreaMaxHeight: 150,
+                  textAreaMaxHeight: MediaQuery.of(context).orientation == Orientation.portrait ? 150 : 120,
                   buttonColor: Theme.of(context).primaryColor,
                   permissionsAllowed: permissionStatus,
 
