@@ -122,14 +122,10 @@ class _ChatPageState extends State<ChatPage> {
         builder: (context, isVisible) {
           return OrientationBuilder(
             builder: (context, orientation) {
-              bool status = true;
               bool orientationLandscape = orientation == Orientation.landscape;
-              if(_messageCreatorState.currentState != null) {
-                status = !(orientationLandscape && _messageCreatorState.currentState.focusNode.hasPrimaryFocus);
-              }
 
               if(orientationLandscape)
-                return status && !isVisible ? defaultPage() : textAreaPage();
+                return !isVisible ? defaultPage() : textAreaPage();
               else
                 return defaultPage();
             },
@@ -400,26 +396,26 @@ class _ChatPageState extends State<ChatPage> {
 
           if (imageUrl != null) {
             savingMessage.attach = imageUrl;
-            savingMessage.message = map['text'];
+            savingMessage.message = map['text'] != null ? map['text'] : '';
 
             bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
             if (result) {
               markedMessage = null;
-
-              _messageCreatorState.currentState.setMarkedMessage(null);
-              _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
             }
           }
 
           // Telefona gönderilen resmin kaydedilmesi.
-          bool saveStatus = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
+          try{
+            bool saveResult = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
+            if(saveResult)
+              await _localFileSystem.file(map['file'].path).delete();
 
-          // Local cache'den cameradan eklenen resmin silinmesi.
-          if (saveStatus)
-            await _localFileSystem.file(map['file'].path).delete();
+          }catch(err) {
+            print(err.toString());
+          }
         });
-
-        // await GallerySaver.saveImage(attachFileList[0]['file'].path, albumName: 'Live Chat Images');
+        _messageCreatorState.currentState.setMarkedMessage(null);
+        _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
         attachFileList = [];
         break;
 

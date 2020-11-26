@@ -197,65 +197,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
               ),
             ),
 
-            visibilityDataTarget
-                ? Align(
-              alignment: Alignment.center,
-              child: Container(
-                  child: DragTarget(
-                    builder: (context, List<int> candidateData, rejectedData) {
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        width: 100,
-                        height: 100,
-                        color: visibilityDataTarget
-                            ? Colors.black.withOpacity(0.5)
-                            : Colors.transparent,
-                        child: visibilityDataTarget
-                            ? Icon(Icons.delete,
-                            size: 32,
-                            color: innerDeleteArea
-                                ? Colors.amber
-                                : Colors.white)
-                            : Container(),
-                      );
-                    },
-                    onWillAccept: (data) {
-                      setState(() {
-                        innerDeleteArea = true;
-                      });
-                      return true;
-                    },
-                    onLeave: (data) {
-                      setState(() {
-                        innerDeleteArea = false;
-                      });
-                    },
-                    onAccept: (data) {
-                      bool sameItem = selectedImage.path == attachFiles[data].path;
-
-                      setState(() {
-                        if (sameItem && (attachFiles.length - 1) > 1) {
-                          selectedImage = attachFiles[0];
-                          selectedImageIndex = 0;
-                          controller.text = attachTexts[0];
-                        } else {
-                          selectedImage = null;
-                          controller.text = '';
-                        }
-                        innerDeleteArea = false;
-                      });
-
-                      attachFiles.removeAt(data);
-                      attachTexts.removeAt(data);
-                      _localFileSystem.file(attachFiles[data].path).delete();
-
-                      if (attachFiles.length < 1)
-                        popControl();
-                    },
-                  )),
-            )
-                : Container(),
-
             Positioned(
               bottom: MediaQuery.of(context).viewInsets.bottom,
               child: WillPopScope(
@@ -264,7 +205,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                   return false;
                 },
                 child: ContainerColumn(
-                  // color: Colors.red,
                   // height: MediaQuery.of(context).size.height * 0.4,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -284,11 +224,12 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                               ),
                               ContainerColumn(
                                 mainAxisSize: MainAxisSize.min,
-                                padding: EdgeInsets.all(10),
+                                padding: EdgeInsets.only(top: 10, left: 10, right: 10),
                                 constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
                                 width: MediaQuery.of(context).size.width,
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.5),
+                                  // color: Colors.blue,
                                 ),
                                 children: [
                                   ContainerRow(
@@ -346,13 +287,14 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                                         InkWell(
                                           onTap: () => addAttach(),
                                           child: Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: EdgeInsets.symmetric(horizontal: 3),
                                             width: 50,
                                             height: 50,
                                             decoration: BoxDecoration(
                                               // color: Colors.black.withOpacity(0.5),
+                                              color: Theme.of(context).primaryColor,
                                             ),
-                                            child: Icon(Icons.add),
+                                            child: Icon(Icons.add, color: Colors.black),
                                           ),
                                         ),
                                         Expanded(
@@ -384,6 +326,77 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                 ),
               ),
             ),
+
+            visibilityDataTarget
+                ? Align(
+              alignment: Alignment.center,
+              child: Container(
+                  child: DragTarget(
+                    builder: (context, List<int> candidateData, rejectedData) {
+                      return AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        width: 100,
+                        height: 100,
+                        color: visibilityDataTarget
+                            ? Colors.black.withOpacity(0.5)
+                            : Colors.transparent,
+                        child: visibilityDataTarget
+                            ? Icon(Icons.delete,
+                            size: 32,
+                            color: innerDeleteArea
+                                ? Colors.amber
+                                : Colors.white)
+                            : Container(),
+                      );
+                    },
+                    onWillAccept: (data) {
+                      setState(() {
+                        innerDeleteArea = true;
+                      });
+                      return true;
+                    },
+                    onLeave: (data) {
+                      setState(() {
+                        innerDeleteArea = false;
+                      });
+                    },
+                    onAccept: (data) async {
+                      bool isSelected = selectedImage.path == attachFiles[data].path; // false
+                      bool isLittle = data <= selectedImageIndex; // true
+                      int filesLength = attachFiles.length; // 2
+
+                      if(filesLength == 1) {
+                        _localFileSystem.file(attachFiles[data].path).delete();
+                        popControl();
+                      } else if(filesLength > 1) {
+                        print('Length: ' + filesLength.toString());
+
+                        int newIndex = isLittle ? ((filesLength - 1) - 1) : selectedImageIndex;
+                        print('New: ' + newIndex.toString());
+                        print('Selected: ' + selectedImageIndex.toString());
+
+                        await _localFileSystem.file(attachFiles[data].path).delete();
+                        attachFiles.removeAt(data);
+                        attachTexts.removeAt(data);
+
+                        if(newIndex != selectedImageIndex)
+                          setState(() {
+                            selectedImage = attachFiles[newIndex];
+                            selectedImageIndex = newIndex;
+                            controller.text = attachTexts[newIndex];
+                            innerDeleteArea = false;
+                          });
+                        else
+                          setState(() {
+                            innerDeleteArea = false;
+                          });
+
+                      }
+
+                    },
+                  )),
+            )
+                : Container(),
           ],
         ),
       ),
@@ -433,7 +446,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
         });
       },
       feedback: Container(
-        margin: EdgeInsets.symmetric(horizontal: 5),
+        margin: EdgeInsets.symmetric(horizontal: 3),
         width: 50,
         height: 50,
         decoration: BoxDecoration(
@@ -449,6 +462,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
       child: InkWell(
         onTap: () {
           if (selectedImage.path != attachFiles[photoIndex].path) {
+            print(attachTexts);
             setState(() {
               selectedImageIndex = photoIndex;
               selectedImage = attachFiles[photoIndex];
@@ -457,7 +471,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
           }
         },
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
+          margin: EdgeInsets.symmetric(horizontal: 3),
           width: 50,
           height: 50,
           decoration: BoxDecoration(
@@ -483,8 +497,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
         selectedImage = File(pickedFile.path);
         selectedImageIndex = attachFiles.length < 1 ? 0 : attachFiles.length;
         attachFiles.add(File(pickedFile.path));
-        attachTexts.add(' ');
-        controller.text = '';
+        attachTexts.add(null);
+        controller.clear();
       });
     } else {
       Navigator.of(context).pop([]);
