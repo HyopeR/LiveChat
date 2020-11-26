@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -54,14 +55,18 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           : showDateComposedString(_chatView.interlocutorUser.lastSeen)
         : 'Grup';
 
-    return OrientationBuilder(builder: (context, orientation) {
-      return orientation == Orientation.portrait
-          ? portraitDesign(context, status)
-          : landscapeDesign(context, status);
-    });
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.black.withOpacity(0.3),
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: OrientationBuilder(builder: (context, orientation) {
+        return orientation == Orientation.portrait
+            ? portraitDesign(context, status)
+            : landscapeDesign(context, status);
+      }),
+    );
   }
-
-
 
   List<Widget> _userDataWrite() {
     return [
@@ -173,71 +178,70 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
   Widget landscapeDesign(BuildContext context, String status) {
     return Material(
       elevation: 0,
-      child: SafeArea(
-        child: ContainerRow(
-          children: [
-
-            Container(
-              alignment: Alignment.bottomLeft,
-              width: MediaQuery.of(context).size.width * 0.4,
-              height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(_chatView.interlocutorUser.userProfilePhotoUrl)
-                ),
+      child: ContainerRow(
+        children: [
+          Container(
+            alignment: Alignment.bottomLeft,
+            width: MediaQuery.of(context).size.width * 0.4,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: NetworkImage(_chatView.interlocutorUser.userProfilePhotoUrl)
               ),
-
-              child: Stack(
-                children: [
-
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      height: 56,
-                      child: Theme(
-                        data: ThemeData.dark(),
-                        child: AppbarWidget(
-                          titleText: ' ',
-                          backgroundColor: Colors.transparent,
-                          textColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      child: RichText(
-                        text: TextSpan(
-                            style: TextStyle(shadows: [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(1, 1),
-                                blurRadius: 10,
-                              ),
-                            ]),
-                            children: [
-                              TextSpan(
-                                  text: _chatView.interlocutorUser.userName + '\n',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-
-                              TextSpan(
-                                  text: status,
-                                  style: TextStyle(fontSize: 16)),
-                            ]
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
-              )
             ),
 
-            Container(
+            child: Stack(
+              children: [
+
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    height: 56,
+                    child: Theme(
+                      data: ThemeData.dark(),
+                      child: AppbarWidget(
+                        titleText: ' ',
+                        backgroundColor: Colors.transparent,
+                        textColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    child: RichText(
+                      text: TextSpan(
+                          style: TextStyle(shadows: [
+                            Shadow(
+                              color: Colors.black,
+                              offset: Offset(1, 1),
+                              blurRadius: 10,
+                            ),
+                          ]),
+                          children: [
+                            TextSpan(
+                                text: _chatView.interlocutorUser.userName + '\n',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+
+                            TextSpan(
+                                text: status,
+                                style: TextStyle(fontSize: 16)),
+                          ]
+                      ),
+                    ),
+                  ),
+                ),
+
+              ],
+            )
+          ),
+
+          SafeArea(
+            child: Container(
               width: MediaQuery.of(context).size.width * 0.6,
               height: MediaQuery.of(context).size.height,
               child: SingleChildScrollView(
@@ -247,9 +251,9 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                 ),
               ),
             ),
+          ),
 
-          ],
-        ),
+        ],
       ),
     );
   }

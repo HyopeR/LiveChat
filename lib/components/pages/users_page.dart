@@ -171,6 +171,7 @@ class _UsersPageState extends State<UsersPage> {
                 UserDialogWidget(
                   name: currentUser.userName,
                   photoUrl: currentUser.userProfilePhotoUrl,
+
                   onChatClick: () {
                     _chatView.findChatByUserIdList([
                       _userView.user.userId,

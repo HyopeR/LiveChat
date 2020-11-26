@@ -4,6 +4,7 @@ import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
@@ -23,7 +24,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   ImagePicker picker = ImagePicker();
   TextEditingController controller;
   FocusNode _focusNodeDefault;
-  FocusNode _focusNodeOther;
 
   bool visibilityDataTarget = false;
   bool innerDeleteArea = false;
@@ -39,7 +39,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
     super.initState();
     controller = TextEditingController();
     _focusNodeDefault = FocusNode();
-    _focusNodeOther = FocusNode();
 
     controller.addListener(() {
       attachTexts[selectedImageIndex] = controller.text;
@@ -51,7 +50,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   @override
   void dispose() {
     _focusNodeDefault.dispose();
-    _focusNodeOther.dispose();
     controller.dispose();
     super.dispose();
   }
@@ -62,20 +60,25 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+        statusBarColor: Colors.black.withOpacity(0.3),
         statusBarIconBrightness: Brightness.light,
       ),
       child: Theme(
         data: ThemeData.dark(),
         child: SafeArea(
-          child: OrientationBuilder(
-            builder: (context, orientation) {
-              bool status = !(orientation == Orientation.landscape && _focusNodeDefault.hasFocus);
-              if(!status)
-                _focusNodeDefault.unfocus();
+          child: KeyboardVisibilityBuilder(
+            builder: (context, isVisible) {
+              return OrientationBuilder(
+                  builder: (context, orientation) {
+                    bool orientationLandscape = orientation == Orientation.landscape;
 
-              return status ? defaultPage() : textAreaPage();
-            }
+                    if(orientationLandscape)
+                      return !isVisible ? defaultPage() : textAreaPage();
+                    else
+                      return defaultPage();
+                  }
+              );
+            },
           ),
         ),
       ),
@@ -83,65 +86,47 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   }
 
   Widget textAreaPage() {
-    return WillPopScope(
-      onWillPop: () async {
-        _focusNodeOther.unfocus();
-        _focusNodeDefault.unfocus();
-        return false;
-      },
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: ContainerRow(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: ContainerRow(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KeyboardDismissOnTap(
+              child: Container(
+                padding: EdgeInsets.all(10),
                 alignment: Alignment.topCenter,
-                child: IconButton(
-                    splashRadius: 25,
-                    icon: Icon(Icons.keyboard),
-                    onPressed: () {}
-                    ),
+                child: Icon(Icons.keyboard),
               ),
-              Flexible(
-                child: TextField(
-                  // textInputAction: TextInputAction.done,
-                  // onSubmitted: (value) {
-                  //   _focusNodeOther.unfocus();
-                  //   _focusNodeDefault.unfocus();
-                  // },
-                  maxLines: null,
-                  showCursor: true,
-                  autofocus: true,
-                  focusNode: _focusNodeOther,
-                  keyboardType: TextInputType.multiline,
-                  controller: controller,
-                  onChanged: (value) => attachTexts[selectedImageIndex] = value,
-                  decoration: InputDecoration(
-                    hintText: 'Başlık ekleyin...',
-                    border: InputBorder.none,
-                    // isDense: true,
-                  ),
+            ),
+            Flexible(
+              child: TextField(
+                maxLines: null,
+                showCursor: true,
+                autofocus: true,
+                keyboardType: TextInputType.multiline,
+                controller: controller,
+                onChanged: (value) => attachTexts[selectedImageIndex] = value,
+                decoration: InputDecoration(
+                  hintText: 'Başlık ekleyin...',
+                  border: InputBorder.none,
+                  // isDense: true,
                 ),
               ),
+            ),
 
-              InkWell(
-                onTap: () {
-                  _focusNodeOther.unfocus();
-                  _focusNodeDefault.unfocus();
-                },
-                child: Container(
-                  width: 50,
-                  color: Theme.of(context).primaryColor,
-                  child: Icon(Icons.done),
-                ),
-              )
-            ],
-          ),
+            KeyboardDismissOnTap(
+              child: Container(
+                width: 50,
+                color: Theme.of(context).primaryColor,
+                child: Icon(Icons.done),
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -361,19 +346,14 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                       });
                     },
                     onAccept: (data) async {
-                      bool isSelected = selectedImage.path == attachFiles[data].path; // false
-                      bool isLittle = data <= selectedImageIndex; // true
-                      int filesLength = attachFiles.length; // 2
+                      bool isLittle = data <= selectedImageIndex;
+                      int filesLength = attachFiles.length;
 
                       if(filesLength == 1) {
                         _localFileSystem.file(attachFiles[data].path).delete();
                         popControl();
                       } else if(filesLength > 1) {
-                        print('Length: ' + filesLength.toString());
-
                         int newIndex = isLittle ? ((filesLength - 1) - 1) : selectedImageIndex;
-                        print('New: ' + newIndex.toString());
-                        print('Selected: ' + selectedImageIndex.toString());
 
                         await _localFileSystem.file(attachFiles[data].path).delete();
                         attachFiles.removeAt(data);

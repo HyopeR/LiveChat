@@ -66,7 +66,7 @@ class ChatRepository {
     return _firebaseStorageService.uploadVoiceNote(groupId, fileType, file);
   }
 
-  Future<String> uploadImage(String groupId, String fileType, File file) async {
+  Future<Map<String, String>> uploadImage(String groupId, String fileType, File file) async {
     return _firebaseStorageService.uploadImage(groupId, fileType, file);
   }
 

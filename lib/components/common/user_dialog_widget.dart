@@ -73,9 +73,10 @@ class UserDialogWidget extends StatelessWidget {
                 child: IconButton(
                   splashRadius: 25,
                   onPressed: () {
-                    Navigator.pop(context);
                     if(onCancel != null)
                       onCancel();
+
+                    Navigator.pop(context);
                   },
                   icon: Icon(Icons.cancel),
                 ),

@@ -178,9 +178,9 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Future<String> uploadImage(String groupId, String fileType, File file) async {
+  Future<Map<String, String>> uploadImage(String groupId, String fileType, File file) async {
     try{
-      return _chatRepo.uploadVoiceNote(groupId, fileType, file);
+      return _chatRepo.uploadImage(groupId, fileType, file);
     }catch(err) {
       print('uploadImage Error: ${err.toString()}');
       return null;

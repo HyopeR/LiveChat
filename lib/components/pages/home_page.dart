@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:live_chat/components/common/custom_bottom_navigation.dart';
 import 'package:live_chat/components/pages/chats_page.dart';
 import 'package:live_chat/components/pages/profile_page.dart';
@@ -62,16 +61,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarBrightness: Brightness.dark, statusBarIconBrightness: Brightness.light));
-
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarBrightness: Brightness.dark, statusBarIconBrightness: Brightness.light));
     _userView = Provider.of<UserView>(context);
 
-    return SafeArea(
-      child: WillPopScope(
-        onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
-        child: Container(
-          child: _bodyArea(),
-        ),
+    return WillPopScope(
+      onWillPop: () async => !await tabNavigatorKeys[_currentTab].currentState.maybePop(),
+      child: Container(
+        child: _bodyArea(),
       ),
     );
   }

@@ -103,7 +103,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
       brightness: widget.brightness,
       centerTitle: false,
       elevation: 0,
-      leadingWidth: 106,
+      leadingWidth: 86,
       backgroundColor: widget.backgroundColor,
 
       leading: InkWell(

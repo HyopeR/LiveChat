@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
+import 'package:path/path.dart' as path;
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -18,6 +20,7 @@ import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -106,8 +109,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    _subscriptionUser.cancel();
-    _subscriptionGroup.cancel();
+    _subscriptionUser != null ? _subscriptionUser.cancel() : _subscriptionUser = null;
+    _subscriptionGroup != null ? _subscriptionGroup.cancel() : _subscriptionGroup = null;
     _scrollController.dispose();
     super.dispose();
   }
@@ -117,32 +120,26 @@ class _ChatPageState extends State<ChatPage> {
     _userView = Provider.of<UserView>(context);
     _chatView = Provider.of<ChatView>(context);
 
-    return SafeArea(
-      child: KeyboardVisibilityBuilder(
-        builder: (context, isVisible) {
-          return OrientationBuilder(
-            builder: (context, orientation) {
-              bool orientationLandscape = orientation == Orientation.landscape;
+    return KeyboardVisibilityBuilder(
+      builder: (context, isVisible) {
+        return OrientationBuilder(
+          builder: (context, orientation) {
+            bool orientationLandscape = orientation == Orientation.landscape;
 
-              if(orientationLandscape)
-                return !isVisible ? defaultPage() : textAreaPage();
-              else
-                return defaultPage();
-            },
-          );
-        },
-      ),
+            if(orientationLandscape)
+              return !isVisible ? defaultPage() : textAreaPage();
+            else
+              return defaultPage();
+          },
+        );
+      },
     );
   }
 
   Widget textAreaPage() {
-    return WillPopScope(
-      onWillPop: () async {
-        FocusScope.of(context).unfocus();
-        return false;
-      },
-      child: Scaffold(
-        body: ContainerRow(
+    return Scaffold(
+      body: SafeArea(
+        child: ContainerRow(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Flexible(
@@ -174,7 +171,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ],
         ),
-      )
+      ),
     );
   }
 
@@ -376,23 +373,23 @@ class _ChatPageState extends State<ChatPage> {
           savingMessage.message = voiceUrl;
           savingMessage.duration = _messageCreatorState.currentState.oldTime;
 
-          bool result = await _chatView.saveMessage(
-              savingMessage, _userView.user, _chatView.selectedChat.groupId);
+          bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
           if (result) {
             markedMessage = null;
 
             _chatView.clearStorage();
             _messageCreatorState.currentState.controller.clear();
             _messageCreatorState.currentState.setMarkedMessage(null);
-            _scrollController.animateTo(0,
-                duration: Duration(microseconds: 50), curve: Curves.easeOut);
+            _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
           }
         }
         break;
 
       case ('Image'):
         attachFileList.forEach((Map<String, dynamic> map) async {
-          String imageUrl = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
+          Map<String, String> uploadData = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
+          String imageUrl = uploadData['url'];
+          String imageName = uploadData['name'];
 
           if (imageUrl != null) {
             savingMessage.attach = imageUrl;
@@ -401,21 +398,27 @@ class _ChatPageState extends State<ChatPage> {
             bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
             if (result) {
               markedMessage = null;
+              _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
             }
           }
 
           // Telefona gönderilen resmin kaydedilmesi.
           try{
-            bool saveResult = await GallerySaver.saveImage(map['file'].path, albumName: 'Live Chat Images');
-            if(saveResult)
+            String dir = (await getApplicationDocumentsDirectory()).path;
+            String newPath = path.join(dir, '${_chatView.selectedChat.groupId}_$imageName.jpg');
+            await File(map['file'].path).copy(newPath);
+
+            GallerySaver.saveImage(newPath, albumName: 'Live Chat Images').whenComplete(() async {
+              await _localFileSystem.file(newPath).delete();
               await _localFileSystem.file(map['file'].path).delete();
+            });
 
           }catch(err) {
-            print(err.toString());
+            print('GallerySaver.saveImage Error: ' + err.toString());
           }
         });
+
         _messageCreatorState.currentState.setMarkedMessage(null);
-        _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
         attachFileList = [];
         break;
 
@@ -447,7 +450,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<bool> requestPermission() async {
     Map<Permission, PermissionStatus> result =
-        await [Permission.microphone, Permission.storage].request();
+    await [Permission.microphone, Permission.storage].request();
     if (result[Permission.microphone].isGranted &&
         result[Permission.storage].isGranted) {
       _messageCreatorState.currentState.permissionAllow();
@@ -496,14 +499,14 @@ class _ChatPageState extends State<ChatPage> {
         // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
         confirmDismiss: (direction) async {
           _messageCreatorState.currentState
-            .setMarkedMessage(MessageMarked(
-              message: currentMessage,
-              mainAxisSize: MainAxisSize.max,
-              forwardCancel: () {
-                _messageCreatorState.currentState.setMarkedMessage(null);
-                markedMessage = null;
-              },
-            ));
+              .setMarkedMessage(MessageMarked(
+            message: currentMessage,
+            mainAxisSize: MainAxisSize.max,
+            forwardCancel: () {
+              _messageCreatorState.currentState.setMarkedMessage(null);
+              markedMessage = null;
+            },
+          ));
 
           markedMessage = currentMessage;
           return false;
@@ -562,7 +565,7 @@ class _ChatPageState extends State<ChatPage> {
 
       selectedMessagesList.length == 1
 
-      ? FlatButton(
+          ? FlatButton(
           minWidth: 50,
           child: Icon(Icons.reply),
           onPressed: () {
@@ -582,7 +585,7 @@ class _ChatPageState extends State<ChatPage> {
             selectedMessagesList.clear();
           })
 
-      : Container(),
+          : Container(),
 
       FlatButton(
           minWidth: 50,

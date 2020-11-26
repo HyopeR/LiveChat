@@ -202,6 +202,7 @@ class _ChatsPageState extends State<ChatsPage> {
                 UserDialogWidget(
                   name: currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName,
                   photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+
                   onChatClick: () {
                     _chatView.selectChat(currentChat.groupId);
                     _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
