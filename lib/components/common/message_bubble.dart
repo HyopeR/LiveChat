@@ -69,7 +69,7 @@ class MessageBubble extends StatelessWidget {
                     right: 5,
                     bottom: 2,
                     child: Text(showClock(message.date),
-                        style: TextStyle(color: Colors.black54, fontSize: 10)))
+                        style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 10)))
                 : Text('')
           ],
         ),
@@ -82,7 +82,8 @@ class MessageBubble extends StatelessWidget {
       case ('Text'):
         return Container(
             constraints: BoxConstraints(maxWidth: 350),
-            child: Text(message.message));
+            child: Text(message.message)
+        );
         break;
 
       case ('Image'):
@@ -93,7 +94,14 @@ class MessageBubble extends StatelessWidget {
           child: ContainerColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImageWidget(backgroundPadding: 0, imageWidth: imageSize, imageHeight: imageSize, imageUrl: message.attach, imageFit: BoxFit.cover),
+              ImageWidget(
+                  backgroundRadius: BorderRadius.circular(5),
+                  backgroundPadding: 0,
+                  imageWidth: imageSize,
+                  imageHeight: imageSize,
+                  imageUrl: message.attach,
+                  imageFit: BoxFit.cover
+              ),
               message.message != null
                   ? Container(
                     margin: EdgeInsets.only(top: 5),

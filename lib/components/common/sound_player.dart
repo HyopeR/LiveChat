@@ -85,7 +85,8 @@ class _SoundPlayerState extends State<SoundPlayer> {
               Positioned(
                   right: 25,
                   bottom: 0,
-                  child: Text(calculateTimer(currentDuration.toInt())))
+                  child: Text(currentState ? calculateTimer(currentDuration.toInt()) : calculateTimer(widget.soundDuration.toInt()))
+              )
             ],
           ),
         ),
@@ -103,8 +104,7 @@ class _SoundPlayerState extends State<SoundPlayer> {
 
   void play() async {
     // await audioPlayer.release();
-    audioPlayer.play(widget.soundUrl,
-        isLocal: false, position: Duration(seconds: currentDuration.toInt()));
+    audioPlayer.play(widget.soundUrl, isLocal: false, position: Duration(seconds: currentDuration.toInt()));
     setState(() {
       currentState = true;
     });

@@ -8,6 +8,7 @@ class ImageWidget extends StatefulWidget {
 
   final double backgroundPadding;
   final BoxShape backgroundShape;
+  final BorderRadiusGeometry backgroundRadius;
   final Color backgroundColor;
 
   const ImageWidget({
@@ -18,6 +19,7 @@ class ImageWidget extends StatefulWidget {
     this.imageUrl,
     this.backgroundPadding : 5,
     this.backgroundShape : BoxShape.rectangle,
+    this.backgroundRadius,
     this.backgroundColor: Colors.transparent
   }) : super(key: key);
 
@@ -42,30 +44,49 @@ class ImageWidgetState extends State<ImageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool radiusState = (widget.backgroundRadius != null && widget.backgroundShape != BoxShape.circle);
+
     return Container(
       width: widget.imageWidth,
       height: widget.imageHeight,
       padding: EdgeInsets.all(widget.backgroundPadding),
-      decoration: BoxDecoration(
-        shape: widget.backgroundShape,
-        color: widget.backgroundColor,
-      ),
+      decoration: radiusState
+          ? BoxDecoration(
+              borderRadius: widget.backgroundRadius,
+              color: widget.backgroundColor,
+          )
+
+          : BoxDecoration(
+            shape: widget.backgroundShape,
+            color: widget.backgroundColor,
+          ),
+
       child: !imageLoading
           ? Container(
-            decoration: BoxDecoration(
-              shape: widget.backgroundShape,
-              image: DecorationImage(
-                fit: widget.imageFit,
-                image: NetworkImage(widget.imageUrl)
-              )
-            ),
+            decoration: radiusState
+                ? BoxDecoration(
+                  borderRadius: widget.backgroundRadius,
+                  color: widget.backgroundColor,
+                  image: DecorationImage(
+                      fit: widget.imageFit,
+                      image: NetworkImage(widget.imageUrl)
+                  )
+                )
+
+                : BoxDecoration(
+                  shape: widget.backgroundShape,
+                  color: widget.backgroundColor,
+                  image: DecorationImage(
+                      fit: widget.imageFit,
+                      image: NetworkImage(widget.imageUrl)
+                  )
+                ),
           )
           : Container(
             child: Center(
               child: CircularProgressIndicator(),
             ),
-          )
-      ,
+          ),
     );
   }
 }
