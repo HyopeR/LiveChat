@@ -158,28 +158,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
               },
             ),
 
-
-            // InteractiveViewer(
-            //   panEnabled: false, // Set it to false to prevent panning.
-            //   minScale: 1,
-            //   maxScale: 4,
-            //   child: Container(
-            //     width: MediaQuery.of(context).size.width,
-            //     height: MediaQuery.of(context).size.height,
-            //     decoration: attachFiles.length > 0
-            //         ? BoxDecoration(
-            //         color: Colors.black,
-            //         image: DecorationImage(
-            //           image: FileImage(selectedImage),
-            //           // image: NetworkImage(attachFiles[0]),
-            //           fit: BoxFit.contain,
-            //         ))
-            //         : BoxDecoration(
-            //       color: Colors.black,
-            //     ),
-            //   ),
-            // ),
-
             Align(
               alignment: Alignment.topCenter,
               child: Container(
@@ -519,8 +497,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
 
   void popControl() async {
     if (attachFiles.length > 0) {
-      attachFiles.forEach((filePath) {
-        _localFileSystem.file(filePath).delete();
+      attachFiles.forEach((filePath) async {
+        await _localFileSystem.file(filePath).delete();
       });
     }
 
