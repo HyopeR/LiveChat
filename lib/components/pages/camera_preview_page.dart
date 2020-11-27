@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
+import 'package:live_chat/components/common/file_preview.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,7 @@ class CameraPreviewPage extends StatefulWidget {
 class _CameraPreviewPageState extends State<CameraPreviewPage> {
   ChatView _chatView;
 
+  GlobalKey<FilePreviewState> _filePreviewState = GlobalKey();
   LocalFileSystem _localFileSystem = LocalFileSystem();
   ImagePicker picker = ImagePicker();
   TextEditingController controller;
@@ -28,7 +30,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   bool visibilityDataTarget = false;
   bool innerDeleteArea = false;
 
-  File selectedImage;
   int selectedImageIndex;
 
   List<File> attachFiles = [];
@@ -140,26 +141,44 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
       child: Material(
         child: Stack(
           children: [
-            InteractiveViewer(
-              panEnabled: false, // Set it to false to prevent panning.
-              minScale: 1,
-              maxScale: 4,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration: attachFiles.length > 0
-                    ? BoxDecoration(
-                    color: Colors.black,
-                    image: DecorationImage(
-                      image: FileImage(selectedImage),
-                      // image: NetworkImage(attachFiles[0]),
-                      fit: BoxFit.contain,
-                    ))
-                    : BoxDecoration(
-                  color: Colors.black,
-                ),
-              ),
+            FilePreview(
+              key: _filePreviewState,
+              onPageChange: () {
+                int currentItemIndex = _filePreviewState.currentState.currentPage;
+
+                if (selectedImageIndex != currentItemIndex) {
+                  setState(() {
+                    selectedImageIndex = currentItemIndex;
+                    if(attachTexts[currentItemIndex] != null)
+                      controller.text = attachTexts[currentItemIndex];
+                    else
+                      controller.clear();
+                  });
+                }
+              },
             ),
+
+
+            // InteractiveViewer(
+            //   panEnabled: false, // Set it to false to prevent panning.
+            //   minScale: 1,
+            //   maxScale: 4,
+            //   child: Container(
+            //     width: MediaQuery.of(context).size.width,
+            //     height: MediaQuery.of(context).size.height,
+            //     decoration: attachFiles.length > 0
+            //         ? BoxDecoration(
+            //         color: Colors.black,
+            //         image: DecorationImage(
+            //           image: FileImage(selectedImage),
+            //           // image: NetworkImage(attachFiles[0]),
+            //           fit: BoxFit.contain,
+            //         ))
+            //         : BoxDecoration(
+            //       color: Colors.black,
+            //     ),
+            //   ),
+            // ),
 
             Align(
               alignment: Alignment.topCenter,
@@ -346,30 +365,39 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                       });
                     },
                     onAccept: (data) async {
-                      bool isLittle = data <= selectedImageIndex;
                       int filesLength = attachFiles.length;
 
                       if(filesLength == 1) {
-                        _localFileSystem.file(attachFiles[data].path).delete();
+                        await _localFileSystem.file(attachFiles[data].path).delete();
+                        attachFiles.removeAt(data);
+                        attachTexts.removeAt(data);
+                        _filePreviewState.currentState.deleteItem(data);
                         popControl();
+
                       } else if(filesLength > 1) {
+                        bool isSelected = data == selectedImageIndex;
+                        bool isLittle = data <= selectedImageIndex;
+
                         int newIndex = isLittle ? ((filesLength - 1) - 1) : selectedImageIndex;
 
                         await _localFileSystem.file(attachFiles[data].path).delete();
                         attachFiles.removeAt(data);
                         attachTexts.removeAt(data);
+                        _filePreviewState.currentState.deleteItem(data);
 
-                        if(newIndex != selectedImageIndex)
+                        if(newIndex != selectedImageIndex || isSelected) {
+                          _filePreviewState.currentState.pageController.jumpToPage(newIndex);
+
                           setState(() {
-                            selectedImage = attachFiles[newIndex];
                             selectedImageIndex = newIndex;
                             controller.text = attachTexts[newIndex];
                             innerDeleteArea = false;
                           });
-                        else
+                        } else {
                           setState(() {
                             innerDeleteArea = false;
                           });
+                        }
 
                       }
 
@@ -432,7 +460,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
         decoration: BoxDecoration(
             border: Border.all(
                 width: 1,
-                color: attachFiles[photoIndex].path == selectedImage.path
+                color: photoIndex == selectedImageIndex
                     ? Colors.amber
                     : Colors.black.withOpacity(0.5)),
             image: DecorationImage(
@@ -441,12 +469,14 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
       childWhenDragging: Container(width: 60, height: 50),
       child: InkWell(
         onTap: () {
-          if (selectedImage.path != attachFiles[photoIndex].path) {
-            print(attachTexts);
+          if (selectedImageIndex != photoIndex) {
+            _filePreviewState.currentState.pageController.jumpToPage(photoIndex);
             setState(() {
               selectedImageIndex = photoIndex;
-              selectedImage = attachFiles[photoIndex];
-              controller.text = attachTexts[photoIndex];
+              if(attachTexts[photoIndex] != null)
+                controller.text = attachTexts[photoIndex];
+              else
+                controller.clear();
             });
           }
         },
@@ -457,7 +487,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
           decoration: BoxDecoration(
               border: Border.all(
                   width: 1,
-                  color: attachFiles[photoIndex].path == selectedImage.path
+                  color: photoIndex == selectedImageIndex
                       ? Colors.amber
                       : Colors.black.withOpacity(0.5)),
               image: DecorationImage(
@@ -474,12 +504,14 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
 
     if (pickedFile != null) {
       setState(() {
-        selectedImage = File(pickedFile.path);
         selectedImageIndex = attachFiles.length < 1 ? 0 : attachFiles.length;
         attachFiles.add(File(pickedFile.path));
         attachTexts.add(null);
         controller.clear();
       });
+
+      _filePreviewState.currentState.addItem(File(pickedFile.path));
+      _filePreviewState.currentState.pageController.jumpToPage(attachFiles.length < 1 ? 0 : attachFiles.length);
     } else {
       Navigator.of(context).pop([]);
     }
