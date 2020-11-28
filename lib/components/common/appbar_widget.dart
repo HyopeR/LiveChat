@@ -133,7 +133,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              Text(widget.titleText),
+              Text(widget.titleText, style: TextStyle(color: widget.textColor)),
               subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 11, color: Colors.black54)) : Container(),
             ],
           ),

@@ -25,9 +25,12 @@ class ChatView with ChangeNotifier {
   GroupModel _selectedChat;
   SelectedChatState _selectedChatState = SelectedChatState.Empty;
 
+  List<MessageModel> _messages;
+
   File voiceFile;
 
   List<GroupModel> get groups => _groups;
+  List<MessageModel> get messages => _messages;
   GroupModel get selectedChat => _selectedChat;
   SelectedChatState get selectedChatState => _selectedChatState;
 
@@ -39,6 +42,7 @@ class ChatView with ChangeNotifier {
   Future<bool> clearState() async {
     contacts = List<UserModel>();
     _groups = List<GroupModel>();
+    _messages = List<MessageModel>();
     groupType = null;
     _selectedChat = null;
     interlocutorUser = null;
@@ -46,14 +50,19 @@ class ChatView with ChangeNotifier {
     return true;
   }
 
+
+
   UserModel selectChatUser(String userId) {
     UserModel user = contacts.where((user) => user.userId == userId).first;
     return user;
   }
 
-  GroupModel unSelectChat() {
+  void resetMessages() {
+    _messages = List<MessageModel>();
+  }
+
+  void unSelectChat() {
     _selectedChat = null;
-    return _selectedChat;
   }
 
   GroupModel selectChat(String groupId) {
@@ -132,6 +141,10 @@ class ChatView with ChangeNotifier {
   Stream<List<MessageModel>> getMessages(String groupId) {
 
     try{
+      _chatRepo.getMessages(groupId).listen((messagesData) {
+        _messages = messagesData;
+      });
+
       return _chatRepo.getMessages(groupId);
     }catch(err) {
       print('getMessages Error: ${err.toString()}');

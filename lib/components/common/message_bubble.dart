@@ -5,6 +5,7 @@ import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/common/sound_player.dart';
+import 'package:live_chat/components/pages/media_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -90,7 +91,9 @@ class MessageBubble extends StatelessWidget {
         double imageSize = (MediaQuery.of(context).size.width * 0.6) - 20;
 
         return InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => MediaShowPage(currentMessageId: message.messageId)));
+          },
           child: ContainerColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

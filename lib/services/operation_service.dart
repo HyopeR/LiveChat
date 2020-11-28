@@ -21,7 +21,7 @@ String calculateTimer(int time) {
 Map<String, dynamic> showDate(Timestamp date) {
   DateTime currentDate = DateTime.now();
   DateTime serverDate = date != null ? date.toDate() : Timestamp(1,1).toDate();
-  int differenceDay = currentDate.difference(serverDate).inDays;
+  int differenceDay = currentDate.day - serverDate.day;
 
   var formatterDate = DateFormat.yMd();
   var formatterClock = DateFormat.Hm();

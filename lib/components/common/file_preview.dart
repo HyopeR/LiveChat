@@ -62,7 +62,7 @@ class FilePreviewState extends State<FilePreview> {
 
 
           /// Ufak hareketlerle sayfa değişsinmi yoksa sürüklendiği kadarıyla dursunmu?
-          pageSnapping: false,
+          pageSnapping: true,
 
           onPageChanged: (index) {
             setState(() {

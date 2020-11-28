@@ -5,13 +5,15 @@ class ZoomableWidget extends StatefulWidget {
   final double minScale;
   final double maxScale;
   final bool panEnabled;
+  final VoidCallback onTap;
 
   const ZoomableWidget({
     Key key,
     this.child,
     this.minScale : 1,
     this.maxScale : 4,
-    this.panEnabled : true
+    this.panEnabled : true,
+    this.onTap
   }) : super(key: key);
 
   @override
@@ -24,6 +26,8 @@ class _ZoomableWidgetState extends State<ZoomableWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
+
       onDoubleTap: () {
         // Çift dokunmada resimin scale'inin sıfırlanması.
         transformationController.value = Matrix4.identity();

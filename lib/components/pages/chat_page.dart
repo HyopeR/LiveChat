@@ -203,6 +203,8 @@ class _ChatPageState extends State<ChatPage> {
             updateMessageAction(0);
           }
           Navigator.of(context).pop();
+          _chatView.unSelectChat();
+          _chatView.resetMessages();
         }
 
         return false;
@@ -218,6 +220,7 @@ class _ChatPageState extends State<ChatPage> {
               }
               Navigator.of(context).pop();
               _chatView.unSelectChat();
+              _chatView.resetMessages();
             },
             appBarType: 'Chat',
 
