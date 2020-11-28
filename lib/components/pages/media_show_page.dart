@@ -9,6 +9,7 @@ import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class MediaShowPage extends StatefulWidget {
   String currentMessageId;
   MediaShowPage({Key key, this.currentMessageId}) : super(key: key);

@@ -408,10 +408,10 @@ class _ChatPageState extends State<ChatPage> {
           // Telefona gönderilen resmin kaydedilmesi.
           try{
             String dir = (await getApplicationDocumentsDirectory()).path;
-            String newPath = path.join(dir, '${_chatView.selectedChat.groupId}_$imageName.jpg');
+            String newPath = path.join(dir, '${_chatView.selectedChat.groupId}_$imageName');
             await File(map['file'].path).copy(newPath);
 
-            GallerySaver.saveImage(newPath, albumName: 'Live Chat Images').whenComplete(() async {
+            await GallerySaver.saveImage(newPath, albumName: 'Live Chat Images').whenComplete(() async {
               await _localFileSystem.file(newPath).delete();
               await _localFileSystem.file(map['file'].path).delete();
             });

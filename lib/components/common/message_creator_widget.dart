@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:live_chat/components/common/combine_gesture_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -74,6 +75,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   FocusNode focusNode;
 
   bool voiceRecordCancelled = false;
+  bool onCancel = false;
   bool timerRun = false;
 
   int time = 0;
@@ -119,7 +121,8 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   @override
   Widget build(BuildContext context) {
     return ContainerRow(
-      // height: widget.height,
+      // color: Colors.red,
+      height: widget.height,
       margin: widget.margin,
       padding: widget.padding,
 
@@ -140,20 +143,20 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
               !timerRun
                   ? ContainerRow(
-                    constraints: BoxConstraints(minHeight: widget.height),
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: widget.textAreaCrossAxisAlignment,
-                    children: defaultArea(),
-                  )
+                constraints: BoxConstraints(minHeight: widget.height),
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: widget.textAreaCrossAxisAlignment,
+                children: defaultArea(),
+              )
 
                   : ContainerRow(
-                    constraints: BoxConstraints(minHeight: widget.height),
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: voiceRecordArea(),
-                  ),
+                constraints: BoxConstraints(minHeight: widget.height),
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: voiceRecordArea(),
+              ),
 
             ],
 
@@ -194,8 +197,8 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
             maxLines: null,
             keyboardType: TextInputType.multiline,
             onChanged: (value) => setState(() {}),
-            focusNode: focusNode,
             controller: controller,
+            focusNode: focusNode,
             style: TextStyle(color: widget.textColor),
             decoration: InputDecoration(
               hintText: widget.hintText,
@@ -239,15 +242,45 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
 
   List<Widget> voiceRecordArea() {
     return [
-      Icon(Icons.mic),
+      Icon(
+          onCancel ? Icons.delete : Icons.mic,
+          color: onCancel ? Colors.red : Colors.black,
+      ),
       Text(
         calculateTimer(time),
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
       Expanded(
-          child: Container(
-              alignment: Alignment.centerRight,
-              child: Text('İptal etmek için belirli alana bırak.')))
+        child: Container(
+          height: 40,
+          child: DragTarget(builder: (context, List<int> candidateData, rejectedData) {
+            return Container(
+                alignment: Alignment.centerRight,
+                child: Text('İptal etmek için buraya sürükle.'),
+            );
+          },
+            onLeave: (data) {
+              setState(() {
+                onCancel = false;
+              });
+              return false;
+            },
+
+            onWillAccept: (data) {
+              setState(() {
+                onCancel = true;
+              });
+              return true;
+            },
+
+            onAccept: (data) {
+              setState(() {
+                voiceRecordCancelled = true;
+              });
+            },
+          ),
+        ),
+      )
     ];
   }
 
@@ -275,114 +308,95 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   }
 
   Widget voiceRecordButton() {
+
     return (widget.onLongPressStart != null && widget.onLongPressEnd != null)
-        ? Column(
-            children: [
-              timerRun
-                  ? DragTarget(
-                      builder: (context, List<int> candidateData, rejectedData) {
-                        return Center(
-                            child: Container(
-                                color: widget.textAreaColor,
-                                width: 50,
-                                height: 50,
-                                child: Icon(Icons.delete)));
-                      },
-                      onAccept: (data) {
-                        setState(() {
-                          voiceRecordCancelled = true;
-                        });
-                      },
-                    )
-                  : Container(),
-              SizedBox(height: 10),
-              Container(
-                child: CombineGestureWidget(
-                  onLongPressStart: () {
+        ? Container(
+          child: CombineGestureWidget(
+            onLongPressStart: () {
 
-                    if(permissionsAllowed) {
-                      setState(() {
-                        voiceRecordCancelled = false;
-                        timerRun = true;
-                      });
-                    }
+              if(permissionsAllowed) {
+                setState(() {
+                  voiceRecordCancelled = false;
+                  timerRun = true;
+                });
+              }
 
-                    widget.onLongPressStart();
-                  },
+              widget.onLongPressStart();
+            },
 
-                  onLongPress: () {
+            onLongPress: () {
 
-                    if(permissionsAllowed) {
-                      Timer.periodic(Duration(seconds: 1), (Timer timer) {
-                        if (timerRun)
-                          setState(() => time = time + 1);
-                        else
-                          timer.cancel();
-                      });
-                    }
+              if(permissionsAllowed) {
+                Timer.periodic(Duration(seconds: 1), (Timer timer) {
+                  if (timerRun)
+                    setState(() => time = time + 1);
+                  else
+                    timer.cancel();
+                });
+              }
 
-                  },
+            },
 
-                  onLongPressEnd: () {
+            onLongPressEnd: () {
 
-                    if(permissionsAllowed) {
-                      setState(() {
-                        if(time < 1)
-                          voiceRecordCancelled = true;
-                        oldTime = time;
-                        time = 0;
-                        timerRun = false;
-                      });
-                    }
+              if(permissionsAllowed) {
+                setState(() {
+                  if(time < 1)
+                    voiceRecordCancelled = true;
 
-                    widget.onLongPressEnd();
-                  },
-                  child: LongPressDraggable(
-                    data: 1,
-                    axis: Axis.vertical,
-                    dragAnchor: DragAnchor.child,
+                  oldTime = time;
+                  time = 0;
+                  timerRun = false;
+                  onCancel = false;
+                });
+              }
 
-                    feedback: Container(
+              widget.onLongPressEnd();
+            },
+            child: LongPressDraggable(
+              data: 1,
+              // axis: Axis.horizontal,
+              dragAnchor: DragAnchor.child,
+
+              feedback: Container(
+                constraints: BoxConstraints(
+                  minHeight: widget.height,
+                  minWidth: widget.height,
+                ),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.buttonColor.withGreen(120),
+                ),
+                child: Container(
+                    width: widget.iconSize,
+                    height: widget.iconSize,
+                    child: Icon(Icons.mic, color: widget.iconColor)),
+              ),
+
+              childWhenDragging: Container(
+                  constraints: BoxConstraints(
+                    minHeight: widget.height,
+                    minWidth: widget.height,
+                  )
+              ),
+
+              child: Container(
                       constraints: BoxConstraints(
                         minHeight: widget.height,
                         minWidth: widget.height,
                       ),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: widget.buttonColor.withGreen(120),
+                        color: widget.buttonColor,
                       ),
                       child: Container(
                           width: widget.iconSize,
                           height: widget.iconSize,
                           child: Icon(Icons.mic, color: widget.iconColor)),
                     ),
-
-                    childWhenDragging: Container(
-                        constraints: BoxConstraints(
-                          minHeight: widget.height,
-                          minWidth: widget.height,
-                        )
-                    ),
-
-                    child: Container(
-                            constraints: BoxConstraints(
-                              minHeight: widget.height,
-                              minWidth: widget.height,
-                            ),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: widget.buttonColor,
-                            ),
-                            child: Container(
-                                width: widget.iconSize,
-                                height: widget.iconSize,
-                                child: Icon(Icons.mic, color: widget.iconColor)),
-                          ),
-                  ),
-                ),
-              )
-            ],
-          )
+            ),
+          ),
+        )
 
         : Container();
   }
