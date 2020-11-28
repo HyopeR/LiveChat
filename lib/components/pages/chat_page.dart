@@ -354,12 +354,12 @@ class _ChatPageState extends State<ChatPage> {
       messageType: messageType,
     );
 
-    if (markedMessage != null) savingMessage.markedMessage = markedMessage;
+    if (markedMessage != null)
+      savingMessage.markedMessage = markedMessage;
 
     switch (messageType) {
       case ('Text'):
-        savingMessage.message =
-            _messageCreatorState.currentState.controller.text;
+        savingMessage.message = _messageCreatorState.currentState.controller.text;
 
         bool result = await _chatView.saveMessage(
             savingMessage, _userView.user, _chatView.selectedChat.groupId);
@@ -392,40 +392,44 @@ class _ChatPageState extends State<ChatPage> {
         break;
 
       case ('Image'):
-        attachFileList.forEach((Map<String, dynamic> map) async {
-          Map<String, String> uploadData = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
-          String imageUrl = uploadData['url'];
-          String imageName = uploadData['name'];
+        Map<String, dynamic> map = attachFileList[0];
+        Map<String, String> uploadData = await _chatView.uploadImage(_chatView.selectedChat.groupId, 'Images', map['file']);
 
-          if (imageUrl != null) {
-            savingMessage.attach = imageUrl;
-            savingMessage.message = map['text'] != null ? map['text'] : '';
+        String imageUrl = uploadData['url'];
+        String imageName = uploadData['name'];
 
-            bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
-            if (result) {
-              markedMessage = null;
-              _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
+        if (imageUrl != null) {
+          savingMessage.attach = imageUrl;
+          savingMessage.message = map['text'] != null ? map['text'] : '';
+
+          bool result = await _chatView.saveMessage(savingMessage, _userView.user, _chatView.selectedChat.groupId);
+
+          if (result) {
+            markedMessage = null;
+            _messageCreatorState.currentState.setMarkedMessage(null);
+            _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
+
+            // Telefona gönderilen resmin kaydedilmesi.
+            try{
+              String dir = (await getApplicationDocumentsDirectory()).path;
+              String newPath = path.join(dir, '${_chatView.selectedChat.groupId}_$imageName.jpg');
+              await File(map['file'].path).copy(newPath);
+
+              bool saveStatus = await GallerySaver.saveImage(newPath, albumName: 'Live Chat Images');
+              attachFileList.removeAt(0);
+              if(attachFileList.length > 0)
+                saveMessage('Image');
+
+              if(saveStatus) {
+                await _localFileSystem.file(newPath).delete();
+                await _localFileSystem.file(map['file'].path).delete();
+              }
+
+            }catch(err) {
+              print('GallerySaver.saveImage Error: ' + err.toString());
             }
           }
-
-          // Telefona gönderilen resmin kaydedilmesi.
-          try{
-            String dir = (await getApplicationDocumentsDirectory()).path;
-            String newPath = path.join(dir, '${_chatView.selectedChat.groupId}_$imageName');
-            await File(map['file'].path).copy(newPath);
-
-            await GallerySaver.saveImage(newPath, albumName: 'Live Chat Images').whenComplete(() async {
-              await _localFileSystem.file(newPath).delete();
-              await _localFileSystem.file(map['file'].path).delete();
-            });
-
-          }catch(err) {
-            print('GallerySaver.saveImage Error: ' + err.toString());
-          }
-        });
-
-        _messageCreatorState.currentState.setMarkedMessage(null);
-        attachFileList = [];
+        }
         break;
 
       default:
