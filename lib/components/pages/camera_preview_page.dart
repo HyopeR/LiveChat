@@ -73,9 +73,9 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                   builder: (context, orientation) {
                     bool orientationLandscape = orientation == Orientation.landscape;
 
-                    if(orientationLandscape)
+                    if(orientationLandscape) {
                       return !isVisible ? defaultPage() : textAreaPage();
-                    else
+                    } else
                       return defaultPage();
                   }
               );
@@ -143,6 +143,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
           children: [
             FilePreview(
               key: _filePreviewState,
+              itemList: attachFiles,
+              currentPage: selectedImageIndex != null ? selectedImageIndex : 0,
               onPageChange: () {
                 int currentItemIndex = _filePreviewState.currentState.currentPage;
 
@@ -349,7 +351,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                         await _localFileSystem.file(attachFiles[data].path).delete();
                         attachFiles.removeAt(data);
                         attachTexts.removeAt(data);
-                        _filePreviewState.currentState.deleteItem(data);
                         popControl();
 
                       } else if(filesLength > 1) {
@@ -361,7 +362,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                         await _localFileSystem.file(attachFiles[data].path).delete();
                         attachFiles.removeAt(data);
                         attachTexts.removeAt(data);
-                        _filePreviewState.currentState.deleteItem(data);
 
                         if(newIndex != selectedImageIndex || isSelected) {
                           _filePreviewState.currentState.pageController.jumpToPage(newIndex);
@@ -488,7 +488,6 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
         controller.clear();
       });
 
-      _filePreviewState.currentState.addItem(File(pickedFile.path));
       _filePreviewState.currentState.pageController.jumpToPage(attachFiles.length < 1 ? 0 : attachFiles.length);
     } else {
       Navigator.of(context).pop([]);

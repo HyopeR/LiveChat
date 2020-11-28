@@ -300,7 +300,12 @@ class _ChatPageState extends State<ChatPage> {
                   onLongPressEnd: () async {
                     if (permissionStatus) {
                       await _chatView.recordStop();
-                      saveMessage('Voice');
+
+                      if(_messageCreatorState.currentState.voiceRecordCancelled)
+                        _chatView.clearStorage();
+                      else
+                        saveMessage('Voice');
+
                       updateMessageAction(0);
                     }
                   },
@@ -363,14 +368,12 @@ class _ChatPageState extends State<ChatPage> {
 
           _messageCreatorState.currentState.controller.clear();
           _messageCreatorState.currentState.setMarkedMessage(null);
-          _scrollController.animateTo(0,
-              duration: Duration(microseconds: 50), curve: Curves.easeOut);
+          _scrollController.animateTo(0, duration: Duration(microseconds: 50), curve: Curves.easeOut);
         }
         break;
 
       case ('Voice'):
-        String voiceUrl = await _chatView.uploadVoiceNote(
-            _chatView.selectedChat.groupId, 'Voice_Notes', _chatView.voiceFile);
+        String voiceUrl = await _chatView.uploadVoiceNote(_chatView.selectedChat.groupId, 'Voice_Notes', _chatView.voiceFile);
 
         if (voiceUrl != null) {
           savingMessage.message = voiceUrl;

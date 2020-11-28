@@ -31,16 +31,16 @@ class MessageMarked extends StatelessWidget {
           minHeight: 50,
         ),
 
-        children: writeForwardMessage(message)
+        children: createMarkedMessage(message)
 
     );
   }
 
-  List<Widget> writeForwardMessage(MessageModel message) {
+  List<Widget> createMarkedMessage(MessageModel message) {
     switch (message.messageType) {
       case ('Text'):
         return [
-            Flexible(
+            Container(
               child: ContainerColumn(
                 constraints: BoxConstraints(
                   minWidth: 100,
@@ -52,7 +52,8 @@ class MessageMarked extends StatelessWidget {
                   Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 5),
                   Text(
-                    message.message,
+                    message.message.length > 35 ? message.message.substring(0, 34) + '...' : message.message,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -69,46 +70,44 @@ class MessageMarked extends StatelessWidget {
 
       case ('Image'):
         return [
-            Flexible(
-              child: ContainerRow(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ContainerRow(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-                children: [
-                  ImageWidget(
-                    imageUrl: message.attach,
-                    imageHeight: 50,
-                    imageWidth: 50,
-                    imageFit: BoxFit.cover,
-                    backgroundPadding: 0,
-                    backgroundRadius: BorderRadius.circular(5),
+              children: [
+                ImageWidget(
+                  imageUrl: message.attach,
+                  imageHeight: 45,
+                  imageWidth: 45,
+                  imageFit: BoxFit.cover,
+                  backgroundPadding: 0,
+                  backgroundRadius: BorderRadius.circular(5),
+                ),
+
+                ContainerColumn(
+                  padding: EdgeInsets.all(5),
+                  constraints: BoxConstraints(
+                    minWidth: 100,
                   ),
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                  ContainerColumn(
-                    padding: EdgeInsets.all(5),
-                    constraints: BoxConstraints(
-                      minWidth: 100,
+                  children: [
+                    Text(
+                        message.ownerUsername,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontWeight: FontWeight.bold)
                     ),
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-
-                    children: [
-                      Text(
-                          message.ownerUsername,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontWeight: FontWeight.bold)
-                      ),
-                      SizedBox(height: 5),
-                      message.message != null
-                          ? Text(
-                              message.message,
-                              overflow: TextOverflow.ellipsis,
-                          )
-                          : Container(height: 5)
-                    ],
-                  ),
-                ],
-              ),
+                    SizedBox(height: 5),
+                    message.message != null
+                        ? Text(
+                            message.message,
+                            overflow: TextOverflow.ellipsis,
+                        )
+                        : Container(height: 5)
+                  ],
+                ),
+              ],
             ),
             forwardCancel != null
                 ? IconButton(
@@ -121,27 +120,25 @@ class MessageMarked extends StatelessWidget {
 
       case ('Voice'):
         return [
-          Flexible(
-            child: ContainerColumn(
-              constraints: BoxConstraints(
-                minWidth: 100,
-              ),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Row(
-                  children: [
-                    Icon(Icons.mic, size: 18),
-                    Text(
-                      'Sesli mesaj (${calculateTimer(message.duration)})',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                )
-              ],
+          ContainerColumn(
+            constraints: BoxConstraints(
+              minWidth: 100,
             ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 5),
+              Row(
+                children: [
+                  Icon(Icons.mic, size: 18),
+                  Text(
+                    'Sesli mesaj (${calculateTimer(message.duration)})',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              )
+            ],
           ),
           forwardCancel != null
               ? IconButton(

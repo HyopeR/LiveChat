@@ -82,7 +82,7 @@ class MessageBubble extends StatelessWidget {
     switch (message.messageType) {
       case ('Text'):
         return Container(
-            constraints: BoxConstraints(maxWidth: 350),
+            constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
             child: Text(message.message)
         );
         break;

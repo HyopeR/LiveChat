@@ -4,11 +4,15 @@ import 'package:live_chat/components/common/zoomable_widget.dart';
 
 class FilePreview extends StatefulWidget {
 
+  final int currentPage;
   final VoidCallback onPageChange;
+  final List<File> itemList;
 
   const FilePreview({
     Key key,
-    this.onPageChange
+    this.currentPage,
+    this.onPageChange,
+    this.itemList
   }) : super(key: key);
 
 
@@ -20,12 +24,13 @@ class FilePreviewState extends State<FilePreview> {
   PageController pageController;
   int currentPage = 0;
 
-  List<File> itemList = [];
-
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: 0, keepPage: true, viewportFraction: 1);
+    if(widget.currentPage != null)
+      currentPage = widget.currentPage;
+
+    pageController = PageController(initialPage: currentPage, keepPage: true, viewportFraction: 1);
   }
 
   @override
@@ -34,17 +39,17 @@ class FilePreviewState extends State<FilePreview> {
     super.dispose();
   }
 
-  void addItem(File file) {
-    setState(() {
-      itemList.add(file);
-    });
-  }
-
-  void deleteItem(int index) {
-    setState(() {
-      itemList.removeAt(index);
-    });
-  }
+  // void addItem(File file) {
+  //   setState(() {
+  //     itemList.add(file);
+  //   });
+  // }
+  //
+  // void deleteItem(int index) {
+  //   setState(() {
+  //     itemList.removeAt(index);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +77,7 @@ class FilePreviewState extends State<FilePreview> {
             widget.onPageChange();
           },
 
-          itemCount: itemList.length,
+          itemCount: widget.itemList.length,
           itemBuilder: (context, index) {
             return createItem(index);
           },
@@ -91,7 +96,7 @@ class FilePreviewState extends State<FilePreview> {
         decoration: BoxDecoration(
             color: Colors.black,
             image: DecorationImage(
-              image: FileImage(itemList[index]),
+              image: FileImage(widget.itemList[index]),
               // image: NetworkImage(attachFiles[0]),
               fit: BoxFit.contain,
             )

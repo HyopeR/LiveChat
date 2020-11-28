@@ -122,7 +122,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
   Widget build(BuildContext context) {
     return ContainerRow(
       // color: Colors.red,
-      height: widget.height,
+      // height: widget.height,
       margin: widget.margin,
       padding: widget.padding,
 
