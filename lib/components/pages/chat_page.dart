@@ -420,6 +420,7 @@ class _ChatPageState extends State<ChatPage> {
               if(attachFileList.length > 0)
                 saveMessage('Image');
 
+              // Galeriye kaydedilen resmin local cacheden silinmesi.
               if(saveStatus) {
                 await _localFileSystem.file(newPath).delete();
                 await _localFileSystem.file(map['file'].path).delete();

@@ -29,7 +29,7 @@ class _SignInPageState extends State<SignInPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign In'),
+        title: Text('Live Chat'),
         elevation: 0,
       ),
 

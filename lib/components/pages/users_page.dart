@@ -5,6 +5,7 @@ import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
+import 'package:live_chat/components/pages/profile_photo_show_page.dart';
 import 'package:live_chat/components/pages/search_user_page.dart';
 import 'package:live_chat/components/pages/user_preview_page.dart';
 import 'package:live_chat/models/user_model.dart';
@@ -171,6 +172,10 @@ class _UsersPageState extends State<UsersPage> {
                 UserDialogWidget(
                   name: currentUser.userName,
                   photoUrl: currentUser.userProfilePhotoUrl,
+
+                  onPhotoClick: () {
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
+                  },
 
                   onChatClick: () {
                     _chatView.findChatByUserIdList([

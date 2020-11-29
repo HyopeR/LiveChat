@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
+import 'package:live_chat/components/pages/profile_photo_show_page.dart';
 import 'package:live_chat/components/pages/user_preview_page.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/components/common/container_column.dart';
@@ -202,6 +203,10 @@ class _ChatsPageState extends State<ChatsPage> {
                 UserDialogWidget(
                   name: currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName,
                   photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+
+                  onPhotoClick: () {
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
+                  },
 
                   onChatClick: () {
                     _chatView.selectChat(currentChat.groupId);

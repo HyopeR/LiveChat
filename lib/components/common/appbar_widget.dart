@@ -134,7 +134,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
             children: [
               Text(widget.titleText, style: TextStyle(color: widget.textColor)),
-              subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 11, color: Colors.black54)) : Container(),
+              subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 11, color: widget.textColor.withOpacity(0.7))) : Container(),
             ],
           ),
       ),
@@ -145,12 +145,12 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget backDefaultAppBar() {
     return AppBar(
-      brightness: widget.brightness,
+      brightness: Brightness.dark,
       centerTitle: false,
       elevation: 0,
       leading: InkWell(
         onTap: widget.onLeftSideClick,
-        child: Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios),
+        child: Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios, color: widget.textColor),
       ),
       backgroundColor: widget.backgroundColor,
       title: Text(widget.titleText, style: TextStyle(color: widget.textColor)),

@@ -25,7 +25,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   LocalFileSystem _localFileSystem = LocalFileSystem();
   ImagePicker picker = ImagePicker();
   TextEditingController controller;
-  FocusNode _focusNodeDefault;
+  FocusNode _focusNode;
 
   bool visibilityDataTarget = false;
   bool innerDeleteArea = false;
@@ -39,7 +39,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   void initState() {
     super.initState();
     controller = TextEditingController();
-    _focusNodeDefault = FocusNode();
+    _focusNode = FocusNode();
 
     controller.addListener(() {
       attachTexts[selectedImageIndex] = controller.text;
@@ -50,7 +50,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
 
   @override
   void dispose() {
-    _focusNodeDefault.dispose();
+    _focusNode.dispose();
     controller.dispose();
     super.dispose();
   }
@@ -224,10 +224,11 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                                           splashRadius: 25,
                                           icon: Icon(Icons.keyboard),
                                           onPressed: () {
-                                            _focusNodeDefault.hasPrimaryFocus
-                                                ? _focusNodeDefault.unfocus()
-                                                : _focusNodeDefault.requestFocus();
+                                            _focusNode.hasPrimaryFocus
+                                                ? _focusNode.unfocus()
+                                                : _focusNode.requestFocus();
                                           }),
+
                                       Flexible(
                                         child: Container(
                                           constraints:
@@ -238,7 +239,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                                             keyboardType: TextInputType.multiline,
                                             controller: controller,
                                             onChanged: (value) => attachTexts[selectedImageIndex] = value,
-                                            focusNode: _focusNodeDefault,
+                                            focusNode: _focusNode,
                                             decoration: InputDecoration(
                                               hintText: 'Başlık ekleyin...',
                                               border: InputBorder.none,
@@ -419,7 +420,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   }
 
   Widget childPhoto(int photoIndex) {
-    return Draggable(
+    return LongPressDraggable(
       data: photoIndex,
       onDragStarted: () {
         setState(() {
