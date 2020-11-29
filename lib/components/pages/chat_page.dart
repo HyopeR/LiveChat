@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:live_chat/components/common/image_widget.dart';
 import 'package:path/path.dart' as path;
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
@@ -224,7 +225,12 @@ class _ChatPageState extends State<ChatPage> {
             },
             appBarType: 'Chat',
 
-            titleImageUrl: appBarImageUrl,
+            titleImage: ImageWidget(
+              imageWidth: 50,
+              imageHeight: 50,
+              backgroundShape: BoxShape.circle,
+              image: NetworkImage(appBarImageUrl),
+            ),
             titleText: appBarTitle,
             subTitleText: appBarSubtitle,
 
@@ -477,83 +483,106 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget createItem(int index) {
     MessageModel currentMessage = messages[index];
-    bool fromMe = currentMessage.sendBy == _userView.user.userId;
-    currentMessage.fromMe = fromMe;
 
-    if (_chatView.groupType == 'Private') {
-      currentMessage.ownerImageUrl = fromMe
-          ? _userView.user.userProfilePhotoUrl
-          : _chatView.interlocutorUser.userProfilePhotoUrl;
+    if(currentMessage.messageType != 'System') {
+      bool fromMe = currentMessage.sendBy == _userView.user.userId;
+      currentMessage.fromMe = fromMe;
 
-      currentMessage.ownerUsername = fromMe
-          ? _userView.user.userName
-          : _chatView.interlocutorUser.userName;
-
-      if (currentMessage.markedMessage != null) {
-        bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
-
-        currentMessage.markedMessage.ownerImageUrl = markedFromMe
+      if (_chatView.groupType == 'Private') {
+        currentMessage.ownerImageUrl = fromMe
             ? _userView.user.userProfilePhotoUrl
             : _chatView.interlocutorUser.userProfilePhotoUrl;
 
-        currentMessage.markedMessage.ownerUsername = markedFromMe
+        currentMessage.ownerUsername = fromMe
             ? _userView.user.userName
             : _chatView.interlocutorUser.userName;
+
+        if (currentMessage.markedMessage != null) {
+          bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
+
+          currentMessage.markedMessage.ownerImageUrl = markedFromMe
+              ? _userView.user.userProfilePhotoUrl
+              : _chatView.interlocutorUser.userProfilePhotoUrl;
+
+          currentMessage.markedMessage.ownerUsername = markedFromMe
+              ? _userView.user.userName
+              : _chatView.interlocutorUser.userName;
+        }
       }
-    }
 
-    bool selected = selectedMessagesList.map((e) => e.messageId).contains(currentMessage.messageId);
+      bool selected = selectedMessagesList.map((e) => e.messageId).contains(currentMessage.messageId);
 
-    return Dismissible(
-        key: Key(currentMessage.messageId),
-        direction: DismissDirection.startToEnd,
-        // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
-        confirmDismiss: (direction) async {
-          _messageCreatorState.currentState
-              .setMarkedMessage(MessageMarked(
-            message: currentMessage,
-            mainAxisSize: MainAxisSize.max,
-            forwardCancel: () {
-              _messageCreatorState.currentState.setMarkedMessage(null);
-              markedMessage = null;
-            },
-          ));
-
-          markedMessage = currentMessage;
-          return false;
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: selected ? Colors.black.withOpacity(0.3) : Colors.transparent,
-          ),
-
-          child: InkWell(
-            onLongPress: () {
-              if (selected) {
-                setState(() {
-                  selectedMessagesList.removeWhere((message) => message.messageId == currentMessage.messageId);
-                });
-
-                if (selectedMessagesList.length == 0) _appbarWidgetState.currentState.operationCancel();
-              } else {
-                setState(() {
-                  selectedMessagesList.add(currentMessage);
-                });
-
-                _appbarWidgetState.currentState
-                    .operationOpen();
-              }
-            },
-
-            child: MessageBubble(
+      return Dismissible(
+          key: Key(currentMessage.messageId),
+          direction: DismissDirection.startToEnd,
+          // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
+          confirmDismiss: (direction) async {
+            _messageCreatorState.currentState
+                .setMarkedMessage(MessageMarked(
               message: currentMessage,
-              color: currentMessage.fromMe
-                  ? Theme.of(context).primaryColor.withOpacity(0.8)
-                  : Colors.grey.shade300.withOpacity(0.8),
+              mainAxisSize: MainAxisSize.max,
+              forwardCancel: () {
+                _messageCreatorState.currentState.setMarkedMessage(null);
+                markedMessage = null;
+              },
+            ));
+
+            markedMessage = currentMessage;
+            return false;
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: selected ? Colors.black.withOpacity(0.3) : Colors.transparent,
             ),
-          ),
-        )
-    );
+
+            child: InkWell(
+              onLongPress: () {
+                if (selected) {
+                  setState(() {
+                    selectedMessagesList.removeWhere((message) => message.messageId == currentMessage.messageId);
+                  });
+
+                  if (selectedMessagesList.length == 0) _appbarWidgetState.currentState.operationCancel();
+                } else {
+                  setState(() {
+                    selectedMessagesList.add(currentMessage);
+                  });
+
+                  _appbarWidgetState.currentState
+                      .operationOpen();
+                }
+              },
+
+              child: MessageBubble(
+                message: currentMessage,
+                color: currentMessage.fromMe
+                    ? Theme.of(context).primaryColor.withOpacity(0.8)
+                    : Colors.grey.shade300.withOpacity(0.8),
+              ),
+            ),
+          )
+      );
+
+    } else {
+      UserModel systemUser = _chatView.users.firstWhere((user) => user.userId == currentMessage.sendBy);
+
+      return ContainerRow(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            margin: EdgeInsets.symmetric(vertical: 3),
+
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor.withGreen(120),
+              borderRadius: BorderRadius.circular(10)
+            ),
+            child: Text(systemUser.userName + ': '  +currentMessage.message, textAlign: TextAlign.center),
+          )
+        ],
+      );
+
+    }
   }
 
 

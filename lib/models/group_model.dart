@@ -8,6 +8,7 @@ class GroupModel {
 
   String groupId;
   String groupName;
+  String groupStatement;
   String groupType;
   String groupImageUrl;
 
@@ -36,6 +37,7 @@ class GroupModel {
   GroupModel.plural({
     this.groupId,
     this.groupName,
+    this.groupStatement,
     this.groupType,
     this.groupImageUrl,
     this.members,
@@ -52,6 +54,7 @@ class GroupModel {
     return {
       'groupId': groupId,
       'groupName': groupName,
+      'groupStatement': groupStatement,
       'groupType': groupType,
       'groupImageUrl': groupImageUrl ?? 'https://img.webme.com/pic/c/creative-blog/users_black.png',
 
@@ -70,6 +73,7 @@ class GroupModel {
   GroupModel.fromMapPlural(Map<String, dynamic> map) :
         groupId = map['groupId'],
         groupName = map['groupName'],
+        groupStatement = map['groupStatement'],
         groupType = map['groupType'],
         groupImageUrl = map['groupImageUrl'],
         members = map['members'],
@@ -116,6 +120,7 @@ class GroupModel {
     return 'GroupModel{'
         'groupId: $groupId, '
         'groupName: $groupName, '
+        'groupStatement: $groupStatement, '
         'groupType: $groupType, '
         'groupImageUrl: $groupImageUrl, '
         'members: $members, '

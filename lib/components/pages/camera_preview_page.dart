@@ -10,6 +10,7 @@ import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/file_preview.dart';
+import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
 
@@ -171,9 +172,16 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                     popControl();
                   },
                   appBarType: 'Chat',
-                  titleImageUrl: _chatView.groupType == 'Private'
-                      ? _chatView.interlocutorUser.userProfilePhotoUrl
-                      : _chatView.selectedChat.groupImageUrl,
+                  titleImage: ImageWidget(
+                    imageWidth: 50,
+                    imageHeight: 50,
+                    backgroundShape: BoxShape.circle,
+                    image: NetworkImage(
+                      _chatView.groupType == 'Private'
+                          ? _chatView.interlocutorUser.userProfilePhotoUrl
+                          : _chatView.selectedChat.groupImageUrl,
+                    ),
+                  ),
                   titleText: _chatView.groupType == 'Private'
                       ? _chatView.interlocutorUser.userName
                       : _chatView.selectedChat.groupName,

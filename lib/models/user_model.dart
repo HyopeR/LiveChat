@@ -9,8 +9,9 @@ class UserModel {
   String userName;
   String userEmail;
   String userProfilePhotoUrl;
+  String userWallpaper;
 
-  List<dynamic> contacts;
+  // List<dynamic> contacts;
   List<dynamic> groups;
 
   Timestamp lastSeen;
@@ -28,8 +29,9 @@ class UserModel {
       'userName': userName ?? 'User ' +  String.fromCharCodes(List.generate(10, (index) => r.nextInt(33) + 89)),
       'userEmail': userEmail,
       'userProfilePhotoUrl': userProfilePhotoUrl ?? 'https://img.webme.com/pic/c/creative-blog/user_black.png',
+      'userWallpaper': userWallpaper ?? '',
 
-      'contacts': contacts ?? [],
+      // 'contacts': contacts ?? [],
       'groups': groups ?? [],
 
       'lastSeen': lastSeen ?? FieldValue.serverTimestamp(),
@@ -45,7 +47,8 @@ class UserModel {
       userName = map['userName'],
       userEmail = map['userEmail'],
       userProfilePhotoUrl = map['userProfilePhotoUrl'],
-      contacts = map['contacts'],
+        userWallpaper = map['userWallpaper'],
+      // contacts = map['contacts'],
       groups = map['groups'],
       lastSeen = map['lastSeen'],
       online = map['online'],
@@ -59,7 +62,8 @@ class UserModel {
         'userName: $userName, '
         'userEmail: $userEmail, '
         'userProfilePhotoUrl: $userProfilePhotoUrl, '
-        'contacts: $contacts, '
+        'userWallpaper: $userWallpaper, '
+        // 'contacts: $contacts, '
         'groups: $groups, '
         'lastSeen: $lastSeen, '
         'online: $online, '

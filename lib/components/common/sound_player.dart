@@ -60,7 +60,7 @@ class _SoundPlayerState extends State<SoundPlayer> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ImageWidget(
-          imageUrl: widget.imageUrl,
+          image: NetworkImage(widget.imageUrl),
           imageWidth: 60,
           imageHeight: 60,
           backgroundShape: BoxShape.circle,

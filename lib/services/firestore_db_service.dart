@@ -86,34 +86,58 @@ class FireStoreDbService implements DbBase {
     return true;
   }
 
+  // @override
+  // Future<List<UserModel>> searchUsers(String userName) async {
+  //   QuerySnapshot usersQuery;
+  //
+  //   if(userName.trim().length > 0) {
+  //     usersQuery = await _fireStore.collection('users').orderBy('userName').startAt([userName]).endAt([userName]).get();
+  //   } else {
+  //     usersQuery = await _fireStore.collection('users').get();
+  //   }
+  //
+  //   List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
+  //   return users;
+  // }
+  //
+  // @override
+  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+  //   List<dynamic> whereList = contactsIdList;
+  //   if(contactsIdList.length < 1)
+  //     whereList.add('EmptyId');
+  //
+  //   Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')
+  //       .where('userId', whereIn: contactsIdList)
+  //       .snapshots();
+  //
+  //   return contactsQuery.map((contacts) => contacts.docs
+  //       .map((contact) => UserModel.fromMap(contact.data()))
+  //       .toList());
+  // }
+  //
+  // @override
+  // Future<bool> addContact(String userId, String interlocutorUserId) async {
+  //   await _fireStore.collection('users').doc(userId).update({
+  //     'contacts': FieldValue.arrayUnion([interlocutorUserId]),
+  //   });
+  //
+  //   await _fireStore.collection('users').doc(interlocutorUserId).update({
+  //     'contacts': FieldValue.arrayUnion([userId]),
+  //   });
+  //
+  //   return true;
+  // }
+
   @override
-  Future<List<UserModel>> searchUsers(String userName) async {
-    QuerySnapshot usersQuery;
-
-    if(userName.trim().length > 0) {
-      usersQuery = await _fireStore.collection('users').orderBy('userName').startAt([userName]).endAt([userName]).get();
-    } else {
-      usersQuery = await _fireStore.collection('users').get();
-    }
-
-    List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
-    return users;
-  }
-
-  @override
-  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
-    List<dynamic> whereList = contactsIdList;
-    if(contactsIdList.length < 1)
-      whereList.add('EmptyId');
-
+  Stream<List<UserModel>> getAllUsers() {
     Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')
-        .where('userId', whereIn: contactsIdList)
         .snapshots();
 
     return contactsQuery.map((contacts) => contacts.docs
         .map((contact) => UserModel.fromMap(contact.data()))
         .toList());
   }
+
 
   @override
   Stream<List<GroupModel>> getAllGroups(String userId) {
@@ -145,6 +169,7 @@ class FireStoreDbService implements DbBase {
 
     QuerySnapshot groupQuery = await _fireStore.collection('groups')
         .where('members', isEqualTo: userIdList)
+        .where('groupType', isEqualTo: 'Private')
         .get();
 
     // Grup varsa var olanı döndürür.
@@ -215,11 +240,18 @@ class FireStoreDbService implements DbBase {
 
     // Son mesajı gruba kaydetme sırasında aynı zamanda mesajı gönderen kişinin seen message alanını ve
     // total message alanlarını 1 arttırıyoruz.
-    await _fireStore.collection('groups').doc(groupId).update({
-      'recentMessage': messageMap,
-      'totalMessage': FieldValue.increment(1),
-      'actions.${messageOwner.userId}.seenMessage': FieldValue.increment(1)
-    });
+
+    if(message.messageType != 'System') {
+      await _fireStore.collection('groups').doc(groupId).update({
+        'recentMessage': messageMap,
+        'totalMessage': FieldValue.increment(1),
+        'actions.${messageOwner.userId}.seenMessage': FieldValue.increment(1)
+      });
+    } else {
+      await _fireStore.collection('groups').doc(groupId).update({
+        'recentMessage': messageMap,
+      });
+    }
 
     return true;
   }
@@ -248,19 +280,6 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Future<bool> addContact(String userId, String interlocutorUserId) async {
-    await _fireStore.collection('users').doc(userId).update({
-      'contacts': FieldValue.arrayUnion([interlocutorUserId]),
-    });
-
-    await _fireStore.collection('users').doc(interlocutorUserId).update({
-      'contacts': FieldValue.arrayUnion([userId]),
-    });
-
-    return true;
-  }
-
-  @override
   Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
     await _fireStore.collection('groups').doc(groupId).update({
       'actions.$userId.action': actionCode
@@ -284,6 +303,40 @@ class FireStoreDbService implements DbBase {
     Stream<DocumentSnapshot> userDoc =  _fireStore.collection('users').doc(userId).snapshots();
 
     return userDoc.map((user) => UserModel.fromMap(user.data()));
+  }
+
+  @override
+  Future<String> createGroupId() async {
+    String groupId = _fireStore.collection('groups').doc().id;
+    return groupId;
+  }
+
+  @override
+  Future<GroupModel> createGroup(UserModel user, GroupModel group) async {
+    // Grupta olacak her bir user için okunmamış mesaj değerlerini tutacak bir map yapısı oluşturuyoruz.
+    Map<String, Map<String, dynamic>> actions = {};
+    group.members.forEach((userId) => actions[userId] = {'seenMessage': 0, 'action': 0});
+
+    GroupModel createdGroup = group;
+    createdGroup.actions = actions;
+
+    createdGroup.members.forEach((userId) {
+      DocumentReference userReference = _fireStore.collection('users').doc(userId);
+      userReference.update({
+        'groups': FieldValue.arrayUnion([createdGroup.groupId])
+      });
+    });
+
+    MessageModel systemMessage = MessageModel(
+      sendBy: user.userId,
+      message: 'Grup oluşturuldu.',
+      messageType: 'System'
+    );
+
+    await _fireStore.collection('groups').doc(createdGroup.groupId).set(createdGroup.toMapPlural());
+    await saveMessage(systemMessage, user, createdGroup.groupId);
+
+    return group;
   }
 
 }

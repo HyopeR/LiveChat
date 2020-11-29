@@ -76,7 +76,7 @@ class MessageMarked extends StatelessWidget {
 
               children: [
                 ImageWidget(
-                  imageUrl: message.attach,
+                  image: NetworkImage(message.attach),
                   imageHeight: 45,
                   imageWidth: 45,
                   imageFit: BoxFit.cover,

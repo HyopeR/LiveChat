@@ -99,9 +99,7 @@ class _ChatsPageState extends State<ChatsPage> {
     switch (currentChat.recentMessage.messageType) {
       case ('Text'):
         return [
-          currentChat.groupType == 'Private'
-              ? Container()
-              : Text('${currentChat.recentMessage.ownerUsername}: '),
+          Text('${currentChat.recentMessage.ownerUsername}: '),
 
           Flexible(
             child: Text(
@@ -114,9 +112,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
       case ('Image'):
         return [
-          currentChat.groupType == 'Private'
-              ? Container()
-              : Text('${currentChat.recentMessage.ownerUsername}: '),
+          Text('${currentChat.recentMessage.ownerUsername}: '),
           Icon(Icons.image, size: 20),
           Text('Görüntü')
         ];
@@ -124,11 +120,23 @@ class _ChatsPageState extends State<ChatsPage> {
 
       case ('Voice'):
         return [
-          currentChat.groupType == 'Private'
-              ? Container()
-              : Text('${currentChat.recentMessage.ownerUsername}: '),
+          Text('${currentChat.recentMessage.ownerUsername}: '),
           Icon(Icons.mic, size: 20),
           Text('Ses kaydı')
+        ];
+        break;
+
+      case ('System'):
+        return [
+          Icon(Icons.assignment_late_outlined),
+          Text('${currentChat.recentMessage.ownerUsername}: '),
+
+          Flexible(
+            child: Text(
+              currentChat.recentMessage.message,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )
         ];
         break;
 
@@ -229,12 +237,11 @@ class _ChatsPageState extends State<ChatsPage> {
                 ).show(context);
               },
               child: ImageWidget(
-                imageUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+                image: NetworkImage(currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl),
                 imageWidth: 75,
                 imageHeight: 75,
                 backgroundShape: BoxShape.circle,
-                backgroundColor:
-                Colors.grey.withOpacity(0.3),
+                backgroundColor: Colors.grey.withOpacity(0.3),
               ),
             ),
             trailing: ContainerColumn(
@@ -276,8 +283,9 @@ class _ChatsPageState extends State<ChatsPage> {
                   ? [Text(controlActionUser.userName + ' ' + controlAction)]
                   : currentChat.recentMessage != null
                     ? showMessageText(currentChat)
-                    : [Text('Yükleniyor...')],
-            )),
+                    : [Text('Mesaj yok.')],
+            )
+        ),
       ),
     );
 

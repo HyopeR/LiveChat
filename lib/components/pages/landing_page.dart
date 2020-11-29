@@ -66,7 +66,8 @@ class _LandingPageState extends State<LandingPage> {
     } else {
       UserModel user = await _userView.streamCurrentUser(_userView.user.userId).first;
       await _userView.loginUpdate(user.userId);
-      _chatView.contacts = await _chatView.getAllContacts(user.contacts).first;
+      await _chatView.getAllUsers().first;
+      // _chatView.contacts = await _chatView.getAllContacts(user.contacts).first;
       await _chatView.getAllGroups(user.userId).first;
 
       Future.delayed(

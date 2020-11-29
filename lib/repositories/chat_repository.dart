@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:live_chat/locator.dart';
 import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/message_model.dart';
@@ -14,12 +15,16 @@ class ChatRepository {
   FirebaseStorageService _firebaseStorageService = locator<FirebaseStorageService>();
   VoiceRecordService _voiceRecordService = locator<VoiceRecordService>();
 
-  Future<List<UserModel>> searchUsers(String userName) async {
-    return _fireStoreDbService.searchUsers(userName);
-  }
+  // Future<List<UserModel>> searchUsers(String userName) async {
+  //   return _fireStoreDbService.searchUsers(userName);
+  // }
+  //
+  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+  //   return _fireStoreDbService.getAllContacts(contactsIdList);
+  // }
 
-  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
-    return _fireStoreDbService.getAllContacts(contactsIdList);
+  Stream<List<UserModel>> getAllUsers() {
+    return _fireStoreDbService.getAllUsers();
   }
 
   Stream<List<GroupModel>> getAllGroups(String userId) {
@@ -38,6 +43,10 @@ class ChatRepository {
     return _fireStoreDbService.saveMessage(message, messageOwner, groupId);
   }
 
+  Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
+    return _fireStoreDbService.messagesMarkAsSeen(userId, groupId, totalMessage);
+  }
+
   Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
     return _fireStoreDbService.updateMessageAction(actionCode, userId, groupId);
   }
@@ -50,16 +59,12 @@ class ChatRepository {
     return _fireStoreDbService.streamOneUser(userId);
   }
 
-  void recordStart() async {
-    return _voiceRecordService.recordStart();
+  Future<String> createGroupId() async {
+    return _fireStoreDbService.createGroupId();
   }
 
-  Future<File> recordStop() async {
-    return _voiceRecordService.recordStop();
-  }
-
-  Future<bool> clearStorage() async {
-    return _voiceRecordService.clearStorage();
+  Future<GroupModel> createGroup(UserModel user, GroupModel group) async {
+    return _fireStoreDbService.createGroup(user, group);
   }
 
   Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
@@ -70,8 +75,20 @@ class ChatRepository {
     return _firebaseStorageService.uploadImage(groupId, fileType, file);
   }
 
-  Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
-    return _fireStoreDbService.messagesMarkAsSeen(userId, groupId, totalMessage);
+  Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
+    return _firebaseStorageService.uploadGroupPhoto(groupId, fileType, file);
+  }
+
+  void recordStart() async {
+    return _voiceRecordService.recordStart();
+  }
+
+  Future<File> recordStop() async {
+    return _voiceRecordService.recordStop();
+  }
+
+  Future<bool> clearStorage() async {
+    return _voiceRecordService.clearStorage();
   }
 
 }

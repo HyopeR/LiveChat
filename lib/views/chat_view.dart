@@ -16,7 +16,7 @@ class ChatView with ChangeNotifier {
 
   ChatRepository _chatRepo = locator<ChatRepository>();
 
-  List<UserModel> contacts;
+  List<UserModel> users;
   UserModel interlocutorUser;
 
   List<GroupModel> _groups;
@@ -40,7 +40,7 @@ class ChatView with ChangeNotifier {
   }
 
   Future<bool> clearState() async {
-    contacts = List<UserModel>();
+    users = List<UserModel>();
     _groups = List<GroupModel>();
     _messages = List<MessageModel>();
     groupType = null;
@@ -53,7 +53,7 @@ class ChatView with ChangeNotifier {
 
 
   UserModel selectChatUser(String userId) {
-    UserModel user = contacts.where((user) => user.userId == userId).first;
+    UserModel user = users.where((user) => user.userId == userId).first;
     return user;
   }
 
@@ -92,24 +92,37 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Future<List<UserModel>> searchUsers(String userName) async {
-    try{
-      return _chatRepo.searchUsers(userName);
-    } catch(err) {
-      print('searchUsers Error: ${err.toString()}');
-      return null;
-    }
-  }
+  // Future<List<UserModel>> searchUsers(String userName) async {
+  //   try{
+  //     return _chatRepo.searchUsers(userName);
+  //   } catch(err) {
+  //     print('searchUsers Error: ${err.toString()}');
+  //     return null;
+  //   }
+  // }
+  //
+  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+  //   try{
+  //     _chatRepo.getAllContacts(contactsIdList).listen((contactsData) {
+  //       contacts = contactsData;
+  //     });
+  //
+  //     return _chatRepo.getAllContacts(contactsIdList);
+  //   }catch(err) {
+  //     print('getAllContacts Error: ${err.toString()}');
+  //     return null;
+  //   }
+  // }
 
-  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+  Stream<List<UserModel>> getAllUsers() {
     try{
-      _chatRepo.getAllContacts(contactsIdList).listen((contactsData) {
-        contacts = contactsData;
+      _chatRepo.getAllUsers().listen((usersData) {
+        users = usersData;
       });
 
-      return _chatRepo.getAllContacts(contactsIdList);
+      return _chatRepo.getAllUsers();
     }catch(err) {
-      print('getAllContacts Error: ${err.toString()}');
+      print('getAllUsers Error: ${err.toString()}');
       return null;
     }
   }
@@ -117,6 +130,10 @@ class ChatView with ChangeNotifier {
   Stream<List<GroupModel>> getAllGroups(String userId) {
     try{
       _chatRepo.getAllGroups(userId).listen((groupData) {
+        groupData.forEach((element) {
+          print(element.toString());
+        });
+
         // Eğer bir chat sayfasında değilsek selectedChat boş oluyor. Dolayısıyla eğerki biz bir chat sayfasındaysak
         // ve o group içerisinde yeni bir mesaj atılmış ise bunu buradan dinleyerek gördüğümüz mesajı database'e görüldü
         // olarak anlatmak amacıyla kendi gördüğümüz mesaj sayısını arttırıyoruz.
@@ -200,6 +217,14 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
+    try{
+      return _chatRepo.uploadGroupPhoto(groupId, fileType, file);
+    }catch(err) {
+      print('uploadGroupPhoto Error: ${err.toString()}');
+      return null;
+    }
+  }
 
   Stream<GroupModel> streamOneGroup(String groupId) {
     try{
@@ -215,6 +240,25 @@ class ChatView with ChangeNotifier {
       return _chatRepo.streamOneUser(userId);
     }catch(err) {
       print('streamOneUser Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+  Future<String> createGroupId() async {
+    try{
+      return _chatRepo.createGroupId();
+    }catch(err) {
+      print('createGroup Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+
+  Future<GroupModel> createGroup(UserModel user, GroupModel group) async {
+    try{
+      return _chatRepo.createGroup(user, group);
+    }catch(err) {
+      print('createGroup Error: ${err.toString()}');
       return null;
     }
   }

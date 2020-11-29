@@ -16,7 +16,7 @@ class UserView with ChangeNotifier implements AuthBase {
   UserModel _user;
   UserModel interlocutorUser;
 
-  List<dynamic> contactsIdList;
+  // List<dynamic> contactsIdList;
 
   String emailErrorMessage;
   String passwordErrorMessage;
@@ -30,9 +30,9 @@ class UserView with ChangeNotifier implements AuthBase {
     notifyListeners();
   }
 
-  bool searchUserInContacts(String userId) {
-    return contactsIdList.contains(userId);
-  }
+  // bool searchUserInContacts(String userId) {
+  //   return contactsIdList.contains(userId);
+  // }
 
   @override
   Future<UserModel> getCurrentUser() async {
@@ -59,7 +59,7 @@ class UserView with ChangeNotifier implements AuthBase {
 
     try{
       _userRepo.streamCurrentUser(userId).listen((user) {
-        contactsIdList = user.contacts;
+        // contactsIdList = user.contacts;
         _user = user;
       });
       return _userRepo.streamCurrentUser(userId);
@@ -94,7 +94,7 @@ class UserView with ChangeNotifier implements AuthBase {
     try{
       state = UserViewState.Busy;
       _user = null;
-      contactsIdList = null;
+      // contactsIdList = null;
       bool result = await _userRepo.signOut();
       return result;
 
@@ -256,14 +256,14 @@ class UserView with ChangeNotifier implements AuthBase {
 
   }
 
-  Future<bool> addContact(String userId, String interlocutorUserId) async {
-    try{
-      return _userRepo.addContact(userId, interlocutorUserId);
-    } catch(err) {
-      print('addContact Error: ${err.toString()}');
-      return null;
-    }
-  }
+  // Future<bool> addContact(String userId, String interlocutorUserId) async {
+  //   try{
+  //     return _userRepo.addContact(userId, interlocutorUserId);
+  //   } catch(err) {
+  //     print('addContact Error: ${err.toString()}');
+  //     return null;
+  //   }
+  // }
 
 
   Future<void> loginUpdate(String userId) async {

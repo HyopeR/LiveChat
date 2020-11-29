@@ -12,7 +12,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 
   final String titleText;
   final String subTitleText;
-  final String titleImageUrl;
+  final ImageWidget titleImage;
 
   final Color textColor;
   final Color backgroundColor;
@@ -29,7 +29,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
     this.onOperationCancel,
     this.titleText,
     this.subTitleText,
-    this.titleImageUrl,
+    this.titleImage,
     this.textColor : Colors.black,
     this.backgroundColor : Colors.amber,
     this.brightness : Brightness.light,
@@ -49,6 +49,13 @@ class AppbarWidgetState extends State<AppbarWidget> {
   bool operation = false;
   Color operationColor = Color(0xFFe7ad01);
   String subTitle;
+  String title;
+
+  void updateTitle(String text) {
+    setState(() {
+      title = text;
+    });
+  }
 
   void updateSubtitle(String text) {
     setState(() {
@@ -73,6 +80,9 @@ class AppbarWidgetState extends State<AppbarWidget> {
     super.initState();
     if(widget.subTitleText != null)
       subTitle = widget.subTitleText;
+
+    if(widget.titleText != null)
+      title = widget.titleText;
   }
 
   @override
@@ -116,12 +126,13 @@ class AppbarWidgetState extends State<AppbarWidget> {
               Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
               color: widget.textColor,
             ),
-            ImageWidget(
-              imageUrl: widget.titleImageUrl,
-              imageWidth: 50,
-              imageHeight: 50,
-              backgroundShape: BoxShape.circle,
-            ),
+            widget.titleImage
+            // ImageWidget(
+            //   image: ,
+            //   imageWidth: 50,
+            //   imageHeight: 50,
+            //   backgroundShape: BoxShape.circle,
+            // ),
           ],
         ),
       ),
@@ -133,7 +144,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              Text(widget.titleText, style: TextStyle(color: widget.textColor)),
+              Text(title, style: TextStyle(color: widget.textColor)),
               subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 11, color: widget.textColor.withOpacity(0.7))) : Container(),
             ],
           ),
@@ -145,7 +156,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
 
   Widget backDefaultAppBar() {
     return AppBar(
-      brightness: Brightness.dark,
+      brightness: widget.brightness,
       centerTitle: false,
       elevation: 0,
       leading: InkWell(
@@ -153,7 +164,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
         child: Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios, color: widget.textColor),
       ),
       backgroundColor: widget.backgroundColor,
-      title: Text(widget.titleText, style: TextStyle(color: widget.textColor)),
+      title: Text(title, style: TextStyle(color: widget.textColor)),
       actions: widget.actions,
     );
   }
@@ -164,7 +175,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
       centerTitle: false,
       elevation: 0,
       backgroundColor: widget.backgroundColor,
-      title: Text(widget.titleText, style: TextStyle(color: widget.textColor)),
+      title: Text(title, style: TextStyle(color: widget.textColor)),
       actions: widget.actions,
     );
   }

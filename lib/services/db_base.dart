@@ -14,10 +14,14 @@ abstract class DbBase {
   Future<bool> updateUserName(String userId, String userName);
   Future<bool> updateProfilePhoto(String userId, String photoUrl);
 
-  Future<List<UserModel>> searchUsers(String userName);
-  Future<bool> addContact(String userId, String interlocutorUserId);
+  // User'lar kendi içerisinde bir ilişki kurulmadığı için şunada bu alanlar kullanılmıyor.
+  // Gerekli olan kodlar baypas edilmiş şekilde projede durmakta.
 
-  Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList);
+  // Future<List<UserModel>> searchUsers(String userName);
+  // Future<bool> addContact(String userId, String interlocutorUserId);
+  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList);
+
+  Stream<List<UserModel>> getAllUsers();
   Stream<List<GroupModel>> getAllGroups(String userId);
   Stream<List<MessageModel>> getMessages(String groupId);
 
@@ -30,6 +34,10 @@ abstract class DbBase {
   // Mesaj kayıt işlemi.
   Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId);
   Future<void> updateMessageAction(int actionCode, String userId, String groupId); // 0 eylemde değil, 1 yazıyor, 2 ses kaydediyor.
+
+  // Grup oluşturma işlemi.
+  Future<String> createGroupId();
+  Future<GroupModel> createGroup(UserModel user, GroupModel group);
 
   // Görülen mesajlara göre sayaç arttırılması.
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage);

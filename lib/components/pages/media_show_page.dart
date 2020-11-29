@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/zoomable_widget.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/services/operation_service.dart';
@@ -113,9 +114,15 @@ class _MediaShowPageState extends State<MediaShowPage> {
                       Navigator.pop(context);
                     },
                     appBarType: 'Chat',
-                    titleImageUrl: _chatView.groupType == 'Private'
-                        ? _chatView.interlocutorUser.userProfilePhotoUrl
-                        : _chatView.selectedChat.groupImageUrl,
+
+                    titleImage: ImageWidget(
+                        imageWidth: 50,
+                        imageHeight: 50,
+                        backgroundShape: BoxShape.circle,
+                        image: NetworkImage(_chatView.groupType == 'Private'
+                          ? _chatView.interlocutorUser.userProfilePhotoUrl
+                          : _chatView.selectedChat.groupImageUrl)
+                    ),
                     titleText: _chatView.groupType == 'Private'
                         ? _chatView.interlocutorUser.userName
                         : _chatView.selectedChat.groupName,

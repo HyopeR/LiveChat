@@ -4,7 +4,7 @@ class ImageWidget extends StatefulWidget {
   final double imageWidth;
   final double imageHeight;
   final BoxFit imageFit;
-  final String imageUrl;
+  final ImageProvider<Object> image;
 
   final double backgroundPadding;
   final BoxShape backgroundShape;
@@ -16,7 +16,7 @@ class ImageWidget extends StatefulWidget {
     this.imageWidth : 100,
     this.imageHeight : 100,
     this.imageFit : BoxFit.contain,
-    this.imageUrl,
+    this.image,
     this.backgroundPadding : 5,
     this.backgroundShape : BoxShape.rectangle,
     this.backgroundRadius,
@@ -69,7 +69,7 @@ class ImageWidgetState extends State<ImageWidget> {
                   color: widget.backgroundColor,
                   image: DecorationImage(
                       fit: widget.imageFit,
-                      image: NetworkImage(widget.imageUrl)
+                      image: widget.image
                   )
                 )
 
@@ -78,7 +78,7 @@ class ImageWidgetState extends State<ImageWidget> {
                   color: widget.backgroundColor,
                   image: DecorationImage(
                       fit: widget.imageFit,
-                      image: NetworkImage(widget.imageUrl)
+                      image: widget.image
                   )
                 ),
           )

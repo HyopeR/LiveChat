@@ -129,9 +129,9 @@ class UserRepository implements AuthBase{
     return fileUploadComplete ? fileUrl : null;
   }
 
-  Future<bool> addContact(String userId, String interlocutorUserId) async {
-    return _fireStoreDbService.addContact(userId, interlocutorUserId);
-  }
+  // Future<bool> addContact(String userId, String interlocutorUserId) async {
+  //   return _fireStoreDbService.addContact(userId, interlocutorUserId);
+  // }
 
   Future<void> loginUpdate(String userId) async {
     return _fireStoreDbService.loginUpdate(userId);

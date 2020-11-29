@@ -99,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           },
                                           child: ImageWidget(
                                             key: _imageWidgetState,
-                                            imageUrl: _userView.user.userProfilePhotoUrl,
+                                            image: NetworkImage(_userView.user.userProfilePhotoUrl),
                                             backgroundShape: BoxShape.circle,
                                             backgroundColor:
                                                 Colors.grey.withOpacity(0.3),

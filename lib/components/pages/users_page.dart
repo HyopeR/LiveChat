@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/custom_bottom_navigation.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
+import 'package:live_chat/components/pages/create_group_page.dart';
 import 'package:live_chat/components/pages/profile_photo_show_page.dart';
-import 'package:live_chat/components/pages/search_user_page.dart';
 import 'package:live_chat/components/pages/user_preview_page.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
@@ -23,10 +24,11 @@ class _UsersPageState extends State<UsersPage> {
   UserView _userView;
   ChatView _chatView;
 
+  GlobalKey<CustomBottomNavigationState> _customBottomNavigationState = GlobalKey();
   GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
 
   List<UserModel> users;
-  List<String> selectedUserIdList = List<String>();
+  List<UserModel> selectedUserList = List<UserModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,20 +39,21 @@ class _UsersPageState extends State<UsersPage> {
         appBar: AppbarWidget(
           key: _appbarWidgetState,
           titleText: 'Live Chat',
-          actions: [
-            FlatButton(
-                minWidth: 50,
-                child: Icon(Icons.search),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchUserPage())).then((updatedContacts) {
-                      if(updatedContacts)
-                        setState(() {});
-                })
-            )
-          ],
+          // actions: [
+          //   FlatButton(
+          //       minWidth: 50,
+          //       child: Icon(Icons.search),
+          //       onPressed: () => Navigator.of(context, rootNavigator: false)
+          //           .push(MaterialPageRoute(builder: (context) => SearchUserPage())).then((updatedContacts) {
+          //         if(updatedContacts)
+          //           setState(() {});
+          //       })
+          //   )
+          // ],
           operationActions: createOperationActions(),
           onOperationCancel: () {
             setState(() {
-              selectedUserIdList.clear();
+              selectedUserList.clear();
             });
           },
         ),
@@ -59,7 +62,7 @@ class _UsersPageState extends State<UsersPage> {
             if (_appbarWidgetState.currentState.operation) {
               _appbarWidgetState.currentState.operationCancel();
               setState(() {
-                selectedUserIdList.clear();
+                selectedUserList.clear();
               });
             }
 
@@ -72,7 +75,7 @@ class _UsersPageState extends State<UsersPage> {
                 TitleArea(titleText: 'Kişilerim', icon: Icons.people),
                 Expanded(
                   child: StreamBuilder<List<UserModel>>(
-                    stream: _chatView.getAllContacts(_userView.contactsIdList),
+                    stream: _chatView.getAllUsers(),
                     builder: (context, streamData) {
 
                       if (streamData.hasData) {
@@ -127,7 +130,7 @@ class _UsersPageState extends State<UsersPage> {
 
   Widget createItem(int index) {
     UserModel currentUser = users[index];
-    bool selected = selectedUserIdList.contains(currentUser.userId);
+    bool selected = selectedUserList.map((user) => user.userId).contains(currentUser.userId);
 
     if ((currentUser.userId != _userView.user.userId)) {
       return Container(
@@ -153,14 +156,14 @@ class _UsersPageState extends State<UsersPage> {
           onLongPress: () {
             if (selected) {
               setState(() {
-                selectedUserIdList.removeWhere((userId) => userId == currentUser.userId);
+                selectedUserList.removeWhere((user) => user.userId == currentUser.userId);
               });
 
-              if (selectedUserIdList.length == 0)
+              if (selectedUserList.length == 0)
                 _appbarWidgetState.currentState.operationCancel();
             } else {
               setState(() {
-                selectedUserIdList.add(currentUser.userId);
+                selectedUserList.add(currentUser);
               });
 
               _appbarWidgetState.currentState.operationOpen();
@@ -197,12 +200,11 @@ class _UsersPageState extends State<UsersPage> {
                 ).show(context);
               },
               child: ImageWidget(
-                imageUrl: currentUser.userProfilePhotoUrl,
+                image: NetworkImage(currentUser.userProfilePhotoUrl),
                 imageWidth: 75,
                 imageHeight: 75,
                 backgroundShape: BoxShape.circle,
-                backgroundColor:
-                Colors.grey.withOpacity(0.3),
+                backgroundColor: currentUser.online ? Colors.green.withOpacity(0.5) : Colors.grey.withOpacity(0.3),
               ),
             ),
             title: Text(currentUser.userName),
@@ -217,7 +219,7 @@ class _UsersPageState extends State<UsersPage> {
 
   List<Widget> createOperationActions() {
     return [
-      selectedUserIdList.length > 0
+      selectedUserList.length > 0
           ? Container(
               alignment: Alignment.center,
               width: 50,
@@ -227,31 +229,40 @@ class _UsersPageState extends State<UsersPage> {
                     color: Colors.black.withOpacity(0.1),
                   ),
                   padding: EdgeInsets.all(5),
-                  child: Text(selectedUserIdList.length.toString(),
+                  child: Text(selectedUserList.length.toString(),
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 20))))
           : Container(),
 
-      selectedUserIdList.length == 1
+      selectedUserList.length == 1
           ? FlatButton(
               minWidth: 50,
               child: Icon(Icons.remove_red_eye),
               onPressed: () {
                 _chatView.findChatByUserIdList([
                   _userView.user.userId,
-                  selectedUserIdList[0]
+                  selectedUserList[0].userId
                 ]);
 
-                _chatView.interlocutorUser = _chatView.selectChatUser(selectedUserIdList[0]);
+                _chatView.interlocutorUser = _chatView.selectChatUser(selectedUserList[0].userId);
                 _chatView.groupType = 'Private';
 
                 _appbarWidgetState.currentState.operationCancel();
-                selectedUserIdList.clear();
+                selectedUserList.clear();
                 Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
               })
           : Container(),
 
-      FlatButton(minWidth: 50, child: Text('Yeni Grup'), onPressed: () {})
+      FlatButton(minWidth: 50, child: Text('Yeni Grup'), onPressed: () {
+        Navigator.of(context, rootNavigator: true)
+            .push(MaterialPageRoute(builder: (context) => CreateGroupPage(selectedUserList: selectedUserList))).then((value) {
+              setState(() {
+                selectedUserList.clear();
+              });
+              _appbarWidgetState.currentState.operationCancel();
+            }
+        );
+      })
     ];
   }
 }

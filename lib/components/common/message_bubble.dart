@@ -102,7 +102,7 @@ class MessageBubble extends StatelessWidget {
                   backgroundPadding: 0,
                   imageWidth: imageSize,
                   imageHeight: imageSize,
-                  imageUrl: message.attach,
+                  image: NetworkImage(message.attach),
                   imageFit: BoxFit.cover
               ),
               message.message != null

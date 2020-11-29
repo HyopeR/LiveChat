@@ -103,7 +103,7 @@ class AlertContainerWidgetState extends State<AlertContainerWidget> {
               Expanded(
                   flex: 5,
                   child: Container(
-                    padding: EdgeInsets.only(left: 10),
+                    padding: EdgeInsets.only(left: 2),
                     alignment: Alignment.centerLeft,
                     child: Text(areaText, style: TextStyle(color: widget.textColor, fontSize: widget.textSize)),
                   )
