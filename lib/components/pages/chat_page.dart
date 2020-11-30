@@ -606,10 +606,14 @@ class _ChatPageState extends State<ChatPage> {
             margin: EdgeInsets.symmetric(vertical: 3),
 
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withGreen(120),
+              color: Theme.of(context).primaryColor.withGreen(100),
               borderRadius: BorderRadius.circular(10)
             ),
-            child: Text(systemUser.userName + ': '  +currentMessage.message, textAlign: TextAlign.center),
+            child: Text(
+                systemUser.userName + ': '  +currentMessage.message,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).accentIconTheme.color)
+            ),
           )
         ],
       );

@@ -365,7 +365,7 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: widget.buttonColor.withGreen(120),
+                  color: widget.buttonColor.withGreen(100),
                 ),
                 child: Container(
                     width: widget.iconSize,

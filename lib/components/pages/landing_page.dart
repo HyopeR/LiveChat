@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -37,9 +39,7 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FlutterLogo(
-                    size: 128,
-                  ),
+                  Image.asset('assets/images/live_chat_logo.png'),
                   SizedBox(height: 10),
                   Text('Live Chat with Flutter', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize)),
                 ],
