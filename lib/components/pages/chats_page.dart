@@ -113,7 +113,7 @@ class _ChatsPageState extends State<ChatsPage> {
       case ('Image'):
         return [
           Text('${currentChat.recentMessage.ownerUsername}: '),
-          Icon(Icons.image, size: 20),
+          Icon(Icons.image, size: 18),
           Text('Görüntü')
         ];
         break;
@@ -121,16 +121,16 @@ class _ChatsPageState extends State<ChatsPage> {
       case ('Voice'):
         return [
           Text('${currentChat.recentMessage.ownerUsername}: '),
-          Icon(Icons.mic, size: 20),
+          Icon(Icons.mic, size: 18),
           Text('Ses kaydı')
         ];
         break;
 
       case ('System'):
         return [
-          Icon(Icons.assignment_late_outlined),
           Text('${currentChat.recentMessage.ownerUsername}: '),
 
+          Icon(Icons.info_outline_rounded, size: 18),
           Flexible(
             child: Text(
               currentChat.recentMessage.message,
@@ -182,7 +182,7 @@ class _ChatsPageState extends State<ChatsPage> {
         borderRadius: BorderRadius.circular(10),
         onTap: () {
           _chatView.selectChat(currentChat.groupId);
-          _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
+          _chatView.groupType = currentChat.groupType;
 
           if(_chatView.groupType == 'Private')
             _chatView.interlocutorUser = interlocutorUser;
@@ -218,7 +218,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                   onChatClick: () {
                     _chatView.selectChat(currentChat.groupId);
-                    _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
+                    _chatView.groupType = currentChat.groupType;
 
                     if(_chatView.groupType == 'Private')
                       _chatView.interlocutorUser = interlocutorUser;
@@ -227,12 +227,18 @@ class _ChatsPageState extends State<ChatsPage> {
                   },
 
                   onDetailClick: () async {
-                    _chatView.groupType = currentChat.groupType == 'Private' ? 'Private' : 'Plural';
-                    if(_chatView.groupType == 'Private') {
+                    _chatView.groupType = currentChat.groupType;
+                    if(_chatView.groupType == 'Private')
                       _chatView.interlocutorUser = interlocutorUser;
-                      Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
-                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
-                    }
+                    else
+                      _chatView.selectChat(currentChat.groupId);
+
+                    Color pageColor = await getDynamicColor(_chatView.groupType == 'Private'
+                            ? _chatView.interlocutorUser.userProfilePhotoUrl
+                            : _chatView.selectedChat.groupImageUrl
+                    );
+
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: pageColor)));
                   },
                 ).show(context);
               },
@@ -283,7 +289,7 @@ class _ChatsPageState extends State<ChatsPage> {
                   ? [Text(controlActionUser.userName + ' ' + controlAction)]
                   : currentChat.recentMessage != null
                     ? showMessageText(currentChat)
-                    : [Text('Mesaj yok.')],
+                    : [Text('Yükleniyor...')],
             )
         ),
       ),

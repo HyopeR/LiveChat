@@ -93,12 +93,17 @@ class _ChatPageState extends State<ChatPage> {
 
             if(controlAction != null)
               _appbarWidgetState.currentState.updateSubtitle(controlActionUser.userName + ' ' + controlAction);
-            else if(_chatView.groupType == 'Private') {
-              String subTitleText = interlocutorUser.online
-                  ? 'Online'
-                  : 'Son görülme: ' + showDateComposedString(interlocutorUser.lastSeen);
+            else {
+              if(_chatView.groupType == 'Private') {
+                String subTitleText = interlocutorUser.online
+                    ? 'Online'
+                    : 'Son görülme: ' + showDateComposedString(interlocutorUser.lastSeen);
 
-              _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
+                _appbarWidgetState.currentState.updateSubtitle(subTitleText == null ? ' ' : subTitleText);
+              } else {
+                _appbarWidgetState.currentState.updateSubtitle('Group');
+              }
+
             }
 
           }
@@ -235,8 +240,11 @@ class _ChatPageState extends State<ChatPage> {
             subTitleText: appBarSubtitle,
 
             onTitleClick: () async {
-              Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
-              await Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+              Color pageColor = _chatView.groupType == 'Private'
+                  ? await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl)
+                  : await getDynamicColor(_chatView.selectedChat.groupImageUrl);
+
+              await Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: pageColor)));
             },
 
             operationActions: createOperationActions(),

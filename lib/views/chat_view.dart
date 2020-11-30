@@ -22,7 +22,7 @@ class ChatView with ChangeNotifier {
   List<GroupModel> _groups;
   String groupType;
 
-  GroupModel _selectedChat;
+  GroupModel selectedChat;
   SelectedChatState _selectedChatState = SelectedChatState.Empty;
 
   List<MessageModel> _messages;
@@ -31,7 +31,6 @@ class ChatView with ChangeNotifier {
 
   List<GroupModel> get groups => _groups;
   List<MessageModel> get messages => _messages;
-  GroupModel get selectedChat => _selectedChat;
   SelectedChatState get selectedChatState => _selectedChatState;
 
   set selectedChatState(SelectedChatState value) {
@@ -44,7 +43,7 @@ class ChatView with ChangeNotifier {
     _groups = List<GroupModel>();
     _messages = List<MessageModel>();
     groupType = null;
-    _selectedChat = null;
+    selectedChat = null;
     interlocutorUser = null;
     selectedChatState = SelectedChatState.Empty;
     return true;
@@ -62,13 +61,13 @@ class ChatView with ChangeNotifier {
   }
 
   void unSelectChat() {
-    _selectedChat = null;
+    selectedChat = null;
   }
 
   GroupModel selectChat(String groupId) {
-    _selectedChat = _groups.where((group) => group.groupId == groupId).first;
+    selectedChat = _groups.where((group) => group.groupId == groupId).first;
     selectedChatState = SelectedChatState.Loaded;
-    return _selectedChat;
+    return selectedChat;
   }
 
   findChatByUserIdList(List<String> userIdList) {
@@ -83,10 +82,10 @@ class ChatView with ChangeNotifier {
 
       if(findGroup != null) {
         selectedChatState = SelectedChatState.Loaded;
-        _selectedChat = findGroup;
+        selectedChat = findGroup;
       } else {
         selectedChatState = SelectedChatState.Empty;
-        _selectedChat = null;
+        selectedChat = null;
       }
 
     }
@@ -130,10 +129,6 @@ class ChatView with ChangeNotifier {
   Stream<List<GroupModel>> getAllGroups(String userId) {
     try{
       _chatRepo.getAllGroups(userId).listen((groupData) {
-        groupData.forEach((element) {
-          print(element.toString());
-        });
-
         // Eğer bir chat sayfasında değilsek selectedChat boş oluyor. Dolayısıyla eğerki biz bir chat sayfasındaysak
         // ve o group içerisinde yeni bir mesaj atılmış ise bunu buradan dinleyerek gördüğümüz mesajı database'e görüldü
         // olarak anlatmak amacıyla kendi gördüğümüz mesaj sayısını arttırıyoruz.
@@ -172,9 +167,9 @@ class ChatView with ChangeNotifier {
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
     try{
       selectedChatState = SelectedChatState.Loading;
-      _selectedChat = await _chatRepo.getGroupIdByUserIdList(userId, groupType, userIdList);
+      selectedChat = await _chatRepo.getGroupIdByUserIdList(userId, groupType, userIdList);
       selectedChatState = SelectedChatState.Loaded;
-      return _selectedChat;
+      return selectedChat;
     }catch(err) {
       selectedChatState = SelectedChatState.Empty;
       print('getGroupIdByUserIdList Error: ${err.toString()}');

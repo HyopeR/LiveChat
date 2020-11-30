@@ -188,7 +188,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return [
       userDataWidget('Name', _userView.user.userName),
       userDataWidget('Email', _userView.user.userEmail),
-      userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen) : 'Yükleniyor...'),
+      // userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen) : 'Yükleniyor...'),
       userDataWidget('Status', _userView.user.online ? 'Online' : 'Offline'),
       userDataWidget('Registered', _userView.user.createdAt != null ? showDate(_userView.user.createdAt)['date'] : 'Yükleniyor...'),
       userDataWidget('Updated', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.updatedAt) : 'Yükleniyor...'),

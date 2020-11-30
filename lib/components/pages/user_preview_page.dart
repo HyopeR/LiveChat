@@ -7,6 +7,7 @@ import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/title_area.dart';
+import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -22,8 +23,8 @@ class UserPreviewPage extends StatefulWidget {
 
 class _UserPreviewPageState extends State<UserPreviewPage> {
   ChatView _chatView;
-
   StreamSubscription<UserModel> _subscriptionUser;
+  StreamSubscription<GroupModel> _subscriptionGroup;
 
   @override
   void initState() {
@@ -34,6 +35,10 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           _chatView.interlocutorUser = user;
           setState(() {});
         });
+      } else {
+        _subscriptionGroup = _chatView.streamOneGroup(_chatView.selectedChat.groupId).listen((group) {
+          _chatView.selectedChat = group;
+        });
       }
 
     });
@@ -41,7 +46,11 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
 
   @override
   void dispose() {
-    _subscriptionUser.cancel();
+    if(_subscriptionUser != null)
+      _subscriptionUser.cancel();
+
+    if(_subscriptionGroup != null)
+      _subscriptionGroup.cancel();
     super.dispose();
   }
 
@@ -127,7 +136,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: EdgeInsets.only(left: 56, bottom: 10),
                 background: Image.network(
-                  _chatView.interlocutorUser.userProfilePhotoUrl,
+                  _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
                   fit: BoxFit.cover,
                 ),
                 title: Align(
@@ -144,7 +153,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                         ]),
                         children: [
                           TextSpan(
-                              text: _chatView.interlocutorUser.userName + '\n',
+                              text: _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userName + '\n' : _chatView.selectedChat.groupName +'\n',
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: Theme.of(context).textTheme.headline6.fontSize)),
 
                           TextSpan(
@@ -165,7 +174,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                   // margin: EdgeInsets.only(top: 10),
                   padding: EdgeInsets.all(10),
 
-                  children: _userDataWrite(),
+                  children: _chatView.groupType == 'Private' ? _userDataWrite() : [Container(child: Text('Not ready...'))],
                 ),
               ),
             ),
@@ -187,7 +196,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
             decoration: BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: NetworkImage(_chatView.interlocutorUser.userProfilePhotoUrl)
+                image: NetworkImage(_chatView.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl)
               ),
             ),
 
@@ -224,7 +233,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                           ]),
                           children: [
                             TextSpan(
-                                text: _chatView.interlocutorUser.userName + '\n',
+                                text: _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userName + '\n' : _chatView.selectedChat.groupName +'\n',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
 
                             TextSpan(
@@ -247,7 +256,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
               child: SingleChildScrollView(
                 child: ContainerColumn(
                   padding: EdgeInsets.all(10),
-                  children: _userDataWrite(),
+                  children: _chatView.groupType == 'Private' ? _userDataWrite() : [Container(child: Text('Not ready...'))],
                 ),
               ),
             ),

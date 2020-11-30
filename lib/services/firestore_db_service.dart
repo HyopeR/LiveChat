@@ -329,7 +329,7 @@ class FireStoreDbService implements DbBase {
 
     MessageModel systemMessage = MessageModel(
       sendBy: user.userId,
-      message: 'Grup oluşturuldu.',
+      message: 'Grup oluşturdu.',
       messageType: 'System'
     );
 
