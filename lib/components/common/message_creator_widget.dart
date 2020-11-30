@@ -139,7 +139,9 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
             ),
 
             children: [
-              markedMessageWidget != null ? markedMessageWidget : Container(),
+              markedMessageWidget != null
+                  ? Container(padding: EdgeInsets.only(left: 4, right: 4, top: 4), child: markedMessageWidget)
+                  : Container(),
 
               !timerRun
                   ? ContainerRow(

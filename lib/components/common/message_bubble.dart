@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/common/sound_player.dart';
@@ -46,32 +47,35 @@ class MessageBubble extends StatelessWidget {
       children: [
         Stack(
           children: [
-            ContainerColumn(
-              constraints: BoxConstraints(minWidth: 60),
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                (!message.fromMe && groupType == 'Plural')
-                  ? Container(
-                    padding: EdgeInsets.only(top: 3, bottom: 3),
-                    child: Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold))
-                  )
-                  : Container(width: 0),
-
-                message.markedMessage != null
+            IntrinsicWidth(
+              child: ContainerColumn(
+                constraints: BoxConstraints(minWidth: 60),
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  (!message.fromMe && groupType == 'Plural')
                     ? Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: MessageMarked(message: message.markedMessage))
+                      padding: EdgeInsets.only(top: 3, bottom: 3),
+                      child: Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold))
+                    )
                     : Container(width: 0),
-                Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: writeMessage(context, message)),
-              ],
+
+                  message.markedMessage != null
+                      ? Container(
+                        margin: EdgeInsets.only(bottom: 6),
+                        child: MessageMarked(message: message.markedMessage),
+                      )
+                      : Container(),
+                  Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: writeMessage(context, message)),
+                ],
+              ),
             ),
             message.date != null
                 ? Positioned(

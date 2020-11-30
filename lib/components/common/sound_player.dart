@@ -61,8 +61,8 @@ class _SoundPlayerState extends State<SoundPlayer> {
       children: [
         ImageWidget(
           image: NetworkImage(widget.imageUrl),
-          imageWidth: 60,
-          imageHeight: 60,
+          imageWidth: 55,
+          imageHeight: 55,
           backgroundShape: BoxShape.circle,
           backgroundColor: Colors.grey.withOpacity(0.3),
         ),
@@ -92,9 +92,9 @@ class _SoundPlayerState extends State<SoundPlayer> {
         ),
         Container(
             child: IconButton(
-              splashRadius: 24,
+              splashRadius: 18,
               icon: Icon(!currentState ? Icons.play_arrow : Icons.pause),
-              iconSize: 44,
+              iconSize: 36,
               onPressed: () => !currentState ? play() : pause(),
            )
         )

@@ -11,7 +11,7 @@ class MessageMarked extends StatelessWidget {
 
   final MainAxisSize mainAxisSize;
 
-  MessageMarked({Key key, this.message, this.forwardCancel, this.mainAxisSize = MainAxisSize.min}) : super(key: key);
+  MessageMarked({Key key, this.message, this.forwardCancel, this.mainAxisSize = MainAxisSize.max}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class MessageMarked extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
 
         decoration: BoxDecoration(
-          color: Colors.black38.withOpacity(0.1),
+          color: Colors.black12,
           borderRadius: BorderRadius.circular(10),
         ),
 
@@ -40,24 +40,22 @@ class MessageMarked extends StatelessWidget {
     switch (message.messageType) {
       case ('Text'):
         return [
-            Container(
-              child: ContainerColumn(
-                constraints: BoxConstraints(
-                  minWidth: 100,
-                ),
-
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 5),
-                  Text(
-                    message.message.length > 35 ? message.message.substring(0, 34) + '...' : message.message,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+            ContainerColumn(
+              constraints: BoxConstraints(
+                minWidth: 100,
               ),
+
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Text(
+                  message.message.length > 35 ? message.message.substring(0, 34) + '...' : message.message,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           forwardCancel != null
               ? IconButton(
