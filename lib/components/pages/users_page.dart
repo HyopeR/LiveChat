@@ -37,6 +37,7 @@ class _UsersPageState extends State<UsersPage> {
 
     return Scaffold(
         appBar: AppbarWidget(
+          backgroundColor: Theme.of(context).primaryColor,
           key: _appbarWidgetState,
           titleText: 'Live Chat',
           // actions: [
@@ -72,7 +73,7 @@ class _UsersPageState extends State<UsersPage> {
             child: ContainerColumn(
               padding: EdgeInsets.all(10),
               children: [
-                TitleArea(titleText: 'Kişilerim', icon: Icons.people),
+                TitleArea(titleText: 'Kişilerim', icon: Icons.people, iconColor: Theme.of(context).primaryColor),
                 Expanded(
                   child: StreamBuilder<List<UserModel>>(
                     stream: _chatView.getAllUsers(),

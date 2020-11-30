@@ -9,10 +9,11 @@ import 'package:live_chat/components/pages/media_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
 
 class MessageBubble extends StatelessWidget {
+  final String groupType;
   final MessageModel message;
   final Color color;
 
-  const MessageBubble({Key key, this.message, this.color}) : super(key: key);
+  const MessageBubble({Key key, this.groupType, this.message, this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +56,13 @@ class MessageBubble extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                (!message.fromMe && groupType == 'Plural')
+                  ? Container(
+                    padding: EdgeInsets.only(top: 3, bottom: 3),
+                    child: Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold))
+                  )
+                  : Container(width: 0),
+
                 message.markedMessage != null
                     ? Container(
                         margin: EdgeInsets.only(bottom: 10),
@@ -88,7 +96,9 @@ class MessageBubble extends StatelessWidget {
         break;
 
       case ('Image'):
-        double imageSize = (MediaQuery.of(context).size.width * 0.6) - 20;
+        double imageSize = MediaQuery.of(context).orientation == Orientation.portrait
+          ? (MediaQuery.of(context).size.width * 0.6) - 20
+          : (MediaQuery.of(context).size.width * 0.4) - 20;
 
         return InkWell(
           onTap: () {
@@ -118,7 +128,7 @@ class MessageBubble extends StatelessWidget {
 
       case ('Voice'):
         return Container(
-          constraints: BoxConstraints(maxWidth: 350),
+          constraints: BoxConstraints(maxWidth: 300),
           child: SoundPlayer.voice(
             soundUrl: message.message,
             soundDuration: message.duration.toDouble(),

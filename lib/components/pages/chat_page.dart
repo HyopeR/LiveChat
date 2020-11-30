@@ -209,7 +209,7 @@ class _ChatPageState extends State<ChatPage> {
             updateMessageAction(0);
           }
           Navigator.of(context).pop();
-          _chatView.unSelectChat();
+          // _chatView.unSelectChat();
           _chatView.resetMessages();
         }
 
@@ -218,6 +218,7 @@ class _ChatPageState extends State<ChatPage> {
 
       child: Scaffold(
           appBar: AppbarWidget(
+            backgroundColor: Theme.of(context).primaryColor,
             key: _appbarWidgetState,
             onLeftSideClick: () {
               if(_messageCreatorState.currentState.controller.text.trim().length > 0) {
@@ -225,7 +226,7 @@ class _ChatPageState extends State<ChatPage> {
                 updateMessageAction(0);
               }
               Navigator.of(context).pop();
-              _chatView.unSelectChat();
+              // _chatView.unSelectChat();
               _chatView.resetMessages();
             },
             appBarType: 'Chat',
@@ -270,12 +271,16 @@ class _ChatPageState extends State<ChatPage> {
                           if (messages.isNotEmpty) {
                             return Align(
                               alignment: Alignment.topCenter,
-                              child: ListView.builder(
-                                  reverse: true,
-                                  shrinkWrap: true,
-                                  controller: _scrollController,
-                                  itemCount: messages.length,
-                                  itemBuilder: (context, index) => createItem(index)
+                              child: Scrollbar(
+                                isAlwaysShown: true,
+                                controller: _scrollController,
+                                child: ListView.builder(
+                                    reverse: true,
+                                    shrinkWrap: true,
+                                    controller: _scrollController,
+                                    itemCount: messages.length,
+                                    itemBuilder: (context, index) => createItem(index)
+                                ),
                               ),
                             );
                           } else
@@ -347,8 +352,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void saveMessage(String messageType) async {
-    if (_messageCreatorState.currentState.controller.text.trim().length > 0 ||
-        !_messageCreatorState.currentState.voiceRecordCancelled) {
+    if (_messageCreatorState.currentState.controller.text.trim().length > 0 || !_messageCreatorState.currentState.voiceRecordCancelled) {
       if (_chatView.selectedChatState == SelectedChatState.Empty) {
         await _chatView.getGroupIdByUserIdList(
             _userView.user.userId,
@@ -496,25 +500,44 @@ class _ChatPageState extends State<ChatPage> {
       bool fromMe = currentMessage.sendBy == _userView.user.userId;
       currentMessage.fromMe = fromMe;
 
-      if (_chatView.groupType == 'Private') {
-        currentMessage.ownerImageUrl = fromMe
-            ? _userView.user.userProfilePhotoUrl
-            : _chatView.interlocutorUser.userProfilePhotoUrl;
+      if(fromMe) {
+        // Mesaj user'ın kendi mesajıysa owner kısımları doldurulur.
+        currentMessage.ownerImageUrl = _userView.user.userProfilePhotoUrl;
+        currentMessage.ownerUsername = _userView.user.userName;
+      } else {
+        // Mesaj user'ın kendi mesajı değilse konuşmanın privatemı yoksa plural mı olduğuna bakılır.
+        // Private konuşmalarda karşıdaki muhattap direk olarak interlocutor user'dır.
 
-        currentMessage.ownerUsername = fromMe
-            ? _userView.user.userName
-            : _chatView.interlocutorUser.userName;
+        if (_chatView.groupType == 'Private') {
+          currentMessage.ownerImageUrl = _chatView.interlocutorUser.userProfilePhotoUrl;
+          currentMessage.ownerUsername = _chatView.interlocutorUser.userName;
 
-        if (currentMessage.markedMessage != null) {
-          bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
+        } else if (_chatView.groupType == 'Plural') {
+          UserModel currentGroupUser = _chatView.users.firstWhere((user) => user.userId == currentMessage.sendBy);
+          currentMessage.ownerImageUrl = currentGroupUser.userProfilePhotoUrl;
+          currentMessage.ownerUsername = currentGroupUser.userName;
+        }
+      }
 
-          currentMessage.markedMessage.ownerImageUrl = markedFromMe
-              ? _userView.user.userProfilePhotoUrl
-              : _chatView.interlocutorUser.userProfilePhotoUrl;
+      // Marklanmış mesaj varmı kontrolü yapılır.
+      if (currentMessage.markedMessage != null) {
+        bool markedFromMe = currentMessage.markedMessage.sendBy == _userView.user.userId;
 
-          currentMessage.markedMessage.ownerUsername = markedFromMe
-              ? _userView.user.userName
-              : _chatView.interlocutorUser.userName;
+        // Marklanmış mesaj user'ın kendi mesajıysa owner kısımları doldurulur.
+        if(markedFromMe) {
+          currentMessage.markedMessage.ownerImageUrl = _userView.user.userProfilePhotoUrl;
+          currentMessage.markedMessage.ownerUsername = _userView.user.userName;
+        } else {
+
+          if(_chatView.groupType == 'Private') {
+            currentMessage.markedMessage.ownerImageUrl = _chatView.interlocutorUser.userProfilePhotoUrl;
+            currentMessage.markedMessage.ownerUsername = _chatView.interlocutorUser.userName;
+
+          } else if (_chatView.groupType == 'Plural') {
+            UserModel markedGroupUser = _chatView.users.firstWhere((user) => user.userId == currentMessage.markedMessage.sendBy);
+            currentMessage.markedMessage.ownerImageUrl = markedGroupUser.userProfilePhotoUrl;
+            currentMessage.markedMessage.ownerUsername = markedGroupUser.userName;
+          }
         }
       }
 
@@ -525,8 +548,8 @@ class _ChatPageState extends State<ChatPage> {
           direction: DismissDirection.startToEnd,
           // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
           confirmDismiss: (direction) async {
-            _messageCreatorState.currentState
-                .setMarkedMessage(MessageMarked(
+
+            _messageCreatorState.currentState.setMarkedMessage(MessageMarked(
               message: currentMessage,
               mainAxisSize: MainAxisSize.max,
               forwardCancel: () {
@@ -562,6 +585,7 @@ class _ChatPageState extends State<ChatPage> {
               },
 
               child: MessageBubble(
+                groupType: _chatView.groupType,
                 message: currentMessage,
                 color: currentMessage.fromMe
                     ? Theme.of(context).primaryColor.withOpacity(0.8)
@@ -592,7 +616,6 @@ class _ChatPageState extends State<ChatPage> {
 
     }
   }
-
 
   List<Widget> createOperationActions() {
     return [

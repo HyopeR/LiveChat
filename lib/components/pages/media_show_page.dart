@@ -176,7 +176,7 @@ class _MediaShowPageState extends State<MediaShowPage> {
                           child: Text(
                             _chatView.groupType == 'Private'
                                 ? itemList[index].sendBy == _userView.user.userId ? _userView.user.userName : _chatView.interlocutorUser.userName
-                                : 'Group',
+                                : itemList[index].sendBy == _userView.user.userId ? _userView.user.userName : _chatView.users.firstWhere((user) => user.userId == itemList[index].sendBy).userName,
                           ),
                         ),
                         Container(

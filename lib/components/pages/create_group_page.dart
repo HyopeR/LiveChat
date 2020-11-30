@@ -69,6 +69,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       ),
 
       appBar: AppbarWidget(
+        backgroundColor: Theme.of(context).primaryColor,
         key: _appbarWidgetState,
         appBarType: 'Chat',
         titleImage: ImageWidget(
@@ -100,7 +101,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 padding: EdgeInsets.all(10),
 
                 children: [
-                  TitleArea(titleText: 'Grup Bilgisi', icon: Icons.insert_drive_file),
+                  TitleArea(titleText: 'Grup Bilgisi', icon: Icons.insert_drive_file, iconColor: Theme.of(context).primaryColor),
 
                   ContainerRow(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +133,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                             children: [
                               AlertContainerWidget(
                                   key: _alertContainerWidgetState,
-
+                                  textSize: 10,
                                   areaText: 'Grup ismi boş bırakılamaz.',
                                   areaColor: Colors.red.withOpacity(0.3)
                               ),
@@ -148,6 +149,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                                       child: TextField(
                                         maxLines: 1,
                                         maxLength: 19,
+                                        // maxLengthEnforced: true,
                                         onChanged: (value) {
                                           setState(() {
                                             _appbarWidgetState.currentState.updateTitle(value);
@@ -206,33 +208,48 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     ],
                   ),
 
-                  TitleArea(titleText: 'Katılımcılar', icon: Icons.people),
+                  TitleArea(titleText: 'Katılımcılar', icon: Icons.people, iconColor: Theme.of(context).primaryColor),
                   Container(
-                    child: GridView.builder(
+                    child: GridView.count(
                         shrinkWrap: true,
-                        itemCount: widget.selectedUserList.length,
+                        crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 4 : 8,
+                        childAspectRatio: 0.9,
 
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 4 : 8,
-                        ),
+                        children: widget.selectedUserList.map((item) => ContainerColumn(
+                              children: [
+                                ImageWidget(
+                                  image: NetworkImage(item.userProfilePhotoUrl),
+                                  imageWidth: 65,
+                                  imageHeight: 65,
+                                  backgroundShape: BoxShape.circle,
+                                  backgroundColor: Colors.grey.withOpacity(0.3),
+                                ),
+                                Text(item.userName),
+                              ],
+                            )
+                        ).toList(),
 
-                        itemBuilder: (BuildContext context, int index) {
+                        // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        //   crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 4 : 8,
+                        // ),
 
-                          return ContainerColumn(
-                            height: 100,
-                            children: [
-                              ImageWidget(
-                                image: NetworkImage(widget.selectedUserList[index].userProfilePhotoUrl),
-                                imageWidth: 65,
-                                imageHeight: 65,
-                                backgroundShape: BoxShape.circle,
-                                backgroundColor: Colors.grey.withOpacity(0.3),
-                              ),
-                              Text(widget.selectedUserList[index].userName),
-                            ],
-                          );
-
-                        }
+                        // itemBuilder: (BuildContext context, int index) {
+                        //
+                        //   return ContainerColumn(
+                        //     height: 100,
+                        //     children: [
+                        //       ImageWidget(
+                        //         image: NetworkImage(widget.selectedUserList[index].userProfilePhotoUrl),
+                        //         imageWidth: 65,
+                        //         imageHeight: 65,
+                        //         backgroundShape: BoxShape.circle,
+                        //         backgroundColor: Colors.grey.withOpacity(0.3),
+                        //       ),
+                        //       Text(widget.selectedUserList[index].userName),
+                        //     ],
+                        //   );
+                        //
+                        // }
                     ),
                   )
                 ],
@@ -289,7 +306,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         );
 
         GroupModel group = await _chatView.createGroup(_userView.user, createdGroup);
-        _chatView.selectChat(group.groupId);
+        // _chatView.selectChat(group.groupId);
         Navigator.of(context).pop();
         Navigator.of(context).pop(true);
       } else{

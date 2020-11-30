@@ -56,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppbarWidget(
+          backgroundColor: Theme.of(context).primaryColor,
           titleText: 'Live Chat',
           actions: [
             FlatButton(
@@ -75,6 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
               TitleArea(
                 titleText: 'Bilgilerim',
                 icon: Icons.person,
+                iconColor: Theme.of(context).primaryColor
               ),
               StreamBuilder<UserModel>(
                   stream: _userView.streamCurrentUser(_userView.user.userId),
@@ -135,7 +137,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   children: [
                                     TitleArea(
                                         titleText: 'Bilgileri Güncelle',
-                                        icon: Icons.insert_drive_file),
+                                        icon: Icons.insert_drive_file,
+                                        iconColor: Theme.of(context).primaryColor
+                                    ),
                                     TextFormField(
                                       controller: _controllerUserName,
                                       decoration: InputDecoration(

@@ -29,6 +29,7 @@ class _SignInPageState extends State<SignInPage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
         title: Text('Live Chat'),
         elevation: 0,
       ),
@@ -51,6 +52,7 @@ class _SignInPageState extends State<SignInPage> {
                 children: [
 
                   TitleArea(
+                    iconColor: Theme.of(context).primaryColor,
                     titleText: 'Oturum Açma Yöntemleri',
                     icon: Icons.apps,
                   ),

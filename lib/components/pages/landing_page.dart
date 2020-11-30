@@ -39,7 +39,6 @@ class _LandingPageState extends State<LandingPage> {
                 children: [
                   FlutterLogo(
                     size: 128,
-                    textColor: Colors.amber,
                   ),
                   SizedBox(height: 10),
                   Text('Live Chat with Flutter', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize)),

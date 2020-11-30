@@ -75,7 +75,8 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                     bool orientationLandscape = orientation == Orientation.landscape;
 
                     if(orientationLandscape) {
-                      return !isVisible ? defaultPage() : textAreaPage();
+                      // return !isVisible ? defaultPage() : textAreaPage();
+                      return _focusNode.hasPrimaryFocus ? textAreaPage() : defaultPage();
                     } else
                       return defaultPage();
                   }
@@ -107,11 +108,12 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
             ),
             Flexible(
               child: TextField(
+                key: Key('A'),
                 maxLines: null,
-                showCursor: true,
-                autofocus: true,
                 keyboardType: TextInputType.multiline,
                 controller: controller,
+                autofocus: true,
+                // focusNode: _focusNode,
                 onChanged: (value) => attachTexts[selectedImageIndex] = value,
                 decoration: InputDecoration(
                   hintText: 'Başlık ekleyin...',
@@ -125,7 +127,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
               child: Container(
                 width: 50,
                 color: Theme.of(context).primaryColor,
-                child: Icon(Icons.done),
+                child: Icon(Icons.done, color: Colors.black),
               ),
             )
           ],
@@ -242,12 +244,13 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                                           constraints:
                                           BoxConstraints(maxHeight: 90),
                                           child: TextField(
+                                            key: Key('A'),
                                             maxLines: null,
-                                            showCursor: true,
+                                            focusNode: _focusNode,
                                             keyboardType: TextInputType.multiline,
                                             controller: controller,
                                             onChanged: (value) => attachTexts[selectedImageIndex] = value,
-                                            focusNode: _focusNode,
+                                            // focusNode: _focusNode,
                                             decoration: InputDecoration(
                                               hintText: 'Başlık ekleyin...',
                                               border: InputBorder.none,
@@ -337,7 +340,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                             ? Icon(Icons.delete,
                             size: 32,
                             color: innerDeleteArea
-                                ? Colors.amber
+                                ? Colors.red
                                 : Colors.white)
                             : Container(),
                       );
@@ -448,7 +451,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
             border: Border.all(
                 width: 1,
                 color: photoIndex == selectedImageIndex
-                    ? Colors.amber
+                    ? Theme.of(context).primaryColor
                     : Colors.black.withOpacity(0.5)),
             image: DecorationImage(
                 fit: BoxFit.cover, image: FileImage(attachFiles[photoIndex]))),
@@ -475,7 +478,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
               border: Border.all(
                   width: 1,
                   color: photoIndex == selectedImageIndex
-                      ? Colors.amber
+                      ? Theme.of(context).primaryColor
                       : Colors.black.withOpacity(0.5)),
               image: DecorationImage(
                   fit: BoxFit.cover,

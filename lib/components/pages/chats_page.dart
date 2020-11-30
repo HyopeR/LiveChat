@@ -37,6 +37,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
     return Scaffold(
         appBar: AppbarWidget(
+          backgroundColor: Theme.of(context).primaryColor,
           key: _appbarWidgetState,
           titleText: 'Live Chat',
           operationActions: createOperationActions(),
@@ -59,7 +60,7 @@ class _ChatsPageState extends State<ChatsPage> {
           },
           child: SafeArea(
               child: ContainerColumn(padding: EdgeInsets.all(10), children: [
-                TitleArea(titleText: 'Konuşmalarım', icon: Icons.chat),
+                TitleArea(titleText: 'Konuşmalarım', icon: Icons.chat, iconColor: Theme.of(context).primaryColor),
                 Expanded(
                   child: StreamBuilder<List<GroupModel>>(
                     stream: _chatView.getAllGroups(_userView.user.userId),

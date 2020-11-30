@@ -60,10 +60,6 @@ class ChatView with ChangeNotifier {
     _messages = List<MessageModel>();
   }
 
-  void unSelectChat() {
-    selectedChat = null;
-  }
-
   GroupModel selectChat(String groupId) {
     selectedChat = _groups.where((group) => group.groupId == groupId).first;
     selectedChatState = SelectedChatState.Loaded;
@@ -87,7 +83,9 @@ class ChatView with ChangeNotifier {
         selectedChatState = SelectedChatState.Empty;
         selectedChat = null;
       }
-
+    } else {
+      selectedChatState = SelectedChatState.Empty;
+      selectedChat = null;
     }
   }
 
@@ -177,6 +175,7 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  // Mesaj gönderme ve diğer mesaj fonksiyonları.
   Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId) async {
     try{
       return _chatRepo.saveMessage(message, messageOwner, groupId);
@@ -212,15 +211,7 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
-    try{
-      return _chatRepo.uploadGroupPhoto(groupId, fileType, file);
-    }catch(err) {
-      print('uploadGroupPhoto Error: ${err.toString()}');
-      return null;
-    }
-  }
-
+  // Chat ve user preview page için tekil stream fonksiyonları.
   Stream<GroupModel> streamOneGroup(String groupId) {
     try{
       return _chatRepo.streamOneGroup(groupId);
@@ -239,6 +230,7 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  // Plural grup oluşturma işlemleri.
   Future<String> createGroupId() async {
     try{
       return _chatRepo.createGroupId();
@@ -248,12 +240,20 @@ class ChatView with ChangeNotifier {
     }
   }
 
-
   Future<GroupModel> createGroup(UserModel user, GroupModel group) async {
     try{
       return _chatRepo.createGroup(user, group);
     }catch(err) {
       print('createGroup Error: ${err.toString()}');
+      return null;
+    }
+  }
+
+  Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
+    try{
+      return _chatRepo.uploadGroupPhoto(groupId, fileType, file);
+    }catch(err) {
+      print('uploadGroupPhoto Error: ${err.toString()}');
       return null;
     }
   }

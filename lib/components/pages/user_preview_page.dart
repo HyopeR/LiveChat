@@ -82,10 +82,22 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
       TitleArea(titleText: 'Hakkında', icon: Icons.person, iconColor: widget.color),
       userDataWidget('Name', _chatView.interlocutorUser.userName),
       userDataWidget('Email', _chatView.interlocutorUser.userEmail),
-      userDataWidget('Last Seen', _chatView.interlocutorUser.updatedAt != null ? showDateComposedString(_chatView.interlocutorUser.lastSeen) : 'Yükleniyor...'),
-      userDataWidget('Status', _chatView.interlocutorUser.online ? 'Online' : 'Offline'),
+      userDataWidget('Last Seen', _chatView.interlocutorUser.updatedAt != null
+          ? showDateComposedString(_chatView.interlocutorUser.lastSeen)
+          : 'Yükleniyor...'),
+
+      userDataWidget('Status', _chatView.interlocutorUser.online
+          ? 'Online'
+          : 'Offline'),
       userDataWidget('Registered', _chatView.interlocutorUser.createdAt != null ? showDate(_chatView.interlocutorUser.createdAt)['date'] : 'Yükleniyor...'),
       userDataWidget('Updated', _chatView.interlocutorUser.updatedAt != null ? showDateComposedString(_chatView.interlocutorUser.updatedAt) : 'Yükleniyor...'),
+    ];
+  }
+
+  List<Widget> _groupDataWrite() {
+    return [
+      TitleArea(titleText: 'Grup Hakkında', icon: Icons.people, iconColor: widget.color),
+      Text('Not ready...'),
     ];
   }
 
@@ -174,7 +186,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                   // margin: EdgeInsets.only(top: 10),
                   padding: EdgeInsets.all(10),
 
-                  children: _chatView.groupType == 'Private' ? _userDataWrite() : [Container(child: Text('Not ready...'))],
+                  children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
                 ),
               ),
             ),
@@ -256,7 +268,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
               child: SingleChildScrollView(
                 child: ContainerColumn(
                   padding: EdgeInsets.all(10),
-                  children: _chatView.groupType == 'Private' ? _userDataWrite() : [Container(child: Text('Not ready...'))],
+                  children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
                 ),
               ),
             ),

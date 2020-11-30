@@ -43,8 +43,14 @@ class UserDialogWidget extends StatelessWidget {
           onTap: onPhotoClick,
           child: Container(
             alignment: Alignment.bottomCenter,
-            width: MediaQuery.of(context).orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.7 : MediaQuery.of(context).size.height * 0.7,
-            height: MediaQuery.of(context).orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.7 : MediaQuery.of(context).size.height * 0.7,
+            width: MediaQuery.of(context).orientation == Orientation.portrait
+                ? MediaQuery.of(context).size.width * 0.7
+                : MediaQuery.of(context).size.width * 0.3,
+
+            height: MediaQuery.of(context).orientation == Orientation.portrait
+                ? MediaQuery.of(context).size.width * 0.7
+                : MediaQuery.of(context).size.width * 0.3,
+
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(10),
@@ -102,7 +108,7 @@ class UserDialogWidget extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                 ),
-                splashColor: Colors.amber,
+                splashColor: Theme.of(context).primaryColor,
                 onTap: onDetailClick,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 5),
@@ -114,7 +120,7 @@ class UserDialogWidget extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   bottomRight: Radius.circular(10),
                 ),
-                splashColor: Colors.amber,
+                splashColor: Theme.of(context).primaryColor,
                 onTap: onChatClick,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 5),

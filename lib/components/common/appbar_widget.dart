@@ -47,7 +47,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 class AppbarWidgetState extends State<AppbarWidget> {
 
   bool operation = false;
-  Color operationColor = Color(0xFFe7ad01);
+  Color operationColor;
   String subTitle;
   String title;
 
@@ -78,6 +78,8 @@ class AppbarWidgetState extends State<AppbarWidget> {
   @override
   void initState() {
     super.initState();
+    operationColor = widget.backgroundColor.withAlpha(180);
+
     if(widget.subTitleText != null)
       subTitle = widget.subTitleText;
 
@@ -190,7 +192,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
           widget.onOperationCancel();
           operationCancel();
         },
-        child: Icon(Icons.cancel),
+        child: Icon(Icons.cancel, color: widget.textColor),
       ),
       actions: widget.operationActions,
     );
