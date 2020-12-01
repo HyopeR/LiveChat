@@ -8,6 +8,7 @@ import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/common/sound_player.dart';
 import 'package:live_chat/components/pages/media_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
+import 'package:live_chat/services/operation_service.dart';
 
 class MessageBubble extends StatelessWidget {
   final String groupType;
@@ -91,11 +92,29 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget writeMessage(BuildContext context, MessageModel message) {
+    List<String> spliceTextList;
+
+    if(message.message != null) {
+      if(regexKeepEmoji.hasMatch(message.message)) {
+        spliceTextList = message.message.split(regexKeepEmoji);
+      }
+    }
+
     switch (message.messageType) {
       case ('Text'):
         return Container(
             constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
-            child: Text(message.message)
+            child: RichText(
+              text: TextSpan(
+                  style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+                  children: spliceTextList == null
+                      ? [TextSpan(text: message.message, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))]
+                      : spliceTextList.map((pieceText) => regexKeepEmoji.hasMatch(pieceText)
+                        ? TextSpan(text: pieceText, style: TextStyle(fontSize: 22))
+                        : TextSpan(text: pieceText, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))
+                      ).toList(),
+              ),
+            ),
         );
         break;
 
@@ -122,7 +141,17 @@ class MessageBubble extends StatelessWidget {
               message.message != null
                   ? Container(
                     margin: EdgeInsets.only(top: 5),
-                    child: Text(message.message)
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+                        children: spliceTextList == null
+                            ? [TextSpan(text: message.message, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))]
+                            : spliceTextList.map((pieceText) => regexKeepEmoji.hasMatch(pieceText)
+                              ? TextSpan(text: pieceText, style: TextStyle(fontSize: 22))
+                              : TextSpan(text: pieceText, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))
+                        ).toList(),
+                      ),
+                    ),
                   )
                   : Container(width: 0),
             ],

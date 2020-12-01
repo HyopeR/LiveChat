@@ -78,3 +78,11 @@ Future<Color> getDynamicColor(String imageUrl) async {
 
   return color;
 }
+
+// Keep seperator.
+// Split işleminde emojileri ayırt ederken emojileri de array içinde tutar.
+RegExp regexKeepEmoji = RegExp(r'((?<=(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]))|(?=(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])))');
+
+// Unkeep seperator.
+// Split işleminde emojileri ayırt ederken emojileri arrayden siler.
+// RegExp regexEmoji = RegExp(r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])');

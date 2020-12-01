@@ -40,109 +40,112 @@ class MessageMarked extends StatelessWidget {
     switch (message.messageType) {
       case ('Text'):
         return [
-            ContainerColumn(
-              constraints: BoxConstraints(
-                minWidth: 100,
-              ),
-
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Text(
-                  message.message.length > 35 ? message.message.substring(0, 34) + '...' : message.message,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            Flexible(
+              child: ContainerColumn(
+                constraints: BoxConstraints(
+                  minWidth: 100,
                 ),
-              ],
+
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(height: 5),
+                  Text(
+                    message.message,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           forwardCancel != null
               ? IconButton(
-                splashRadius: 24,
                 icon: Icon(Icons.cancel),
-                onPressed: forwardCancel)
+                splashRadius: 24,
+                onPressed: forwardCancel
+              )
               : Container(height: 0),
           ];
         break;
 
       case ('Image'):
         return [
-            ContainerRow(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            ImageWidget(
+              image: NetworkImage(message.attach),
+              imageHeight: 45,
+              imageWidth: 45,
+              imageFit: BoxFit.cover,
+              backgroundPadding: 0,
+              backgroundRadius: BorderRadius.circular(5),
+            ),
 
-              children: [
-                ImageWidget(
-                  image: NetworkImage(message.attach),
-                  imageHeight: 45,
-                  imageWidth: 45,
-                  imageFit: BoxFit.cover,
-                  backgroundPadding: 0,
-                  backgroundRadius: BorderRadius.circular(5),
+            Flexible(
+              child: ContainerColumn(
+                padding: EdgeInsets.all(5),
+                constraints: BoxConstraints(
+                  minWidth: 100,
                 ),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
 
-                ContainerColumn(
-                  padding: EdgeInsets.all(5),
-                  constraints: BoxConstraints(
-                    minWidth: 100,
+                children: [
+                  Text(
+                      message.ownerUsername,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontWeight: FontWeight.bold)
                   ),
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Text(
-                        message.ownerUsername,
+                  SizedBox(height: 5),
+                  message.message != null
+                      ? Text(
+                        message.message,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontWeight: FontWeight.bold)
-                    ),
-                    SizedBox(height: 5),
-                    message.message != null
-                        ? Text(
-                            message.message,
-                            overflow: TextOverflow.ellipsis,
-                        )
-                        : Container(height: 5)
-                  ],
-                ),
-              ],
+                        maxLines: 1,
+                      )
+                      : Container()
+                ],
+              ),
             ),
             forwardCancel != null
                 ? IconButton(
-                  splashRadius: 24,
-                  icon: Icon(Icons.cancel),
-                  onPressed: forwardCancel)
+                    splashRadius: 24,
+                    icon: Icon(Icons.cancel),
+                    onPressed: forwardCancel
+                  )
                 : Container(height: 0),
           ];
         break;
 
       case ('Voice'):
         return [
-          ContainerColumn(
-            constraints: BoxConstraints(
-              minWidth: 100,
+          Flexible(
+            child: ContainerColumn(
+              constraints: BoxConstraints(
+                minWidth: 100,
+              ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Row(
+                  children: [
+                    Icon(Icons.mic, size: 18),
+                    Text(
+                      'Sesli mesaj (${calculateTimer(message.duration)})',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                )
+              ],
             ),
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 5),
-              Row(
-                children: [
-                  Icon(Icons.mic, size: 18),
-                  Text(
-                    'Sesli mesaj (${calculateTimer(message.duration)})',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              )
-            ],
           ),
           forwardCancel != null
               ? IconButton(
                 splashRadius: 24,
                 icon: Icon(Icons.cancel),
-                onPressed: forwardCancel)
+                onPressed: forwardCancel
+              )
               : Container(height: 0),
         ];
         break;

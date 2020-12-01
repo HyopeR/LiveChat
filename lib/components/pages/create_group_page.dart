@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/alert_container_widget.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
@@ -147,20 +148,24 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                                   Expanded(
                                     child: Container(
                                       child: TextField(
-                                        maxLines: 1,
-                                        maxLength: 19,
-                                        // maxLengthEnforced: true,
+                                        inputFormatters: [LengthLimitingTextInputFormatter(20)],
+
                                         onChanged: (value) {
                                           setState(() {
-                                            _appbarWidgetState.currentState.updateTitle(value);
-                                            groupName = value;
+                                            if(value.length <= 20) {
+                                              _appbarWidgetState.currentState.updateTitle(value);
+                                              groupName = value;
+                                            }
                                           });
                                         },
                                         controller: _controllerName,
                                         focusNode: _focusNode,
-                                        buildCounter: (BuildContext context, {int currentLength, int maxLength, bool isFocused}) {
-                                          return null;
-                                        },
+
+                                        // maxLength: 20,
+                                        // maxLengthEnforced: true,
+                                        // buildCounter: (BuildContext context, {int currentLength, int maxLength, bool isFocused}) {
+                                        //   return null;
+                                        // },
                                         decoration: InputDecoration(
                                           hintText: 'Grup ismini giriniz.',
                                           border: InputBorder.none,
