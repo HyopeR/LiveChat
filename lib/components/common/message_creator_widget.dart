@@ -213,31 +213,33 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
       ),
 
       widget.useAttach != null
-          ? InkWell(
-              onTap: widget.useAttach,
-              child: Container(
-                  alignment: widget.iconAlignment,
-                  width: widget.iconSize,
-                  height: widget.iconSize,
-                  child: Icon(Icons.attach_file, color: widget.iconColor)),
-            )
+          ? Container(
+              alignment: widget.iconAlignment,
+              width: widget.iconSize,
+              height: widget.iconSize,
+              child: InkWell(
+                onTap: widget.useAttach,
+                child: Icon(Icons.attach_file, color: widget.iconColor),
+              )
+          )
           : Container(),
 
       widget.useCamera != null
           ? AnimatedOpacity(
             duration: Duration(milliseconds: 500),
             opacity: controller.text.length <= 0 ? 1 : 0,
-            child: InkWell(
-                    onTap: widget.useCamera,
-                    child: AnimatedContainer(
-                        alignment: widget.iconAlignment,
-                        duration: Duration(milliseconds: 250),
-                        width: controller.text.length <= 0 ? widget.iconSize : 0,
-                        height: controller.text.length <= 0 ? widget.iconSize : 0,
-                        child: Icon(Icons.camera_alt, color: widget.iconColor)),
-                  )
-          )
+            child: AnimatedContainer(
+                duration: Duration(milliseconds: 250),
 
+                alignment: widget.iconAlignment,
+                width: controller.text.length <= 0 ? widget.iconSize : 0,
+                height: controller.text.length <= 0 ? widget.iconSize : 0,
+                child: InkWell(
+                  onTap: widget.useCamera,
+                  child: Icon(Icons.camera_alt, color: widget.iconColor),
+                )
+            ),
+          )
           : Container(),
     ];
   }

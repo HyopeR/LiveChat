@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:linkwell/linkwell.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
@@ -11,10 +11,11 @@ import 'package:live_chat/services/operation_service.dart';
 
 class MessageBubble extends StatelessWidget {
   final String groupType;
+  final bool nipControl;
   final MessageModel message;
   final Color color;
 
-  const MessageBubble({Key key, this.groupType, this.message, this.color}) : super(key: key);
+  const MessageBubble({Key key, this.groupType, this.nipControl, this.message, this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,38 +49,46 @@ class MessageBubble extends StatelessWidget {
         Stack(
           children: [
             IntrinsicWidth(
-              child: ContainerColumn(
-                constraints: BoxConstraints(minWidth: 60),
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  (!message.fromMe && groupType == 'Plural')
-                    ? Container(
-                      padding: EdgeInsets.only(top: 3, bottom: 3),
-                      child: Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold))
-                    )
-                    : Container(width: 0),
+              child: Bubble(
+                nip: nipControl
+                    ? message.fromMe
+                      ? BubbleNip.rightTop
+                      : BubbleNip.leftTop
+                    : BubbleNip.no,
 
-                  message.markedMessage != null
+                elevation: 0,
+                padding: BubbleEdges.all(5),
+                radius: Radius.circular(10),
+                color: color,
+
+                child: ContainerColumn(
+                  constraints: BoxConstraints(minWidth: 60),
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    (!message.fromMe && groupType == 'Plural' && nipControl)
                       ? Container(
-                        margin: EdgeInsets.only(bottom: 6),
-                        child: MessageMarked(message: message.markedMessage),
+                        padding: EdgeInsets.only(top: 3, bottom: 3),
+                        child: Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold))
                       )
-                      : Container(),
-                  Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      child: writeMessage(context, message)),
-                ],
+                      : Container(width: 0),
+
+                    message.markedMessage != null
+                        ? Container(
+                          margin: EdgeInsets.only(bottom: 6),
+                          child: MessageMarked(message: message.markedMessage),
+                        )
+                        : Container(),
+                    Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: writeMessage(context, message)),
+                  ],
+                ),
               ),
             ),
             message.date != null
                 ? Positioned(
-                    right: 5,
+                    right: 12,
                     bottom: 2,
                     child: Text(showClock(message.date),
                         style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 10)))
@@ -104,16 +113,12 @@ class MessageBubble extends StatelessWidget {
         return Container(
             constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
             child: RichText(
-              text: TextSpan(
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
-                  children: spliceTextList == null
-                      ? [TextSpan(text: message.message, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))]
-                      : spliceTextList.map((pieceText) => regexKeepEmoji.hasMatch(pieceText)
-                        ? TextSpan(text: pieceText, style: TextStyle(fontSize: 22))
-                        : TextSpan(text: pieceText, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))
-                      ).toList(),
-              ),
-            ),
+                  text: TextSpan(
+                    children: spliceTextList == null
+                        ? createOnlyText(context, message.message)
+                        : createRichText(context, spliceTextList)
+                  ),
+                ),
         );
         break;
 
@@ -142,13 +147,9 @@ class MessageBubble extends StatelessWidget {
                     margin: EdgeInsets.only(top: 5),
                     child: RichText(
                       text: TextSpan(
-                        style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
-                        children: spliceTextList == null
-                            ? [TextSpan(text: message.message, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))]
-                            : spliceTextList.map((pieceText) => regexKeepEmoji.hasMatch(pieceText)
-                              ? TextSpan(text: pieceText, style: TextStyle(fontSize: 22))
-                              : TextSpan(text: pieceText, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))
-                        ).toList(),
+                          children: spliceTextList == null
+                              ? createOnlyText(context, message.message)
+                              : createRichText(context, spliceTextList)
                       ),
                     ),
                   )
@@ -176,9 +177,33 @@ class MessageBubble extends StatelessWidget {
     }
   }
 
-  String showClock(Timestamp date) {
-    var formatter = DateFormat.Hm();
-    var clock = formatter.format(date.toDate());
-    return clock;
+  // Has not emoji only text or link
+  List<InlineSpan> createOnlyText(BuildContext context, String message) {
+    return [
+      WidgetSpan(
+          style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+          child: LinkWell(
+              message,
+              style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: Theme.of(context).textTheme.bodyText2.fontSize),
+              linkStyle: TextStyle(color: Colors.blueAccent, fontSize: Theme.of(context).textTheme.bodyText2.fontSize + 3)),
+        )
+    ];
+  }
+
+  // Has emoji, text, link
+  List<InlineSpan> createRichText(BuildContext context, List<String> spliceTextList) {
+    return spliceTextList.map((pieceText) {
+      if(regexKeepEmoji.hasMatch(pieceText)) {
+        return TextSpan(text: pieceText, style: TextStyle(fontSize: 18));
+      } else {
+        return WidgetSpan(
+          child: LinkWell(
+              pieceText,
+              style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: Theme.of(context).textTheme.bodyText2.fontSize),
+              linkStyle: TextStyle(color: Colors.blueAccent, fontSize: Theme.of(context).textTheme.bodyText2.fontSize + 3)
+          ),
+        );
+      }
+    }).toList();
   }
 }

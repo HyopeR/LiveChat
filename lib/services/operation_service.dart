@@ -68,6 +68,12 @@ String showDateComposedStringColumn(Timestamp date) {
     return '${dateMap['date']}';
 }
 
+String showClock(Timestamp date) {
+  var formatter = DateFormat.Hm();
+  var clock = formatter.format(date.toDate());
+  return clock;
+}
+
 Future<Color> getDynamicColor(String imageUrl) async {
   PaletteGenerator palette = await PaletteGenerator.fromImageProvider(NetworkImage(imageUrl));
   Color color = palette.vibrantColor != null

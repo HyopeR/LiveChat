@@ -50,6 +50,9 @@ dependencies:
   palette_generator: ^0.2.3
   flutter_keyboard_visibility: ^4.0.2
 
+  linkwell: ^0.1.9
+  bubble: ^1.1.9+1
+
   #camera: ^0.5.8+11
   #video_player: ^1.0.0
 

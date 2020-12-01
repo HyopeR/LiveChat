@@ -498,6 +498,10 @@ class _ChatPageState extends State<ChatPage> {
     MessageModel currentMessage = messages[index];
 
     if(currentMessage.messageType != 'System') {
+      bool nipControl = true;
+      if(messages.length > 1)
+        nipControl = currentMessage.sendBy != messages[index + 1].sendBy;
+
       bool fromMe = currentMessage.sendBy == _userView.user.userId;
       currentMessage.fromMe = fromMe;
 
@@ -587,6 +591,7 @@ class _ChatPageState extends State<ChatPage> {
 
               child: MessageBubble(
                 groupType: _chatView.groupType,
+                nipControl: nipControl,
                 message: currentMessage,
                 color: currentMessage.fromMe
                     ? Theme.of(context).primaryColor.withAlpha(200)
