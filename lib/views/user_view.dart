@@ -30,10 +30,6 @@ class UserView with ChangeNotifier implements AuthBase {
     notifyListeners();
   }
 
-  // bool searchUserInContacts(String userId) {
-  //   return contactsIdList.contains(userId);
-  // }
-
   @override
   Future<UserModel> getCurrentUser() async {
     try{
@@ -218,14 +214,7 @@ class UserView with ChangeNotifier implements AuthBase {
   Future<bool> updateUserName(String userId, String newUserName) async {
 
     try{
-
       bool result = await _userRepo.updateUserName(userId, newUserName);
-
-      // if(result) {
-      //   _user.userName = newUserName;
-      //   _user.updatedAt = DateTime.now();
-      // }
-
       return result;
 
     }catch(err) {
@@ -240,12 +229,6 @@ class UserView with ChangeNotifier implements AuthBase {
 
     try{
       String fileUrl = await _userRepo.uploadProfilePhoto(userId, fileType, file);
-
-      // if(fileUrl != null) {
-      //   _user.userProfilePhotoUrl = fileUrl;
-      //   _user.updatedAt = DateTime.now();
-      // }
-
       return fileUrl;
 
     }catch(err) {
@@ -255,16 +238,6 @@ class UserView with ChangeNotifier implements AuthBase {
     }
 
   }
-
-  // Future<bool> addContact(String userId, String interlocutorUserId) async {
-  //   try{
-  //     return _userRepo.addContact(userId, interlocutorUserId);
-  //   } catch(err) {
-  //     print('addContact Error: ${err.toString()}');
-  //     return null;
-  //   }
-  // }
-
 
   Future<void> loginUpdate(String userId) async {
 
@@ -287,5 +260,19 @@ class UserView with ChangeNotifier implements AuthBase {
     }
 
   }
+
+
+// bool searchUserInContacts(String userId) {
+//   return contactsIdList.contains(userId);
+// }
+//
+// Future<bool> addContact(String userId, String interlocutorUserId) async {
+//   try{
+//     return _userRepo.addContact(userId, interlocutorUserId);
+//   } catch(err) {
+//     print('addContact Error: ${err.toString()}');
+//     return null;
+//   }
+// }
 
 }

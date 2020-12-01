@@ -16,6 +16,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 
   final Color textColor;
   final Color backgroundColor;
+  final Color operationColor;
   final Brightness brightness;
 
   final List<Widget> actions;
@@ -32,6 +33,7 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
     this.titleImage,
     this.textColor : Colors.black,
     this.backgroundColor : Colors.amber,
+    this.operationColor : Colors.orange,
     this.brightness : Brightness.light,
     this.actions,
     this.operationActions,
@@ -47,7 +49,6 @@ class AppbarWidget extends StatefulWidget implements PreferredSizeWidget {
 class AppbarWidgetState extends State<AppbarWidget> {
 
   bool operation = false;
-  Color operationColor;
   String subTitle;
   String title;
 
@@ -78,8 +79,6 @@ class AppbarWidgetState extends State<AppbarWidget> {
   @override
   void initState() {
     super.initState();
-    operationColor = widget.backgroundColor.withAlpha(180);
-
     if(widget.subTitleText != null)
       subTitle = widget.subTitleText;
 
@@ -186,7 +185,7 @@ class AppbarWidgetState extends State<AppbarWidget> {
     return AppBar(
       brightness: widget.brightness,
       elevation: 0,
-      backgroundColor: operationColor,
+      backgroundColor: widget.operationColor,
       leading: InkWell(
         onTap: () {
           widget.onOperationCancel();

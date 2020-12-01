@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:live_chat/components/common/container_column.dart';
-import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/common/sound_player.dart';

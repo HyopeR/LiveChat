@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/views/chat_view.dart';

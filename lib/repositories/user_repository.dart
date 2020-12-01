@@ -89,10 +89,10 @@ class UserRepository implements AuthBase{
 
   Future<bool> controllerUser(String email) async {
 
-    bool result = await _fireStoreDbService.checkUserWithEmail(email);
-    return result;
+  bool result = await _fireStoreDbService.checkUserWithEmail(email);
+  return result;
 
-  }
+}
 
   @override
   Future<UserModel> createUserEmailAndPassword(String email, String password) async {
@@ -129,10 +129,6 @@ class UserRepository implements AuthBase{
     return fileUploadComplete ? fileUrl : null;
   }
 
-  // Future<bool> addContact(String userId, String interlocutorUserId) async {
-  //   return _fireStoreDbService.addContact(userId, interlocutorUserId);
-  // }
-
   Future<void> loginUpdate(String userId) async {
     return _fireStoreDbService.loginUpdate(userId);
   }
@@ -140,5 +136,9 @@ class UserRepository implements AuthBase{
   Future<void> logoutUpdate(String userId) async {
     return _fireStoreDbService.logoutUpdate(userId);
   }
+
+// Future<bool> addContact(String userId, String interlocutorUserId) async {
+//   return _fireStoreDbService.addContact(userId, interlocutorUserId);
+// }
 
 }

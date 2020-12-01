@@ -57,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppbarWidget(
           backgroundColor: Theme.of(context).primaryColor,
+          operationColor: Theme.of(context).primaryColor.withAlpha(180),
           titleText: 'Live Chat',
           actions: [
             FlatButton(

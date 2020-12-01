@@ -192,8 +192,8 @@ class _ChatPageState extends State<ChatPage> {
 
     String appBarSubtitle = _chatView.groupType == 'Private'
         ? _chatView.selectChatUser(_chatView.interlocutorUser.userId).online
-        ? 'Online'
-        : 'Son görülme: ' + showDateComposedString(_chatView.interlocutorUser.lastSeen)
+          ? 'Online'
+          : 'Son görülme: ' + showDateComposedString(_chatView.interlocutorUser.lastSeen)
         : 'Group';
 
     return WillPopScope(
@@ -219,6 +219,7 @@ class _ChatPageState extends State<ChatPage> {
       child: Scaffold(
           appBar: AppbarWidget(
             backgroundColor: Theme.of(context).primaryColor,
+            operationColor: Theme.of(context).primaryColor.withAlpha(180),
             key: _appbarWidgetState,
             onLeftSideClick: () {
               if(_messageCreatorState.currentState.controller.text.trim().length > 0) {
@@ -588,7 +589,7 @@ class _ChatPageState extends State<ChatPage> {
                 groupType: _chatView.groupType,
                 message: currentMessage,
                 color: currentMessage.fromMe
-                    ? Theme.of(context).primaryColor.withOpacity(0.8)
+                    ? Theme.of(context).primaryColor.withAlpha(200)
                     : Colors.grey.shade300.withOpacity(0.8),
               ),
             ),

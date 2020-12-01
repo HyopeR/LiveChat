@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
-import 'package:live_chat/components/common/custom_bottom_navigation.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
@@ -24,7 +23,6 @@ class _UsersPageState extends State<UsersPage> {
   UserView _userView;
   ChatView _chatView;
 
-  GlobalKey<CustomBottomNavigationState> _customBottomNavigationState = GlobalKey();
   GlobalKey<AppbarWidgetState> _appbarWidgetState = GlobalKey();
 
   List<UserModel> users;
@@ -38,6 +36,7 @@ class _UsersPageState extends State<UsersPage> {
     return Scaffold(
         appBar: AppbarWidget(
           backgroundColor: Theme.of(context).primaryColor,
+          operationColor: Theme.of(context).primaryColor.withAlpha(180),
           key: _appbarWidgetState,
           titleText: 'Live Chat',
           // actions: [

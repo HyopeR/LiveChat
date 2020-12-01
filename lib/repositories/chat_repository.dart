@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:live_chat/locator.dart';
 import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/message_model.dart';
@@ -15,14 +14,7 @@ class ChatRepository {
   FirebaseStorageService _firebaseStorageService = locator<FirebaseStorageService>();
   VoiceRecordService _voiceRecordService = locator<VoiceRecordService>();
 
-  // Future<List<UserModel>> searchUsers(String userName) async {
-  //   return _fireStoreDbService.searchUsers(userName);
-  // }
-  //
-  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
-  //   return _fireStoreDbService.getAllContacts(contactsIdList);
-  // }
-
+  // Ana işlemler.
   Stream<List<UserModel>> getAllUsers() {
     return _fireStoreDbService.getAllUsers();
   }
@@ -39,32 +31,17 @@ class ChatRepository {
     return _fireStoreDbService.getGroupIdByUserIdList(userId, groupType, userIdList);
   }
 
-  Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId) async {
-    return _fireStoreDbService.saveMessage(message, messageOwner, groupId);
-  }
-
+  // Mesaj kaydetme ve yan işlevleri.
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage) async {
     return _fireStoreDbService.messagesMarkAsSeen(userId, groupId, totalMessage);
   }
 
+  Future<bool> saveMessage(MessageModel message, UserModel messageOwner, String groupId) async {
+    return _fireStoreDbService.saveMessage(message, messageOwner, groupId);
+  }
+
   Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
     return _fireStoreDbService.updateMessageAction(actionCode, userId, groupId);
-  }
-
-  Stream<GroupModel> streamOneGroup(String groupId) {
-    return _fireStoreDbService.streamOneGroup(groupId);
-  }
-
-  Stream<UserModel> streamOneUser(String userId) {
-    return _fireStoreDbService.streamOneUser(userId);
-  }
-
-  Future<String> createGroupId() async {
-    return _fireStoreDbService.createGroupId();
-  }
-
-  Future<GroupModel> createGroup(UserModel user, GroupModel group) async {
-    return _fireStoreDbService.createGroup(user, group);
   }
 
   Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
@@ -75,10 +52,29 @@ class ChatRepository {
     return _firebaseStorageService.uploadImage(groupId, fileType, file);
   }
 
+  // Chat ve User Preview Page için tekil streamlar
+  Stream<GroupModel> streamOneGroup(String groupId) {
+    return _fireStoreDbService.streamOneGroup(groupId);
+  }
+
+  Stream<UserModel> streamOneUser(String userId) {
+    return _fireStoreDbService.streamOneUser(userId);
+  }
+
+  // Plural grup işlemleri
+  Future<String> createGroupId() async {
+    return _fireStoreDbService.createGroupId();
+  }
+
+  Future<GroupModel> createGroup(UserModel user, GroupModel group) async {
+    return _fireStoreDbService.createGroup(user, group);
+  }
+
   Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
     return _firebaseStorageService.uploadGroupPhoto(groupId, fileType, file);
   }
 
+  // Ses kayıt işlemleri
   void recordStart() async {
     return _voiceRecordService.recordStart();
   }
@@ -90,5 +86,14 @@ class ChatRepository {
   Future<bool> clearStorage() async {
     return _voiceRecordService.clearStorage();
   }
+
+
+// Future<List<UserModel>> searchUsers(String userName) async {
+//   return _fireStoreDbService.searchUsers(userName);
+// }
+//
+// Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+//   return _fireStoreDbService.getAllContacts(contactsIdList);
+// }
 
 }

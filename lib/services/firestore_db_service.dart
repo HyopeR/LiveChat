@@ -10,7 +10,6 @@ class FireStoreDbService implements DbBase {
   @override
   Future<bool> saveUser(UserModel user) async {
     await _fireStore.collection('users').doc(user.userId).set(user.toMap());
-
     return true;
   }
 
@@ -28,6 +27,22 @@ class FireStoreDbService implements DbBase {
     Stream<DocumentSnapshot> streamUser = _fireStore.collection('users').doc(userId).snapshots();
 
     return streamUser.map((user) => UserModel.fromMap(user.data()));
+  }
+
+  @override
+  Future<void> loginUpdate(String userId) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'online': true,
+      'lastSeen': FieldValue.serverTimestamp()
+    });
+  }
+
+  @override
+  Future<void> logoutUpdate(String userId) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'online': false,
+      'lastSeen': FieldValue.serverTimestamp()
+    });
   }
 
   @override
@@ -85,48 +100,6 @@ class FireStoreDbService implements DbBase {
 
     return true;
   }
-
-  // @override
-  // Future<List<UserModel>> searchUsers(String userName) async {
-  //   QuerySnapshot usersQuery;
-  //
-  //   if(userName.trim().length > 0) {
-  //     usersQuery = await _fireStore.collection('users').orderBy('userName').startAt([userName]).endAt([userName]).get();
-  //   } else {
-  //     usersQuery = await _fireStore.collection('users').get();
-  //   }
-  //
-  //   List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
-  //   return users;
-  // }
-  //
-  // @override
-  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
-  //   List<dynamic> whereList = contactsIdList;
-  //   if(contactsIdList.length < 1)
-  //     whereList.add('EmptyId');
-  //
-  //   Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')
-  //       .where('userId', whereIn: contactsIdList)
-  //       .snapshots();
-  //
-  //   return contactsQuery.map((contacts) => contacts.docs
-  //       .map((contact) => UserModel.fromMap(contact.data()))
-  //       .toList());
-  // }
-  //
-  // @override
-  // Future<bool> addContact(String userId, String interlocutorUserId) async {
-  //   await _fireStore.collection('users').doc(userId).update({
-  //     'contacts': FieldValue.arrayUnion([interlocutorUserId]),
-  //   });
-  //
-  //   await _fireStore.collection('users').doc(interlocutorUserId).update({
-  //     'contacts': FieldValue.arrayUnion([userId]),
-  //   });
-  //
-  //   return true;
-  // }
 
   @override
   Stream<List<UserModel>> getAllUsers() {
@@ -264,22 +237,6 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Future<void> loginUpdate(String userId) async {
-    await _fireStore.collection('users').doc(userId).update({
-      'online': true,
-      'lastSeen': FieldValue.serverTimestamp()
-    });
-  }
-
-  @override
-  Future<void> logoutUpdate(String userId) async {
-    await _fireStore.collection('users').doc(userId).update({
-      'online': false,
-      'lastSeen': FieldValue.serverTimestamp()
-    });
-  }
-
-  @override
   Future<void> updateMessageAction(int actionCode, String userId, String groupId) async {
     await _fireStore.collection('groups').doc(groupId).update({
       'actions.$userId.action': actionCode
@@ -338,5 +295,48 @@ class FireStoreDbService implements DbBase {
 
     return group;
   }
+
+
+// @override
+// Future<List<UserModel>> searchUsers(String userName) async {
+//   QuerySnapshot usersQuery;
+//
+//   if(userName.trim().length > 0) {
+//     usersQuery = await _fireStore.collection('users').orderBy('userName').startAt([userName]).endAt([userName]).get();
+//   } else {
+//     usersQuery = await _fireStore.collection('users').get();
+//   }
+//
+//   List<UserModel> users = usersQuery.docs.map((user) => UserModel.fromMap(user.data())).toList();
+//   return users;
+// }
+//
+// @override
+// Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+//   List<dynamic> whereList = contactsIdList;
+//   if(contactsIdList.length < 1)
+//     whereList.add('EmptyId');
+//
+//   Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')
+//       .where('userId', whereIn: contactsIdList)
+//       .snapshots();
+//
+//   return contactsQuery.map((contacts) => contacts.docs
+//       .map((contact) => UserModel.fromMap(contact.data()))
+//       .toList());
+// }
+//
+// @override
+// Future<bool> addContact(String userId, String interlocutorUserId) async {
+//   await _fireStore.collection('users').doc(userId).update({
+//     'contacts': FieldValue.arrayUnion([interlocutorUserId]),
+//   });
+//
+//   await _fireStore.collection('users').doc(interlocutorUserId).update({
+//     'contacts': FieldValue.arrayUnion([userId]),
+//   });
+//
+//   return true;
+// }
 
 }

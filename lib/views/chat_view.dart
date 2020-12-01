@@ -49,23 +49,25 @@ class ChatView with ChangeNotifier {
     return true;
   }
 
-
-
+  // Herhangi bir yerden userId alıp user döndürür.
   UserModel selectChatUser(String userId) {
     UserModel user = users.where((user) => user.userId == userId).first;
     return user;
   }
 
+  // Herhangi bir chat sayfasından çıkışta çalışır.
   void resetMessages() {
     _messages = List<MessageModel>();
   }
 
+  // Chats page'inden herhangi bir konuşmaya tıklandığında çalışır.
   GroupModel selectChat(String groupId) {
     selectedChat = _groups.where((group) => group.groupId == groupId).first;
     selectedChatState = SelectedChatState.Loaded;
     return selectedChat;
   }
 
+  // Users page'inden henhangi bir user'a tıklandığında çalışır.
   findChatByUserIdList(List<String> userIdList) {
     if(_groups.length > 0) {
       GroupModel findGroup;
@@ -89,28 +91,7 @@ class ChatView with ChangeNotifier {
     }
   }
 
-  // Future<List<UserModel>> searchUsers(String userName) async {
-  //   try{
-  //     return _chatRepo.searchUsers(userName);
-  //   } catch(err) {
-  //     print('searchUsers Error: ${err.toString()}');
-  //     return null;
-  //   }
-  // }
-  //
-  // Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
-  //   try{
-  //     _chatRepo.getAllContacts(contactsIdList).listen((contactsData) {
-  //       contacts = contactsData;
-  //     });
-  //
-  //     return _chatRepo.getAllContacts(contactsIdList);
-  //   }catch(err) {
-  //     print('getAllContacts Error: ${err.toString()}');
-  //     return null;
-  //   }
-  // }
-
+  // Tüm userları getir.
   Stream<List<UserModel>> getAllUsers() {
     try{
       _chatRepo.getAllUsers().listen((usersData) {
@@ -124,6 +105,7 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  // User'ın kayıtlı olduğu tüm grupları getir.
   Stream<List<GroupModel>> getAllGroups(String userId) {
     try{
       _chatRepo.getAllGroups(userId).listen((groupData) {
@@ -148,6 +130,7 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  // Herhangi bir chat  sayfasına girildiğinde stream olarak mesajları getirir.
   Stream<List<MessageModel>> getMessages(String groupId) {
 
     try{
@@ -162,6 +145,8 @@ class ChatView with ChangeNotifier {
     }
   }
 
+
+  // Private bir konuşma daha önceden başlatılmışmı? başlatılmamışmı? Bunu kontrol eder ve ona göre işlem yapar.
   Future<GroupModel> getGroupIdByUserIdList(String userId, String groupType, List<String> userIdList) async {
     try{
       selectedChatState = SelectedChatState.Loading;
@@ -271,6 +256,29 @@ class ChatView with ChangeNotifier {
   Future<bool> clearStorage() async {
     return _chatRepo.clearStorage();
   }
+
+/// Bu alarlar şuanda proje dahilinden kaldırıldı.
+// Future<List<UserModel>> searchUsers(String userName) async {
+//   try{
+//     return _chatRepo.searchUsers(userName);
+//   } catch(err) {
+//     print('searchUsers Error: ${err.toString()}');
+//     return null;
+//   }
+// }
+//
+// Stream<List<UserModel>> getAllContacts(List<dynamic> contactsIdList) {
+//   try{
+//     _chatRepo.getAllContacts(contactsIdList).listen((contactsData) {
+//       contacts = contactsData;
+//     });
+//
+//     return _chatRepo.getAllContacts(contactsIdList);
+//   }catch(err) {
+//     print('getAllContacts Error: ${err.toString()}');
+//     return null;
+//   }
+// }
 
 
 }

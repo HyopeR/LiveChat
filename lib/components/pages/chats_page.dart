@@ -38,6 +38,7 @@ class _ChatsPageState extends State<ChatsPage> {
     return Scaffold(
         appBar: AppbarWidget(
           backgroundColor: Theme.of(context).primaryColor,
+          operationColor: Theme.of(context).primaryColor.withAlpha(180),
           key: _appbarWidgetState,
           titleText: 'Live Chat',
           operationActions: createOperationActions(),

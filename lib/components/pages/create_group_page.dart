@@ -71,6 +71,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
       appBar: AppbarWidget(
         backgroundColor: Theme.of(context).primaryColor,
+        operationColor: Theme.of(context).primaryColor.withAlpha(180),
         key: _appbarWidgetState,
         appBarType: 'Chat',
         titleImage: ImageWidget(
@@ -310,7 +311,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             members: groupMembers,
         );
 
-        GroupModel group = await _chatView.createGroup(_userView.user, createdGroup);
+        await _chatView.createGroup(_userView.user, createdGroup);
         // _chatView.selectChat(group.groupId);
         Navigator.of(context).pop();
         Navigator.of(context).pop(true);
