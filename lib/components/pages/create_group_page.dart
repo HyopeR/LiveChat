@@ -234,28 +234,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                               ],
                             )
                         ).toList(),
-
-                        // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        //   crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 4 : 8,
-                        // ),
-
-                        // itemBuilder: (BuildContext context, int index) {
-                        //
-                        //   return ContainerColumn(
-                        //     height: 100,
-                        //     children: [
-                        //       ImageWidget(
-                        //         image: NetworkImage(widget.selectedUserList[index].userProfilePhotoUrl),
-                        //         imageWidth: 65,
-                        //         imageHeight: 65,
-                        //         backgroundShape: BoxShape.circle,
-                        //         backgroundColor: Colors.grey.withOpacity(0.3),
-                        //       ),
-                        //       Text(widget.selectedUserList[index].userName),
-                        //     ],
-                        //   );
-                        //
-                        // }
                     ),
                   )
                 ],

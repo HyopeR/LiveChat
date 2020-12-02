@@ -70,6 +70,10 @@ class ChatRepository {
     return _fireStoreDbService.createGroup(user, group);
   }
 
+  Future<bool> updateGroupPhoto(String groupId, String imgUrl) async {
+    return _fireStoreDbService.updateGroupPhoto(groupId, imgUrl);
+  }
+
   Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
     return _firebaseStorageService.uploadGroupPhoto(groupId, fileType, file);
   }

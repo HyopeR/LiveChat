@@ -20,8 +20,14 @@ String calculateTimer(int time) {
 
 Map<String, dynamic> showDate(Timestamp date) {
   DateTime currentDate = DateTime.now();
-  DateTime serverDate = date != null ? date.toDate() : Timestamp(1,1).toDate();
-  int differenceDay = currentDate.day - serverDate.day;
+  DateTime serverDate = date != null ? date.toDate() : DateTime.now();
+
+  int differenceDay =
+  currentDate.year == serverDate.year
+      ? currentDate.month == serverDate.month
+        ? currentDate.day - serverDate.day
+        : -1
+      : -1;
 
   var formatterDate = DateFormat.yMd();
   var formatterClock = DateFormat.Hm();
@@ -51,8 +57,8 @@ Map<String, dynamic> showDate(Timestamp date) {
 }
 
 bool calculateDateDifference(Timestamp firstDate, Timestamp secondDate) {
-  DateTime dateOne = firstDate.toDate();
-  DateTime dateTwo = secondDate.toDate();
+  DateTime dateOne = firstDate != null ?  firstDate.toDate() : DateTime.now();
+  DateTime dateTwo = secondDate != null ?  secondDate.toDate() : DateTime.now();
 
   int differenceDay = dateOne.day - dateTwo.day;
   bool sameMonth = dateOne.month == dateTwo.month;
@@ -105,7 +111,9 @@ Future<Color> getDynamicColor(String imageUrl) async {
       ? palette.vibrantColor.color
       : palette.lightVibrantColor != null
         ? palette.lightVibrantColor.color
-        : palette.dominantColor.color;
+        : palette.dominantColor != null
+          ? palette.dominantColor.color
+          : Colors.orange;
 
   return color;
 }

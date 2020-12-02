@@ -234,6 +234,15 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  Future<bool> updateGroupPhoto(String groupId, String imgUrl) async {
+    try{
+      return _chatRepo.updateGroupPhoto(groupId, imgUrl);
+    }catch(err) {
+      print('updateGroupPhoto Error: ${err.toString()}');
+      return false;
+    }
+  }
+
   Future<String> uploadGroupPhoto(String groupId, String fileType, File file) async {
     try{
       return _chatRepo.uploadGroupPhoto(groupId, fileType, file);

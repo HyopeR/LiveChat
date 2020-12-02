@@ -37,7 +37,16 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset('assets/images/live_chat_logo.png'),
+                  Container(
+                    width: 128,
+                    height: 128,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/live_chat_logo.png'),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 10),
                   Text('Live Chat with Flutter', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize)),
                 ],

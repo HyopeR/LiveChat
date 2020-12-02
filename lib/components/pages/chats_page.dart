@@ -210,6 +210,12 @@ class _ChatsPageState extends State<ChatsPage> {
         child: ListTile(
             leading: InkWell(
               onTap: () {
+                _chatView.groupType = currentChat.groupType;
+                _chatView.selectChat(currentChat.groupId);
+
+                if(_chatView.groupType == 'Private')
+                  _chatView.interlocutorUser = interlocutorUser;
+
                 UserDialogWidget(
                   name: currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName,
                   photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
@@ -219,22 +225,10 @@ class _ChatsPageState extends State<ChatsPage> {
                   },
 
                   onChatClick: () {
-                    _chatView.selectChat(currentChat.groupId);
-                    _chatView.groupType = currentChat.groupType;
-
-                    if(_chatView.groupType == 'Private')
-                      _chatView.interlocutorUser = interlocutorUser;
-
                     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
                   },
 
                   onDetailClick: () async {
-                    _chatView.groupType = currentChat.groupType;
-                    if(_chatView.groupType == 'Private')
-                      _chatView.interlocutorUser = interlocutorUser;
-                    else
-                      _chatView.selectChat(currentChat.groupId);
-
                     Color pageColor = await getDynamicColor(_chatView.groupType == 'Private'
                             ? _chatView.interlocutorUser.userProfilePhotoUrl
                             : _chatView.selectedChat.groupImageUrl

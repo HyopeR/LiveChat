@@ -26,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
-  ImagePicker picker = ImagePicker();
+  ImagePicker picker;
 
   File _profilePhoto;
 
@@ -40,6 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    picker =  ImagePicker();
     _controllerUserName = TextEditingController();
   }
 

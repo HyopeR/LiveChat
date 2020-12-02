@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -25,6 +27,9 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
   ChatView _chatView;
   StreamSubscription<UserModel> _subscriptionUser;
   StreamSubscription<GroupModel> _subscriptionGroup;
+
+  ImagePicker picker = ImagePicker();
+
 
   @override
   void initState() {
@@ -139,11 +144,29 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
         primary: true,
         slivers: [
           Theme(
-            data: ThemeData.dark(),
+            data: Theme.of(context).copyWith(
+              primaryColorBrightness: Brightness.dark,
+              primaryIconTheme: IconThemeData(
+                  color: Colors.white
+              )
+            ),
             child: SliverAppBar(
               expandedHeight: MediaQuery.of(context).size.height * 0.5,
               pinned: true,
               primary: true,
+              actions: _chatView.groupType == 'Private'
+                  ? []
+                  : [
+                    IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (context) => showModal()
+                          );
+                        }
+                    )
+                  ],
               backgroundColor: widget.color != null ? widget.color : Colors.amber,
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: EdgeInsets.only(left: 56, bottom: 10),
@@ -218,13 +241,31 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: Container(
-                    height: 56,
+                    height: 86,
                     child: Theme(
-                      data: ThemeData.dark(),
+                      data: Theme.of(context).copyWith(
+                          primaryColorBrightness: Brightness.dark,
+                          primaryIconTheme: IconThemeData(
+                              color: Colors.white
+                          ),
+                      ),
                       child: AppbarWidget(
                         titleText: ' ',
                         backgroundColor: Colors.transparent,
                         textColor: Colors.white,
+                        actions: _chatView.groupType == 'Private'
+                            ? []
+                            : [
+                              IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                        context: context,
+                                        builder: (context) => showModal()
+                                    );
+                                  }
+                              )
+                            ]
                       ),
                     ),
                   ),
@@ -274,6 +315,51 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
             ),
           ),
 
+        ],
+      ),
+    );
+  }
+
+  void photoFromCamera() async {
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      File file = File(pickedFile.path);
+      String imgUrl = await _chatView.uploadGroupPhoto(_chatView.selectedChat.groupId, 'Profile_Photo', file);
+      bool result = await _chatView.updateGroupPhoto(_chatView.selectedChat.groupId, imgUrl);
+
+      if(result)
+        setState(() {});
+    }
+  }
+
+  void photoFromGallery() async {
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      File file = File(pickedFile.path);
+      String imgUrl = await _chatView.uploadGroupPhoto(_chatView.selectedChat.groupId, 'Profile_Photo', file);
+      bool result = await _chatView.updateGroupPhoto(_chatView.selectedChat.groupId, imgUrl);
+
+      if(result)
+        setState(() {});
+    }
+  }
+
+  showModal() {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text('Kamera Kullan'),
+            onTap: () => photoFromCamera(),
+          ),
+
+          ListTile(
+            leading: Icon(Icons.image),
+            title: Text('Geleriden Seç'),
+            onTap: () => photoFromGallery(),
+          )
         ],
       ),
     );

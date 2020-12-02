@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
           ).apply(
             bodyColor: Colors.black,
           ),
-          
+
           inputDecorationTheme: InputDecorationTheme(
             contentPadding: EdgeInsets.all(10),
           ),

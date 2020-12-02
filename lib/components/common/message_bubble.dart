@@ -24,7 +24,7 @@ class MessageBubble extends StatelessWidget {
 
       case('Video'):
       case('Image'):
-        bubbleMarginRate = 0.4;
+        bubbleMarginRate = 0.3;
         break;
 
       case('Sound'):
@@ -123,42 +123,42 @@ class MessageBubble extends StatelessWidget {
         break;
 
       case ('Image'):
-        double imageSize = MediaQuery.of(context).orientation == Orientation.portrait
-          ? (MediaQuery.of(context).size.width * 0.6) - 20
-          : (MediaQuery.of(context).size.width * 0.4) - 20;
+        double imageSize = (MediaQuery.of(context).size.width * 0.7) - 20;
 
-        return InkWell(
-          onTap: () {
-            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => MediaShowPage(currentMessageId: message.messageId)));
-          },
-          child: ContainerColumn(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Hero(
-                tag: message.messageId,
-                child: ImageWidget(
-                    backgroundRadius: BorderRadius.circular(5),
-                    backgroundPadding: 0,
-                    imageWidth: imageSize,
-                    imageHeight: imageSize,
-                    image: NetworkImage(message.attach),
-                    imageFit: BoxFit.cover
+        return ContainerColumn(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              onTap: () {
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => MediaShowPage(currentMessageId: message.messageId)));
+              },
+              child: Container(
+                child: Hero(
+                  tag: message.messageId,
+                  child: ImageWidget(
+                      backgroundRadius: BorderRadius.circular(5),
+                      backgroundPadding: 0,
+                      imageWidth: imageSize,
+                      imageHeight: imageSize,
+                      image: NetworkImage(message.attach),
+                      imageFit: BoxFit.cover
+                  ),
                 ),
               ),
-              message.message != null
-                  ? Container(
-                    margin: EdgeInsets.only(top: 5),
-                    child: RichText(
-                      text: TextSpan(
-                          children: spliceTextList == null
-                              ? createOnlyText(context, message.message)
-                              : createRichText(context, spliceTextList)
-                      ),
+            ),
+            message.message != null
+                ? Container(
+                  margin: EdgeInsets.only(top: 5),
+                  child: RichText(
+                    text: TextSpan(
+                        children: spliceTextList == null
+                            ? createOnlyText(context, message.message)
+                            : createRichText(context, spliceTextList)
                     ),
-                  )
-                  : Container(width: 0),
-            ],
-          ),
+                  ),
+                )
+                : Container(width: 0),
+          ],
         );
         break;
 

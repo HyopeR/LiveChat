@@ -38,6 +38,7 @@ abstract class DbBase {
   // Grup oluşturma işlemi.
   Future<String> createGroupId();
   Future<GroupModel> createGroup(UserModel user, GroupModel group);
+  Future<bool> updateGroupPhoto(String groupId, String imgUrl);
 
   // Görülen mesajlara göre sayaç arttırılması.
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage);

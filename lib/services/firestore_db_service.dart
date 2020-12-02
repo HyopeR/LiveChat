@@ -296,6 +296,16 @@ class FireStoreDbService implements DbBase {
     return group;
   }
 
+  @override
+  Future<bool> updateGroupPhoto(String groupId, String imgUrl) async {
+    await _fireStore.collection('groups').doc(groupId).update({
+      'groupImageUrl': imgUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
+  }
+
 
 // @override
 // Future<List<UserModel>> searchUsers(String userName) async {

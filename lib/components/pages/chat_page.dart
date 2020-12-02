@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
-import 'package:bubble/bubble.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/system_bubble.dart';
 import 'package:path/path.dart' as path;
@@ -38,6 +37,7 @@ class _ChatPageState extends State<ChatPage> {
 
   StreamSubscription<UserModel> _subscriptionUser;
   StreamSubscription<GroupModel> _subscriptionGroup;
+
   UserModel interlocutorUser;
 
   LocalFileSystem _localFileSystem = LocalFileSystem();
@@ -502,8 +502,10 @@ class _ChatPageState extends State<ChatPage> {
     }
 
     if(currentMessage.messageType != 'System') {
-      bool nipControl = true;
-      if(messages.length > 1)
+      bool nipControl = false;
+      if(index + 1 == messages.length)
+        nipControl = true;
+      else
         nipControl = currentMessage.sendBy != messages[index + 1].sendBy;
 
       bool fromMe = currentMessage.sendBy == _userView.user.userId;

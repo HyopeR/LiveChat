@@ -172,6 +172,14 @@ class _UsersPageState extends State<UsersPage> {
           child: ListTile(
             leading: InkWell(
               onTap: () {
+                _chatView.findChatByUserIdList([
+                  _userView.user.userId,
+                  currentUser.userId
+                ]);
+
+                _chatView.interlocutorUser = currentUser;
+                _chatView.groupType = 'Private';
+
                 UserDialogWidget(
                   name: currentUser.userName,
                   photoUrl: currentUser.userProfilePhotoUrl,
@@ -181,19 +189,10 @@ class _UsersPageState extends State<UsersPage> {
                   },
 
                   onChatClick: () {
-                    _chatView.findChatByUserIdList([
-                      _userView.user.userId,
-                      currentUser.userId
-                    ]);
-
-                    _chatView.interlocutorUser = currentUser;
-                    _chatView.groupType = 'Private';
                     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
                   },
 
                   onDetailClick: () async {
-                    _chatView.groupType = 'Private';
-                    _chatView.interlocutorUser = currentUser;
                     Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
                     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
                   },
