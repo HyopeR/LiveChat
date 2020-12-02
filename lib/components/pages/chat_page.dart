@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:bubble/bubble.dart';
 import 'package:live_chat/components/common/image_widget.dart';
+import 'package:live_chat/components/common/system_bubble.dart';
 import 'package:path/path.dart' as path;
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +59,6 @@ class _ChatPageState extends State<ChatPage> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
 
       getPermissionStatus();
-
-      if(_messageCreatorState.currentState != null)
-        _messageCreatorState.currentState.focusNode.addListener(() {
-          setState(() {});
-        });
 
       if(_chatView.groupType == 'Private') {
         _subscriptionUser = _chatView.streamOneUser(_chatView.interlocutorUser.userId).listen((user) {
@@ -497,6 +494,13 @@ class _ChatPageState extends State<ChatPage> {
   Widget createItem(int index) {
     MessageModel currentMessage = messages[index];
 
+    bool dayChange = false;
+    if(index + 1 == messages.length) {
+      dayChange = true;
+    } else {
+      dayChange = calculateDateDifference(currentMessage.date, messages[index + 1].date);
+    }
+
     if(currentMessage.messageType != 'System') {
       bool nipControl = true;
       if(messages.length > 1)
@@ -548,82 +552,86 @@ class _ChatPageState extends State<ChatPage> {
 
       bool selected = selectedMessagesList.map((e) => e.messageId).contains(currentMessage.messageId);
 
-      return Dismissible(
-          key: Key(currentMessage.messageId),
-          direction: DismissDirection.startToEnd,
-          // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
-          confirmDismiss: (direction) async {
+      return ContainerColumn(
+        crossAxisAlignment: currentMessage.fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          dayChange
+              ? SystemBubble(message: showDateOnly(currentMessage.date), operationType: 'Date')
+              : Container(),
 
-            _messageCreatorState.currentState.setMarkedMessage(MessageMarked(
-              message: currentMessage,
-              mainAxisSize: MainAxisSize.max,
-              forwardCancel: () {
-                _messageCreatorState.currentState.setMarkedMessage(null);
-                markedMessage = null;
+          Dismissible(
+              key: Key(currentMessage.messageId),
+              direction: DismissDirection.startToEnd,
+              // confirmDismiss: (direction) async => direction == DismissDirection.startToEnd ? false : false,
+              confirmDismiss: (direction) async {
+
+                _messageCreatorState.currentState.setMarkedMessage(MessageMarked(
+                  message: currentMessage,
+                  mainAxisSize: MainAxisSize.max,
+                  forwardCancel: () {
+                    _messageCreatorState.currentState.setMarkedMessage(null);
+                    markedMessage = null;
+                  },
+                ));
+
+                markedMessage = currentMessage;
+                return false;
               },
-            ));
+              child: Container(
+                decoration: BoxDecoration(
+                  color: selected ? Colors.black.withOpacity(0.3) : Colors.transparent,
+                ),
 
-            markedMessage = currentMessage;
-            return false;
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: selected ? Colors.black.withOpacity(0.3) : Colors.transparent,
-            ),
+                child: InkWell(
+                  onLongPress: () {
+                    if (selected) {
+                      setState(() {
+                        selectedMessagesList.removeWhere((message) => message.messageId == currentMessage.messageId);
+                      });
 
-            child: InkWell(
-              onLongPress: () {
-                if (selected) {
-                  setState(() {
-                    selectedMessagesList.removeWhere((message) => message.messageId == currentMessage.messageId);
-                  });
+                      if (selectedMessagesList.length == 0)
+                        _appbarWidgetState.currentState.operationCancel();
+                    } else {
+                      setState(() {
+                        selectedMessagesList.add(currentMessage);
+                      });
 
-                  if (selectedMessagesList.length == 0) _appbarWidgetState.currentState.operationCancel();
-                } else {
-                  setState(() {
-                    selectedMessagesList.add(currentMessage);
-                  });
+                      _appbarWidgetState.currentState
+                          .operationOpen();
+                    }
+                  },
 
-                  _appbarWidgetState.currentState
-                      .operationOpen();
-                }
-              },
-
-              child: MessageBubble(
-                groupType: _chatView.groupType,
-                nipControl: nipControl,
-                message: currentMessage,
-                color: currentMessage.fromMe
-                    ? Theme.of(context).primaryColor.withAlpha(200)
-                    : Colors.grey.shade300.withOpacity(0.8),
-              ),
-            ),
-          )
+                  child: MessageBubble(
+                    groupType: _chatView.groupType,
+                    nipControl: nipControl,
+                    message: currentMessage,
+                    color: currentMessage.fromMe
+                        ? Theme.of(context).primaryColor.withAlpha(200)
+                        : Colors.grey.shade300.withOpacity(0.8),
+                  ),
+                ),
+              )
+          ),
+        ],
       );
 
     } else {
       UserModel systemUser = _chatView.users.firstWhere((user) => user.userId == currentMessage.sendBy);
 
-      return ContainerRow(
-        mainAxisAlignment: MainAxisAlignment.center,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            padding: EdgeInsets.all(10),
-            margin: EdgeInsets.symmetric(vertical: 3),
+          dayChange
+              ? SystemBubble(message: showDateOnly(currentMessage.date), operationType: 'Date')
+              : Container(),
 
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withGreen(100),
-              borderRadius: BorderRadius.circular(10)
-            ),
-            child: Text(
-                systemUser.userName + ': '  +currentMessage.message,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).accentIconTheme.color)
-            ),
-          )
+          SystemBubble(
+            message: currentMessage.message,
+            operationType: 'Log',
+            user: systemUser,
+          ),
         ],
       );
-
     }
   }
 

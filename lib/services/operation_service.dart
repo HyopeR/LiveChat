@@ -50,6 +50,31 @@ Map<String, dynamic> showDate(Timestamp date) {
   }
 }
 
+bool calculateDateDifference(Timestamp firstDate, Timestamp secondDate) {
+  DateTime dateOne = firstDate.toDate();
+  DateTime dateTwo = secondDate.toDate();
+
+  int differenceDay = dateOne.day - dateTwo.day;
+  bool sameMonth = dateOne.month == dateTwo.month;
+  bool sameYear = dateOne.year == dateTwo.year;
+
+  if(sameYear)
+    if(sameMonth)
+      if(differenceDay < 1)
+        return false;
+      else
+        return true;
+    else
+      return true;
+  else
+    return true;
+}
+
+String showDateOnly(Timestamp date) {
+  Map<String, dynamic> dateMap = showDate(date);
+  return '${dateMap['date']}';
+}
+
 String showDateComposedString(Timestamp date) {
   Map<String, dynamic> dateMap = showDate(date);
 

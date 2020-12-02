@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
+import 'package:live_chat/components/common/default_text_field.dart';
 import 'package:live_chat/components/common/file_preview.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/views/chat_view.dart';
@@ -23,10 +24,10 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   ChatView _chatView;
 
   GlobalKey<FilePreviewState> _filePreviewState = GlobalKey();
+  GlobalKey<DefaultTextFieldState> _defaultTextFieldState = GlobalKey();
+
   LocalFileSystem _localFileSystem = LocalFileSystem();
   ImagePicker picker = ImagePicker();
-  TextEditingController controller;
-  FocusNode _focusNode;
 
   bool visibilityDataTarget = false;
   bool innerDeleteArea = false;
@@ -39,21 +40,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController();
-    _focusNode = FocusNode();
-
-    controller.addListener(() {
-      attachTexts[selectedImageIndex] = controller.text;
-    });
-
     addAttach();
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -66,7 +53,16 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
         statusBarIconBrightness: Brightness.light,
       ),
       child: Theme(
-        data: ThemeData.dark(),
+        data: Theme.of(context).copyWith(
+          brightness: Brightness.dark,
+          textTheme: TextTheme(
+            bodyText2: TextStyle(color: Colors.white)
+          ),
+          iconTheme: IconThemeData(
+            color: Colors.white
+          )
+        ),
+
         child: SafeArea(
           child: KeyboardVisibilityBuilder(
             builder: (context, isVisible) {
@@ -75,8 +71,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                     bool orientationLandscape = orientation == Orientation.landscape;
 
                     if(orientationLandscape) {
-                      // return !isVisible ? defaultPage() : textAreaPage();
-                      return _focusNode.hasPrimaryFocus ? textAreaPage() : defaultPage();
+                      return !isVisible ? defaultPage() : textAreaPage();
                     } else
                       return defaultPage();
                   }
@@ -107,19 +102,11 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
               ),
             ),
             Flexible(
-              child: TextField(
-                key: Key('A'),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                controller: controller,
-                autofocus: true,
-                // focusNode: _focusNode,
-                onChanged: (value) => attachTexts[selectedImageIndex] = value,
-                decoration: InputDecoration(
-                  hintText: 'Başlık ekleyin...',
-                  border: InputBorder.none,
-                  // isDense: true,
-                ),
+              child: DefaultTextField(
+                  key: _defaultTextFieldState,
+                  onChanged: (value) {
+                    attachTexts[selectedImageIndex] = _defaultTextFieldState.currentState.controller.text;
+                  },
               ),
             ),
 
@@ -137,67 +124,66 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
   }
 
   Widget defaultPage() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
+    return WillPopScope(
+      onWillPop: () async {
+        popControl();
+        return false;
+    },
 
-      child: Material(
-        child: Stack(
-          children: [
-            FilePreview(
-              key: _filePreviewState,
-              itemList: attachFiles,
-              currentPage: selectedImageIndex != null ? selectedImageIndex : 0,
-              onPageChange: () {
-                int currentItemIndex = _filePreviewState.currentState.currentPage;
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
 
-                if (selectedImageIndex != currentItemIndex) {
-                  setState(() {
-                    selectedImageIndex = currentItemIndex;
-                    if(attachTexts[currentItemIndex] != null)
-                      controller.text = attachTexts[currentItemIndex];
-                    else
-                      controller.clear();
-                  });
-                }
-              },
-            ),
+        child: Material(
+          child: Stack(
+            children: [
+              FilePreview(
+                key: _filePreviewState,
+                itemList: attachFiles,
+                currentPage: selectedImageIndex != null ? selectedImageIndex : 0,
+                onPageChange: () {
+                  int currentItemIndex = _filePreviewState.currentState.currentPage;
 
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: 56,
-                child: AppbarWidget(
-                  textColor: Colors.white,
-                  backgroundColor: Colors.black.withOpacity(0.5),
-                  onLeftSideClick: () {
-                    popControl();
-                  },
-                  appBarType: 'Chat',
-                  titleImage: ImageWidget(
-                    imageWidth: 50,
-                    imageHeight: 50,
-                    backgroundShape: BoxShape.circle,
-                    image: NetworkImage(
-                      _chatView.groupType == 'Private'
-                          ? _chatView.interlocutorUser.userProfilePhotoUrl
-                          : _chatView.selectedChat.groupImageUrl,
+                  if (selectedImageIndex != currentItemIndex) {
+                    setState(() {
+                      selectedImageIndex = currentItemIndex;
+                      _defaultTextFieldState.currentState.controller.clear();
+                      _defaultTextFieldState.currentState.controller.text = attachTexts[currentItemIndex];
+                    });
+                  }
+                },
+              ),
+
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 56,
+                  child: AppbarWidget(
+                    textColor: Colors.white,
+                    backgroundColor: Colors.black.withOpacity(0.5),
+                    onLeftSideClick: () {
+                      popControl();
+                    },
+                    appBarType: 'Chat',
+                    titleImage: ImageWidget(
+                      imageWidth: 50,
+                      imageHeight: 50,
+                      backgroundShape: BoxShape.circle,
+                      image: NetworkImage(
+                        _chatView.groupType == 'Private'
+                            ? _chatView.interlocutorUser.userProfilePhotoUrl
+                            : _chatView.selectedChat.groupImageUrl,
+                      ),
                     ),
+                    titleText: _chatView.groupType == 'Private'
+                        ? _chatView.interlocutorUser.userName
+                        : _chatView.selectedChat.groupName,
                   ),
-                  titleText: _chatView.groupType == 'Private'
-                      ? _chatView.interlocutorUser.userName
-                      : _chatView.selectedChat.groupName,
                 ),
               ),
-            ),
 
-            Positioned(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              child: WillPopScope(
-                onWillPop: () async {
-                  popControl();
-                  return false;
-                },
+              Positioned(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
                 child: ContainerColumn(
                   // height: MediaQuery.of(context).size.height * 0.4,
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -234,29 +220,20 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                                           splashRadius: 25,
                                           icon: Icon(Icons.keyboard),
                                           onPressed: () {
-                                            _focusNode.hasPrimaryFocus
-                                                ? _focusNode.unfocus()
-                                                : _focusNode.requestFocus();
+                                            _defaultTextFieldState.currentState.focusNode.hasPrimaryFocus
+                                                ? _defaultTextFieldState.currentState.focusNode.unfocus()
+                                                : _defaultTextFieldState.currentState.focusNode.requestFocus();
                                           }),
 
                                       Flexible(
                                         child: Container(
-                                          constraints:
-                                          BoxConstraints(maxHeight: 90),
-                                          child: TextField(
-                                            key: Key('A'),
-                                            maxLines: null,
-                                            focusNode: _focusNode,
-                                            keyboardType: TextInputType.multiline,
-                                            controller: controller,
-                                            onChanged: (value) => attachTexts[selectedImageIndex] = value,
-                                            // focusNode: _focusNode,
-                                            decoration: InputDecoration(
-                                              hintText: 'Başlık ekleyin...',
-                                              border: InputBorder.none,
-                                              // isDense: true,
-                                            ),
-                                          ),
+                                          constraints: BoxConstraints(maxHeight: 90),
+                                          child: DefaultTextField(
+                                              key: _defaultTextFieldState,
+                                              onChanged: (value) {
+                                                attachTexts[selectedImageIndex] = _defaultTextFieldState.currentState.controller.text;
+                                              },
+                                          )
                                         ),
                                       ),
                                     ],
@@ -321,81 +298,80 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                   ],
                 ),
               ),
-            ),
 
-            visibilityDataTarget
+              visibilityDataTarget
                 ? Align(
-              alignment: Alignment.center,
-              child: Container(
-                  child: DragTarget(
-                    builder: (context, List<int> candidateData, rejectedData) {
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        width: 100,
-                        height: 100,
-                        color: visibilityDataTarget
-                            ? Colors.black.withOpacity(0.5)
-                            : Colors.transparent,
-                        child: visibilityDataTarget
-                            ? Icon(Icons.delete,
-                            size: 32,
-                            color: innerDeleteArea
-                                ? Colors.red
-                                : Colors.white)
-                            : Container(),
-                      );
-                    },
-                    onWillAccept: (data) {
-                      setState(() {
-                        innerDeleteArea = true;
-                      });
-                      return true;
-                    },
-                    onLeave: (data) {
-                      setState(() {
-                        innerDeleteArea = false;
-                      });
-                    },
-                    onAccept: (data) async {
-                      int filesLength = attachFiles.length;
+                  alignment: Alignment.center,
+                  child: Container(
+                      child: DragTarget(
+                        builder: (context, List<int> candidateData, rejectedData) {
+                          return AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            width: 100,
+                            height: 100,
+                            color: visibilityDataTarget
+                                ? Colors.black.withOpacity(0.5)
+                                : Colors.transparent,
 
-                      if(filesLength == 1) {
-                        await _localFileSystem.file(attachFiles[data].path).delete();
-                        attachFiles.removeAt(data);
-                        attachTexts.removeAt(data);
-                        popControl();
+                            child: visibilityDataTarget
+                                ? Icon(Icons.delete, size: 32, color: innerDeleteArea ? Colors.red : Colors.white)
+                                : Container(),
+                          );
+                        },
 
-                      } else if(filesLength > 1) {
-                        bool isSelected = data == selectedImageIndex;
-                        bool isLittle = data <= selectedImageIndex;
-
-                        int newIndex = isLittle ? ((filesLength - 1) - 1) : selectedImageIndex;
-
-                        await _localFileSystem.file(attachFiles[data].path).delete();
-                        attachFiles.removeAt(data);
-                        attachTexts.removeAt(data);
-
-                        if(newIndex != selectedImageIndex || isSelected) {
-                          _filePreviewState.currentState.pageController.jumpToPage(newIndex);
-
+                        onWillAccept: (data) {
                           setState(() {
-                            selectedImageIndex = newIndex;
-                            controller.text = attachTexts[newIndex];
-                            innerDeleteArea = false;
+                            innerDeleteArea = true;
                           });
-                        } else {
+                          return true;
+                        },
+
+                        onLeave: (data) {
                           setState(() {
                             innerDeleteArea = false;
                           });
-                        }
+                        },
 
-                      }
+                        onAccept: (data) async {
+                          int filesLength = attachFiles.length;
 
-                    },
-                  )),
-            )
-                : Container(),
-          ],
+                          if(filesLength == 1) {
+                            await _localFileSystem.file(attachFiles[data].path).delete();
+                            attachFiles.removeAt(data);
+                            attachTexts.removeAt(data);
+                            popControl();
+
+                          } else if(filesLength > 1) {
+                            bool isSelected = data == selectedImageIndex;
+                            bool isLittle = data <= selectedImageIndex;
+
+                            int newIndex = isLittle ? ((filesLength - 1) - 1) : selectedImageIndex;
+
+                            await _localFileSystem.file(attachFiles[data].path).delete();
+                            attachFiles.removeAt(data);
+                            attachTexts.removeAt(data);
+
+                            if(newIndex != selectedImageIndex || isSelected) {
+                              _filePreviewState.currentState.pageController.jumpToPage(newIndex);
+
+                              setState(() {
+                                selectedImageIndex = newIndex;
+                                _defaultTextFieldState.currentState.controller.text = attachTexts[newIndex];
+                                innerDeleteArea = false;
+                              });
+                            } else {
+                              setState(() {
+                                innerDeleteArea = false;
+                              });
+                            }
+
+                          }
+                        },
+                      )),
+                    )
+                  : Container(),
+            ],
+          ),
         ),
       ),
     );
@@ -452,24 +428,31 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                 width: 1,
                 color: photoIndex == selectedImageIndex
                     ? Theme.of(context).primaryColor
-                    : Colors.black.withOpacity(0.5)),
+                    : Colors.black.withOpacity(0.5)
+            ),
             image: DecorationImage(
-                fit: BoxFit.cover, image: FileImage(attachFiles[photoIndex]))),
+                fit: BoxFit.cover,
+                image: FileImage(attachFiles[photoIndex])
+            )
+        ),
       ),
-      childWhenDragging: Container(width: 60, height: 50),
+
+      // Normal containerde olan margin değerleri boyuta eklenir!
+      childWhenDragging: Container(width: 56, height: 50),
+
       child: InkWell(
         onTap: () {
           if (selectedImageIndex != photoIndex) {
             _filePreviewState.currentState.pageController.jumpToPage(photoIndex);
+
             setState(() {
               selectedImageIndex = photoIndex;
-              if(attachTexts[photoIndex] != null)
-                controller.text = attachTexts[photoIndex];
-              else
-                controller.clear();
+              _defaultTextFieldState.currentState.controller.clear();
+              _defaultTextFieldState.currentState.controller.text = attachTexts[photoIndex];
             });
           }
         },
+
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 3),
           width: 50,
@@ -479,28 +462,33 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
                   width: 1,
                   color: photoIndex == selectedImageIndex
                       ? Theme.of(context).primaryColor
-                      : Colors.black.withOpacity(0.5)),
+                      : Colors.black.withOpacity(0.5)
+              ),
+
               image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: FileImage(attachFiles[photoIndex]))),
+                  image: FileImage(attachFiles[photoIndex])
+              )
+          ),
         ),
       ),
     );
   }
 
   void addAttach() async {
-    PickedFile pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera, imageQuality: 50);
 
     if (pickedFile != null) {
+      int calculatedIndex = attachFiles.length < 1 ? 0 : attachFiles.length;
+
       setState(() {
-        selectedImageIndex = attachFiles.length < 1 ? 0 : attachFiles.length;
+        selectedImageIndex = calculatedIndex;
         attachFiles.add(File(pickedFile.path));
         attachTexts.add(null);
-        controller.clear();
+        _defaultTextFieldState.currentState.controller.clear();
       });
 
-      _filePreviewState.currentState.pageController.jumpToPage(attachFiles.length < 1 ? 0 : attachFiles.length);
+      _filePreviewState.currentState.pageController.jumpToPage(calculatedIndex);
     } else {
       Navigator.of(context).pop([]);
     }
