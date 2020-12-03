@@ -8,7 +8,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
+import 'package:live_chat/components/common/expandable_text.dart';
+import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/title_area.dart';
+import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
@@ -82,7 +85,28 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
     );
   }
 
-  Widget userDataWidget(String key, dynamic value) {
+  Widget mainDataArea(List<Widget> children) {
+    return ContainerColumn(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.only(bottom: 20),
+
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0, 1), //(x,y)
+            blurRadius: 6,
+          ),
+        ],
+      ),
+      children: children,
+    );
+  }
+
+  Widget userDataWrite(String key, dynamic value) {
     return ContainerRow(
       margin: EdgeInsets.symmetric(vertical: 3),
       children: [
@@ -113,46 +137,143 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
       ],
     );
   }
+  Widget groupUserWrite(UserModel user) {
+    return Container(
+      margin: EdgeInsets.only(top: 5),
+
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () {},
+
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+          leading: InkWell(
+            splashColor: Colors.transparent,
+            onTap: () {
+              UserDialogWidget(
+                name: user.userName,
+                photoUrl: user.userProfilePhotoUrl,
+
+                onPhotoClick: () {
+                  // Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
+                },
+
+                onChatClick: () {
+                  // Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                },
+
+                onDetailClick: () async {
+                  // Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
+                  // Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+                },
+              ).show(context);
+            },
+            child: ImageWidget(
+              image: NetworkImage(user.userProfilePhotoUrl),
+              imageWidth: 75,
+              imageHeight: 75,
+              backgroundShape: BoxShape.circle,
+              backgroundColor: Colors.grey.withOpacity(0.3),
+            ),
+          ),
+          title: Text(user.userName),
+          subtitle: Text(user.userEmail),
+        ),
+      ),
+    );
+  }
 
   List<Widget> _userDataWrite() {
     return [
-      TitleArea(titleText: 'Hakkında', icon: Icons.person, iconColor: widget.color),
-      userDataWidget('Name', _chatView.interlocutorUser.userName),
-      userDataWidget('Email', _chatView.interlocutorUser.userEmail),
-      userDataWidget('Last Seen', _chatView.interlocutorUser.updatedAt != null
-          ? showDateComposedString(_chatView.interlocutorUser.lastSeen)
-          : 'Yükleniyor...'),
+      mainDataArea([
+        Container(
+          margin: EdgeInsets.only(bottom: 5),
+          child: Text('Durum', style: TextStyle(
+              fontSize: Theme.of(context).textTheme.headline6.fontSize,
+              color: widget.color,
+              shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
+            )
+          ),
+        ),
+        Container(
+          child: ExpandableText(
+              children: [TextSpan(text: _chatView.interlocutorUser.userStatement ?? 'Durum güncellmesi yok.', style: TextStyle(color: Colors.black))],
+              text: _chatView.interlocutorUser.userStatement ?? 'Durum güncellmesi yok.'
+          ),
+        )
+      ]),
 
-      userDataWidget('Status', _chatView.interlocutorUser.online
-          ? 'Online'
-          : 'Offline'),
-      userDataWidget('Registered', _chatView.interlocutorUser.createdAt != null ? showDate(_chatView.interlocutorUser.createdAt)['date'] : 'Yükleniyor...'),
-      userDataWidget('Updated', _chatView.interlocutorUser.updatedAt != null ? showDateComposedString(_chatView.interlocutorUser.updatedAt) : 'Yükleniyor...'),
+      mainDataArea([
+        Container(
+          margin: EdgeInsets.only(bottom: 5),
+          child: Text('Hakkında', style: TextStyle(
+              fontSize: Theme.of(context).textTheme.headline6.fontSize,
+              color: widget.color,
+              shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
+            )
+          ),
+        ),
+        userDataWrite('Name', _chatView.interlocutorUser.userName),
+        userDataWrite('Email', _chatView.interlocutorUser.userEmail),
+        userDataWrite('Last Seen:', _chatView.interlocutorUser.online
+            ? 'Online'
+            : _chatView.interlocutorUser.lastSeen != null
+            ? showDateComposedString(_chatView.interlocutorUser.lastSeen)
+            : 'Yükleniyor...'
+        ),
+      ]),
     ];
   }
-
   List<Widget> _groupDataWrite() {
     return [
-      ContainerColumn(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        padding: EdgeInsets.all(10),
-        children: [
-          Text('Açıklama', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize)),
-          RichText(
-              text: TextSpan()
-          )
-        ],
+      mainDataArea(
+          [
+            Container(
+              margin: EdgeInsets.only(bottom: 5),
+              child: Text('Açıklama', style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                      color: widget.color,
+                      shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
+                  )
+              ),
+            ),
+            ExpandableText(
+                children: [TextSpan(text: _chatView.selectedChat.groupStatement, style: TextStyle(color: Colors.black))],
+                text: _chatView.selectedChat.groupStatement
+            )
+          ]
       ),
 
-      ContainerColumn(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Medyalar'),
-        ],
-      )
+      mainDataArea(
+          [
+            ContainerRow(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              margin: EdgeInsets.only(bottom: 5),
+              children: [
+                Text('Katılımcılar', style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                    color: widget.color,
+                    shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
+                  )
+                ),
+
+                Text('(${_chatView.groupUsers.length})', style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                    color: widget.color,
+                    shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
+                  )
+                ),
+              ],
+            ),
+            ContainerColumn(
+              children: _chatView.groupUsers.map((user) {
+                return groupUserWrite(user);
+              }).toList(),
+            )
+          ]
+      ),
     ];
   }
-
 
   Widget portraitDesign(BuildContext context, String status) {
     return Scaffold(
@@ -218,13 +339,14 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
             ),
           ),
           SliverToBoxAdapter(
-            child: SafeArea(
-              child: SingleChildScrollView(
-                child: ContainerColumn(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
+            child: SingleChildScrollView(
+              child: ContainerColumn(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - 80,
                 ),
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
               ),
             ),
           ),
