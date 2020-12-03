@@ -289,8 +289,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             members: groupMembers,
         );
 
-        await _chatView.createGroup(_userView.user, createdGroup);
-        // _chatView.selectChat(group.groupId);
+        GroupModel group = await _chatView.createGroup(_userView.user, createdGroup);
+        _chatView.selectChat(group.groupId);
+        _chatView.groupType = 'Plural';
+
         Navigator.of(context).pop();
         Navigator.of(context).pop(true);
       } else{

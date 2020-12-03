@@ -39,17 +39,6 @@ class _UsersPageState extends State<UsersPage> {
           operationColor: Theme.of(context).primaryColor.withAlpha(180),
           key: _appbarWidgetState,
           titleText: 'Live Chat',
-          // actions: [
-          //   FlatButton(
-          //       minWidth: 50,
-          //       child: Icon(Icons.search),
-          //       onPressed: () => Navigator.of(context, rootNavigator: false)
-          //           .push(MaterialPageRoute(builder: (context) => SearchUserPage())).then((updatedContacts) {
-          //         if(updatedContacts)
-          //           setState(() {});
-          //       })
-          //   )
-          // ],
           operationActions: createOperationActions(),
           onOperationCancel: () {
             setState(() {
@@ -144,59 +133,46 @@ class _UsersPageState extends State<UsersPage> {
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () {
-            _chatView.findChatByUserIdList([
-              _userView.user.userId,
-              currentUser.userId
-            ]);
 
-            _chatView.interlocutorUser = currentUser;
-            _chatView.groupType = 'Private';
-            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+            if(!_appbarWidgetState.currentState.operation) {
+              itemInteractionOperation(currentUser);
+              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+            } else {
+              selectedListOperation(selected, currentUser);
+            }
           },
           onLongPress: () {
-            if (selected) {
-              setState(() {
-                selectedUserList.removeWhere((user) => user.userId == currentUser.userId);
-              });
-
-              if (selectedUserList.length == 0)
-                _appbarWidgetState.currentState.operationCancel();
-            } else {
-              setState(() {
-                selectedUserList.add(currentUser);
-              });
-
-              _appbarWidgetState.currentState.operationOpen();
-            }
+            selectedListOperation(selected, currentUser);
           },
           child: ListTile(
             leading: InkWell(
+              splashColor: Colors.transparent,
               onTap: () {
-                _chatView.findChatByUserIdList([
-                  _userView.user.userId,
-                  currentUser.userId
-                ]);
+                if(!_appbarWidgetState.currentState.operation) {
 
-                _chatView.interlocutorUser = currentUser;
-                _chatView.groupType = 'Private';
+                  itemInteractionOperation(currentUser);
 
-                UserDialogWidget(
-                  name: currentUser.userName,
-                  photoUrl: currentUser.userProfilePhotoUrl,
+                  UserDialogWidget(
+                    name: currentUser.userName,
+                    photoUrl: currentUser.userProfilePhotoUrl,
 
-                  onPhotoClick: () {
-                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
-                  },
+                    onPhotoClick: () {
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
+                    },
 
-                  onChatClick: () {
-                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
-                  },
+                    onChatClick: () {
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                    },
 
-                  onDetailClick: () async {
-                    Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
-                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
-                  },
-                ).show(context);
+                    onDetailClick: () async {
+                      Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+                    },
+                  ).show(context);
+
+                } else {
+                  selectedListOperation(selected, currentUser);
+                }
               },
               child: ImageWidget(
                 image: NetworkImage(currentUser.userProfilePhotoUrl),
@@ -238,14 +214,9 @@ class _UsersPageState extends State<UsersPage> {
               minWidth: 50,
               child: Icon(Icons.remove_red_eye),
               onPressed: () {
-                _chatView.findChatByUserIdList([
-                  _userView.user.userId,
-                  selectedUserList[0].userId
-                ]);
+                UserModel currentUser = _chatView.interlocutorUser = selectedUserList[0];
 
-                _chatView.interlocutorUser = _chatView.selectChatUser(selectedUserList[0].userId);
-                _chatView.groupType = 'Private';
-
+                itemInteractionOperation(currentUser);
                 _appbarWidgetState.currentState.operationCancel();
                 selectedUserList.clear();
                 Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
@@ -255,13 +226,44 @@ class _UsersPageState extends State<UsersPage> {
       FlatButton(minWidth: 50, child: Text('Yeni Grup'), onPressed: () {
         Navigator.of(context, rootNavigator: true)
             .push(MaterialPageRoute(builder: (context) => CreateGroupPage(selectedUserList: selectedUserList))).then((value) {
-              setState(() {
-                selectedUserList.clear();
-              });
-              _appbarWidgetState.currentState.operationCancel();
+              if(value) {
+                setState(() {
+                  selectedUserList.clear();
+                });
+                _appbarWidgetState.currentState.operationCancel();
+
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+              }
             }
         );
       })
     ];
+  }
+
+  void selectedListOperation(bool selected, UserModel currentUser) {
+    if (selected) {
+      setState(() {
+        selectedUserList.removeWhere((user) => user.userId == currentUser.userId);
+      });
+
+      if (selectedUserList.length == 0)
+        _appbarWidgetState.currentState.operationCancel();
+    } else {
+      setState(() {
+        selectedUserList.add(currentUser);
+      });
+
+      _appbarWidgetState.currentState.operationOpen();
+    }
+  }
+
+  void itemInteractionOperation(UserModel currentUser) {
+    _chatView.findChatByUserIdList([
+      _userView.user.userId,
+      currentUser.userId
+    ]);
+
+    _chatView.interlocutorUser = currentUser;
+    _chatView.groupType = 'Private';
   }
 }

@@ -2,6 +2,7 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:linkwell/linkwell.dart';
 import 'package:live_chat/components/common/container_column.dart';
+import 'package:live_chat/components/common/expandable_text.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/message_marked.dart';
 import 'package:live_chat/components/common/sound_player.dart';
@@ -112,13 +113,12 @@ class MessageBubble extends StatelessWidget {
       case ('Text'):
         return Container(
             constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
-            child: RichText(
-                  text: TextSpan(
-                    children: spliceTextList == null
-                        ? createOnlyText(context, message.message)
-                        : createRichText(context, spliceTextList)
-                  ),
-                ),
+            child: ExpandableText(
+              text: message.message,
+              children: spliceTextList == null
+                  ? createOnlyText(context, message.message)
+                  : createRichText(context, spliceTextList),
+            ),
         );
         break;
 
@@ -149,12 +149,11 @@ class MessageBubble extends StatelessWidget {
             message.message != null
                 ? Container(
                   margin: EdgeInsets.only(top: 5),
-                  child: RichText(
-                    text: TextSpan(
-                        children: spliceTextList == null
-                            ? createOnlyText(context, message.message)
-                            : createRichText(context, spliceTextList)
-                    ),
+                  child: ExpandableText(
+                    text: message.message,
+                    children: spliceTextList == null
+                        ? createOnlyText(context, message.message)
+                        : createRichText(context, spliceTextList),
                   ),
                 )
                 : Container(width: 0),

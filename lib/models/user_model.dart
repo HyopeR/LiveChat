@@ -10,6 +10,7 @@ class UserModel {
   String userEmail;
   String userProfilePhotoUrl;
   String userWallpaper;
+  String userStatement;
 
   // List<dynamic> contacts;
   List<dynamic> groups;
@@ -30,6 +31,7 @@ class UserModel {
       'userEmail': userEmail,
       'userProfilePhotoUrl': userProfilePhotoUrl ?? 'https://img.webme.com/pic/c/creative-blog/user_black.png',
       'userWallpaper': userWallpaper ?? '',
+      'userStatement': userStatement ?? 'Müsait',
 
       // 'contacts': contacts ?? [],
       'groups': groups ?? [],
@@ -47,7 +49,8 @@ class UserModel {
       userName = map['userName'],
       userEmail = map['userEmail'],
       userProfilePhotoUrl = map['userProfilePhotoUrl'],
-        userWallpaper = map['userWallpaper'],
+      userWallpaper = map['userWallpaper'],
+      userStatement = map['userStatement'],
       // contacts = map['contacts'],
       groups = map['groups'],
       lastSeen = map['lastSeen'],
@@ -63,6 +66,7 @@ class UserModel {
         'userEmail: $userEmail, '
         'userProfilePhotoUrl: $userProfilePhotoUrl, '
         'userWallpaper: $userWallpaper, '
+        'userStatement: $userStatement, '
         // 'contacts: $contacts, '
         'groups: $groups, '
         'lastSeen: $lastSeen, '

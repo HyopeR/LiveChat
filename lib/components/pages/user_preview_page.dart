@@ -82,30 +82,6 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
     );
   }
 
-  List<Widget> _userDataWrite() {
-    return [
-      TitleArea(titleText: 'Hakkında', icon: Icons.person, iconColor: widget.color),
-      userDataWidget('Name', _chatView.interlocutorUser.userName),
-      userDataWidget('Email', _chatView.interlocutorUser.userEmail),
-      userDataWidget('Last Seen', _chatView.interlocutorUser.updatedAt != null
-          ? showDateComposedString(_chatView.interlocutorUser.lastSeen)
-          : 'Yükleniyor...'),
-
-      userDataWidget('Status', _chatView.interlocutorUser.online
-          ? 'Online'
-          : 'Offline'),
-      userDataWidget('Registered', _chatView.interlocutorUser.createdAt != null ? showDate(_chatView.interlocutorUser.createdAt)['date'] : 'Yükleniyor...'),
-      userDataWidget('Updated', _chatView.interlocutorUser.updatedAt != null ? showDateComposedString(_chatView.interlocutorUser.updatedAt) : 'Yükleniyor...'),
-    ];
-  }
-
-  List<Widget> _groupDataWrite() {
-    return [
-      TitleArea(titleText: 'Grup Hakkında', icon: Icons.people, iconColor: widget.color),
-      Text('Not ready...'),
-    ];
-  }
-
   Widget userDataWidget(String key, dynamic value) {
     return ContainerRow(
       margin: EdgeInsets.symmetric(vertical: 3),
@@ -138,7 +114,47 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
     );
   }
 
-  portraitDesign(BuildContext context, String status) {
+  List<Widget> _userDataWrite() {
+    return [
+      TitleArea(titleText: 'Hakkında', icon: Icons.person, iconColor: widget.color),
+      userDataWidget('Name', _chatView.interlocutorUser.userName),
+      userDataWidget('Email', _chatView.interlocutorUser.userEmail),
+      userDataWidget('Last Seen', _chatView.interlocutorUser.updatedAt != null
+          ? showDateComposedString(_chatView.interlocutorUser.lastSeen)
+          : 'Yükleniyor...'),
+
+      userDataWidget('Status', _chatView.interlocutorUser.online
+          ? 'Online'
+          : 'Offline'),
+      userDataWidget('Registered', _chatView.interlocutorUser.createdAt != null ? showDate(_chatView.interlocutorUser.createdAt)['date'] : 'Yükleniyor...'),
+      userDataWidget('Updated', _chatView.interlocutorUser.updatedAt != null ? showDateComposedString(_chatView.interlocutorUser.updatedAt) : 'Yükleniyor...'),
+    ];
+  }
+
+  List<Widget> _groupDataWrite() {
+    return [
+      ContainerColumn(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: EdgeInsets.all(10),
+        children: [
+          Text('Açıklama', style: TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize)),
+          RichText(
+              text: TextSpan()
+          )
+        ],
+      ),
+
+      ContainerColumn(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Medyalar'),
+        ],
+      )
+    ];
+  }
+
+
+  Widget portraitDesign(BuildContext context, String status) {
     return Scaffold(
       body: CustomScrollView(
         primary: true,
@@ -205,10 +221,8 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
             child: SafeArea(
               child: SingleChildScrollView(
                 child: ContainerColumn(
-                  height: MediaQuery.of(context).size.height - 86,
-                  // margin: EdgeInsets.only(top: 10),
-                  padding: EdgeInsets.all(10),
-
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
                 ),
               ),
@@ -218,11 +232,12 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
       ),
     );
   }
-
   Widget landscapeDesign(BuildContext context, String status) {
     return Material(
       elevation: 0,
       child: ContainerRow(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Container(
             alignment: Alignment.bottomLeft,
@@ -303,14 +318,13 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           ),
 
           SafeArea(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.6,
-              height: MediaQuery.of(context).size.height,
-              child: SingleChildScrollView(
-                child: ContainerColumn(
-                  padding: EdgeInsets.all(10),
-                  children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
-                ),
+            child: SingleChildScrollView(
+              child: ContainerColumn(
+                width: MediaQuery.of(context).size.width * 0.6,
+
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _chatView.groupType == 'Private' ? _userDataWrite() : _groupDataWrite(),
               ),
             ),
           ),

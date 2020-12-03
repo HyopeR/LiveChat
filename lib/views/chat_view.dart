@@ -17,7 +17,9 @@ class ChatView with ChangeNotifier {
   ChatRepository _chatRepo = locator<ChatRepository>();
 
   List<UserModel> users;
+
   UserModel interlocutorUser;
+  List<UserModel> groupUsers;
 
   List<GroupModel> _groups;
   String groupType;
@@ -65,6 +67,11 @@ class ChatView with ChangeNotifier {
     selectedChat = _groups.where((group) => group.groupId == groupId).first;
     selectedChatState = SelectedChatState.Loaded;
     return selectedChat;
+  }
+
+  List<UserModel> selectGroupUser(String groupId) {
+    groupUsers = selectedChat.members.map((userId) => users.firstWhere((user) => user.userId == userId, orElse: () => null)).toList();
+    return groupUsers;
   }
 
   // Users page'inden henhangi bir user'a tıklandığında çalışır.
