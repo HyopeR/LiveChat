@@ -25,6 +25,7 @@ class ChatView with ChangeNotifier {
   String groupType;
 
   GroupModel selectedChat;
+  bool listeningChat = false;
   SelectedChatState _selectedChatState = SelectedChatState.Empty;
 
   List<MessageModel> _messages;
@@ -66,6 +67,11 @@ class ChatView with ChangeNotifier {
   GroupModel selectChat(String groupId) {
     selectedChat = _groups.where((group) => group.groupId == groupId).first;
     selectedChatState = SelectedChatState.Loaded;
+    return selectedChat;
+  }
+
+  GroupModel unSelectChat() {
+    selectedChat = null;
     return selectedChat;
   }
 
@@ -119,13 +125,19 @@ class ChatView with ChangeNotifier {
         // Eğer bir chat sayfasında değilsek selectedChat boş oluyor. Dolayısıyla eğerki biz bir chat sayfasındaysak
         // ve o group içerisinde yeni bir mesaj atılmış ise bunu buradan dinleyerek gördüğümüz mesajı database'e görüldü
         // olarak anlatmak amacıyla kendi gördüğümüz mesaj sayısını arttırıyoruz.
+
+        // Selected chat sayfalar içerisinde doldurulduğu için 2. bir parametre olarak yalnızca Chat Page'e giden fonksiyonlarda
+        // listening chat parametresini true olarak geçiyoruz. Chat sayfası dispose edilirken ise false olarak geçiyoruz.
+        // Böylece chat sayfası harici hiç bir noktada stream dinlenemiyor.
         if(selectedChat != null && groupData.isNotEmpty) {
           GroupModel activeGroup = groupData.firstWhere((group) => group.groupId == selectedChat.groupId, orElse: () => null);
 
-          if(activeGroup != null)
-            if(activeGroup.totalMessage != activeGroup.actions[userId]['seenMessage']) {
+          if(activeGroup != null){
+            if(activeGroup.totalMessage != activeGroup.actions[userId]['seenMessage'] && listeningChat) {
               _chatRepo.messagesMarkAsSeen(userId, activeGroup.groupId, activeGroup.totalMessage);
             }
+          }
+
         }
 
         _groups = groupData;

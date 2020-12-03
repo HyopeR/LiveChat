@@ -115,6 +115,9 @@ class _ChatPageState extends State<ChatPage> {
     _subscriptionUser != null ? _subscriptionUser.cancel() : _subscriptionUser = null;
     _subscriptionGroup != null ? _subscriptionGroup.cancel() : _subscriptionGroup = null;
     _scrollController.dispose();
+    _chatView.listeningChat = false;
+    _chatView.unSelectChat();
+    _chatView.resetMessages();
     super.dispose();
   }
 
@@ -206,8 +209,6 @@ class _ChatPageState extends State<ChatPage> {
             updateMessageAction(0);
           }
           Navigator.of(context).pop();
-          // _chatView.unSelectChat();
-          _chatView.resetMessages();
         }
 
         return false;
@@ -224,8 +225,6 @@ class _ChatPageState extends State<ChatPage> {
                 updateMessageAction(0);
               }
               Navigator.of(context).pop();
-              // _chatView.unSelectChat();
-              _chatView.resetMessages();
             },
             appBarType: 'Chat',
 

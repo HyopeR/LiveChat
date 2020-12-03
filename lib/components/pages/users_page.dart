@@ -136,6 +136,7 @@ class _UsersPageState extends State<UsersPage> {
 
             if(!_appbarWidgetState.currentState.operation) {
               itemInteractionOperation(currentUser);
+              _chatView.listeningChat = true;
               Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
             } else {
               selectedListOperation(selected, currentUser);
@@ -161,6 +162,7 @@ class _UsersPageState extends State<UsersPage> {
                     },
 
                     onChatClick: () {
+                      _chatView.listeningChat = true;
                       Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
                     },
 
@@ -231,7 +233,7 @@ class _UsersPageState extends State<UsersPage> {
                   selectedUserList.clear();
                 });
                 _appbarWidgetState.currentState.operationCancel();
-
+                _chatView.listeningChat = true;
                 Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
               }
             }
