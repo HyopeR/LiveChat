@@ -117,8 +117,9 @@ class AppbarWidgetState extends State<AppbarWidget> {
       leadingWidth: 86,
       backgroundColor: widget.backgroundColor,
 
-      leading: InkWell(
-        onTap: widget.onLeftSideClick,
+      leading: FlatButton(
+        padding: EdgeInsets.zero,
+        onPressed: widget.onLeftSideClick,
         child: ContainerRow(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,25 +129,21 @@ class AppbarWidgetState extends State<AppbarWidget> {
               color: widget.textColor,
             ),
             widget.titleImage
-            // ImageWidget(
-            //   image: ,
-            //   imageWidth: 50,
-            //   imageHeight: 50,
-            //   backgroundShape: BoxShape.circle,
-            // ),
           ],
         ),
       ),
 
       titleSpacing: 0,
-      title: InkWell(
-          onTap: widget.onTitleClick,
+      title: FlatButton(
+          padding: EdgeInsets.zero,
+
+          onPressed: widget.onTitleClick,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              Text(title, style: TextStyle(color: widget.textColor)),
-              subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 11, color: widget.textColor.withOpacity(0.7))) : Container(),
+              Text(title, style: TextStyle(color: widget.textColor, fontSize: Theme.of(context).textTheme.headline6.fontSize)),
+              subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 12, color: widget.textColor.withOpacity(0.7))) : Container(),
             ],
           ),
       ),
@@ -160,8 +157,9 @@ class AppbarWidgetState extends State<AppbarWidget> {
       brightness: widget.brightness,
       centerTitle: false,
       elevation: 0,
-      leading: InkWell(
-        onTap: widget.onLeftSideClick,
+      leading: FlatButton(
+        minWidth: 50,
+        onPressed: widget.onLeftSideClick,
         child: Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios, color: widget.textColor),
       ),
       backgroundColor: widget.backgroundColor,
@@ -186,8 +184,9 @@ class AppbarWidgetState extends State<AppbarWidget> {
       brightness: widget.brightness,
       elevation: 0,
       backgroundColor: widget.operationColor,
-      leading: InkWell(
-        onTap: () {
+      leading: FlatButton(
+        minWidth: 50,
+        onPressed: () {
           widget.onOperationCancel();
           operationCancel();
         },

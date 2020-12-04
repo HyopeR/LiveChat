@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/zoomable_widget.dart';
-import 'package:live_chat/views/chat_view.dart';
-import 'package:provider/provider.dart';
 
 class ProfilePhotoShowPage extends StatefulWidget {
+  final String name;
+  final String photoUrl;
+
+  const ProfilePhotoShowPage({Key key, this.name, this.photoUrl}) : super(key: key);
+
   @override
   _ProfilePhotoShowPageState createState() => _ProfilePhotoShowPageState();
 }
 
 class _ProfilePhotoShowPageState extends State<ProfilePhotoShowPage> {
-  ChatView _chatView;
 
   @override
   Widget build(BuildContext context) {
-    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -25,7 +26,7 @@ class _ProfilePhotoShowPageState extends State<ProfilePhotoShowPage> {
         onLeftSideClick: () {
           Navigator.of(context).pop();
         },
-        titleText: _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userName : _chatView.selectedChat.groupName,
+        titleText: widget.name,
       ),
 
       body: Container(
@@ -37,7 +38,7 @@ class _ProfilePhotoShowPageState extends State<ProfilePhotoShowPage> {
             decoration: BoxDecoration(
                 color: Colors.black,
                 image: DecorationImage(
-                  image: NetworkImage(_chatView.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl),
+                  image: NetworkImage(widget.photoUrl),
                   // image: NetworkImage(attachFiles[0]),
                   fit: BoxFit.contain,
                 )

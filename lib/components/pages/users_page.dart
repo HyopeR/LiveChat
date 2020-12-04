@@ -55,7 +55,7 @@ class _UsersPageState extends State<UsersPage> {
               });
             }
 
-            return false;
+            return true;
           },
           child: SafeArea(
             child: ContainerColumn(
@@ -158,7 +158,7 @@ class _UsersPageState extends State<UsersPage> {
                     photoUrl: currentUser.userProfilePhotoUrl,
 
                     onPhotoClick: () {
-                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage(name: currentUser.userName, photoUrl: currentUser.userProfilePhotoUrl,)));
                     },
 
                     onChatClick: () {
@@ -232,6 +232,7 @@ class _UsersPageState extends State<UsersPage> {
                 setState(() {
                   selectedUserList.clear();
                 });
+
                 _appbarWidgetState.currentState.operationCancel();
                 _chatView.listeningChat = true;
                 Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));

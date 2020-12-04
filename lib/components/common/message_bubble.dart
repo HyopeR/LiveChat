@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:linkwell/linkwell.dart';
@@ -11,7 +9,6 @@ import 'package:live_chat/components/common/sound_player.dart';
 import 'package:live_chat/components/pages/media_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/services/operation_service.dart';
-RegExp tryRegex = RegExp(r'((?<=(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?(?:\u200d(?:[^\ud800-\udfff]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?)*)|(?=(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?(?:\u200d(?:[^\ud800-\udfff]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?)*))');
 
 class MessageBubble extends StatelessWidget {
   final String groupType;

@@ -64,7 +64,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: createGroup,
+        onPressed: () {
+          createGroup();
+        },
 
         child: Icon(Icons.send),
       ),
@@ -149,12 +151,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                                   Expanded(
                                     child: Container(
                                       child: TextField(
-                                        inputFormatters: [LengthLimitingTextInputFormatter(20)],
+                                        inputFormatters: [LengthLimitingTextInputFormatter(30)],
 
                                         onChanged: (value) {
                                           setState(() {
-                                            if(value.length <= 20) {
-                                              _appbarWidgetState.currentState.updateTitle(value);
+                                            if(value.length <= 30) {
+                                              _appbarWidgetState.currentState.updateTitle(value != null ? value : '');
                                               groupName = value;
                                             }
                                           });
@@ -177,7 +179,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
                                   Container(
                                     width: 50,
-                                    child: Text('${groupName != null ? groupName.length : 0} / 20'),
+                                    child: Text('${groupName != null ? groupName.length : 0} / 30'),
                                   ),
                                 ],
                               ),
@@ -292,7 +294,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         GroupModel group = await _chatView.createGroup(_userView.user, createdGroup);
         _chatView.selectChat(group.groupId);
         _chatView.groupType = 'Plural';
-
         Navigator.of(context).pop();
         Navigator.of(context).pop(true);
       } else{

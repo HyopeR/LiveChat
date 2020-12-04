@@ -57,7 +57,7 @@ class _ChatsPageState extends State<ChatsPage> {
               });
             }
 
-            return false;
+            return true;
           },
           child: SafeArea(
               child: ContainerColumn(padding: EdgeInsets.all(10), children: [
@@ -208,7 +208,12 @@ class _ChatsPageState extends State<ChatsPage> {
                     photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
 
                     onPhotoClick: () {
-                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
+                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                          builder: (context) => ProfilePhotoShowPage(
+                            name: currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName,
+                            photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+                          ))
+                      );
                     },
 
                     onChatClick: () {

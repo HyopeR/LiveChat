@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:clipboard/clipboard.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/system_bubble.dart';
 import 'package:path/path.dart' as path;
@@ -554,7 +556,7 @@ class _ChatPageState extends State<ChatPage> {
       bool selected = selectedMessagesList.map((e) => e.messageId).contains(currentMessage.messageId);
 
       return ContainerColumn(
-        crossAxisAlignment: currentMessage.fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           dayChange
               ? SystemBubble(message: showDateOnly(currentMessage.date), operationType: 'Date')
@@ -656,26 +658,55 @@ class _ChatPageState extends State<ChatPage> {
       selectedMessagesList.length == 1
 
           ? FlatButton(
-          minWidth: 50,
-          child: Icon(Icons.reply),
-          onPressed: () {
-            setState(() {
-              markedMessage = selectedMessagesList[0];
-              _messageCreatorState.currentState.setMarkedMessage(MessageMarked(
-                message: markedMessage,
-                mainAxisSize: MainAxisSize.max,
-                forwardCancel: () {
-                  _messageCreatorState.currentState.setMarkedMessage(null);
-                  markedMessage = null;
-                },
-              ));
-            });
+            minWidth: 50,
+            child: Icon(Icons.reply),
+            onPressed: () {
+              setState(() {
+                markedMessage = selectedMessagesList[0];
+                _messageCreatorState.currentState.setMarkedMessage(MessageMarked(
+                  message: markedMessage,
+                  mainAxisSize: MainAxisSize.max,
+                  forwardCancel: () {
+                    _messageCreatorState.currentState.setMarkedMessage(null);
+                    markedMessage = null;
+                  },
+                ));
+              });
 
-            _appbarWidgetState.currentState.operationCancel();
-            selectedMessagesList.clear();
+              _appbarWidgetState.currentState.operationCancel();
+              selectedMessagesList.clear();
           })
 
           : Container(),
+
+      FlatButton(
+          minWidth: 50,
+          child: Transform(
+              child: Icon(Icons.copy),
+              alignment: Alignment.center,
+              transform: Matrix4.rotationY(math.pi)
+          ),
+          onPressed: () async {
+            List<String> copyMessagesList = selectedMessagesList.map((message) => '${message.ownerUsername}: ${message.message}\n').toList();
+            String copyMessages = copyMessagesList.join('');
+
+            _appbarWidgetState.currentState.operationCancel();
+            setState(() {
+              selectedMessagesList.clear();
+            });
+            await FlutterClipboard.copy(copyMessages);
+
+            Fluttertoast.showToast(
+                msg: '${copyMessagesList.length} mesaj kopyalandı.',
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.black45,
+                textColor: Colors.white,
+                fontSize: 14
+            );
+          }
+      ),
 
       FlatButton(
           minWidth: 50,
@@ -686,7 +717,8 @@ class _ChatPageState extends State<ChatPage> {
           ),
           onPressed: () {
             print('Mesajları iletme işlemleri.');
-          })
+          }
+        ),
     ];
   }
 

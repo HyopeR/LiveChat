@@ -11,10 +11,13 @@ import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/expandable_text.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
+import 'package:live_chat/components/pages/chat_page.dart';
+import 'package:live_chat/components/pages/profile_photo_show_page.dart';
 import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/user_model.dart';
 import 'package:live_chat/services/operation_service.dart';
 import 'package:live_chat/views/chat_view.dart';
+import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
 class UserPreviewPage extends StatefulWidget {
@@ -27,6 +30,8 @@ class UserPreviewPage extends StatefulWidget {
 
 class _UserPreviewPageState extends State<UserPreviewPage> {
   ChatView _chatView;
+  UserView _userView;
+
   StreamSubscription<UserModel> _subscriptionUser;
   StreamSubscription<GroupModel> _subscriptionGroup;
 
@@ -64,6 +69,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
   @override
   Widget build(BuildContext context) {
     _chatView = Provider.of<ChatView>(context);
+    _userView = Provider.of<UserView>(context);
 
     String status = _chatView.groupType == 'Private'
         ? _chatView.interlocutorUser.online
@@ -149,23 +155,45 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           leading: InkWell(
             splashColor: Colors.transparent,
             onTap: () {
-              UserDialogWidget(
-                name: user.userName,
-                photoUrl: user.userProfilePhotoUrl,
+              if(user.userId != _userView.user.userId) {
+                UserDialogWidget(
+                  name: user.userName,
+                  photoUrl: user.userProfilePhotoUrl,
 
-                onPhotoClick: () {
-                  // Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage()));
-                },
+                  onPhotoClick: () {
 
-                onChatClick: () {
-                  // Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
-                },
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage(name: user.userName, photoUrl: user.userProfilePhotoUrl)));
+                  },
 
-                onDetailClick: () async {
-                  // Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
-                  // Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
-                },
-              ).show(context);
+                  onChatClick: () {
+                    _chatView.findChatByUserIdList([
+                      _userView.user.userId,
+                      user.userId
+                    ]);
+
+                    _chatView.interlocutorUser = user;
+                    _chatView.groupType = 'Private';
+
+                    Navigator.popUntil(context, ModalRoute.withName('/homePage'));
+                    _chatView.listeningChat = true;
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatPage()));
+                  },
+
+                  onDetailClick: () async {
+                    _chatView.findChatByUserIdList([
+                      _userView.user.userId,
+                      user.userId
+                    ]);
+
+                    _chatView.interlocutorUser = user;
+                    _chatView.groupType = 'Private';
+
+                    Navigator.popUntil(context, ModalRoute.withName('/homePage'));
+                    Color userColor = await getDynamicColor(_chatView.interlocutorUser.userProfilePhotoUrl);
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => UserPreviewPage(color: userColor)));
+                  },
+                ).show(context);
+              }
             },
             child: ImageWidget(
               image: NetworkImage(user.userProfilePhotoUrl),
