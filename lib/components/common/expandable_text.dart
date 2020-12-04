@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -40,12 +39,11 @@ class _ExpandableTextState extends State<ExpandableText> with TickerProviderStat
                 AnimatedSize(
                     vsync: this,
                     duration: Duration(milliseconds: 500),
-                    child: ConstrainedBox(
-                      constraints: isExpanded ? BoxConstraints() : BoxConstraints(maxHeight: 150),
-                      child: RichText(
-                        text: TextSpan(
-                            children: widget.children
-                        ),
+                    child: RichText(
+                      maxLines: !isExpanded ? 5 : null,
+                      text: TextSpan(
+                          style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+                          children: widget.children
                       ),
                     )
                 ),
@@ -71,7 +69,49 @@ class _ExpandableTextState extends State<ExpandableText> with TickerProviderStat
           )
 
           : RichText(
-            text: TextSpan(children: widget.children),
+            maxLines: null,
+            text: TextSpan(
+                style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+                children: widget.children
+            ),
           );
   }
 }
+
+
+// Column(
+// children: [
+// AnimatedSize(
+// vsync: this,
+// duration: Duration(milliseconds: 500),
+// child: ConstrainedBox(
+// constraints: isExpanded ? BoxConstraints() : BoxConstraints(maxHeight: 150),
+// child: RichText(
+// maxLines: 5,
+// text: TextSpan(
+// style: TextStyle(color: Colors.black),
+// children: widget.children
+// ),
+// ),
+// )
+// ),
+//
+// isLongText
+// ? GestureDetector(
+// onTap: () {
+// setState(() {
+// isExpanded = !isExpanded;
+// });
+// },
+// child: Container(
+// alignment: Alignment.bottomRight,
+// child: Text(
+// !isExpanded ? widget.enlargeText : widget.shrinkText,
+// style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500, fontSize: 11)
+// )
+// )
+// )
+//
+// : Container(width: 0)
+// ]
+// )

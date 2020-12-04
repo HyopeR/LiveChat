@@ -10,7 +10,6 @@ import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/expandable_text.dart';
 import 'package:live_chat/components/common/image_widget.dart';
-import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/user_model.dart';

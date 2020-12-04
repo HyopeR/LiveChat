@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:linkwell/linkwell.dart';
@@ -9,6 +11,7 @@ import 'package:live_chat/components/common/sound_player.dart';
 import 'package:live_chat/components/pages/media_show_page.dart';
 import 'package:live_chat/models/message_model.dart';
 import 'package:live_chat/services/operation_service.dart';
+RegExp tryRegex = RegExp(r'((?<=(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?(?:\u200d(?:[^\ud800-\udfff]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?)*)|(?=(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?(?:\u200d(?:[^\ud800-\udfff]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff])[\ufe0e\ufe0f]?(?:[\u0300-\u036f\ufe20-\ufe23\u20d0-\u20f0]|\ud83c[\udffb-\udfff])?)*))');
 
 class MessageBubble extends StatelessWidget {
   final String groupType;
@@ -53,8 +56,8 @@ class MessageBubble extends StatelessWidget {
               child: Bubble(
                 nip: nipControl
                     ? message.fromMe
-                      ? BubbleNip.rightTop
-                      : BubbleNip.leftTop
+                    ? BubbleNip.rightTop
+                    : BubbleNip.leftTop
                     : BubbleNip.no,
 
                 elevation: 0,
@@ -68,17 +71,17 @@ class MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     (!message.fromMe && groupType == 'Plural' && nipControl)
-                      ? Container(
+                        ? Container(
                         padding: EdgeInsets.only(top: 3, bottom: 3),
                         child: Text(message.ownerUsername, style: TextStyle(fontWeight: FontWeight.bold))
-                      )
-                      : Container(width: 0),
+                    )
+                        : Container(width: 0),
 
                     message.markedMessage != null
                         ? Container(
-                          margin: EdgeInsets.only(bottom: 6),
-                          child: MessageMarked(message: message.markedMessage),
-                        )
+                      margin: EdgeInsets.only(bottom: 6),
+                      child: MessageMarked(message: message.markedMessage),
+                    )
                         : Container(),
                     Container(
                         margin: EdgeInsets.only(bottom: 10),
@@ -89,10 +92,10 @@ class MessageBubble extends StatelessWidget {
             ),
             message.date != null
                 ? Positioned(
-                    right: 12,
-                    bottom: 2,
-                    child: Text(showClock(message.date),
-                        style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 10)))
+                right: 12,
+                bottom: 2,
+                child: Text(showClock(message.date),
+                    style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 10)))
                 : Text('')
           ],
         ),
@@ -112,13 +115,13 @@ class MessageBubble extends StatelessWidget {
     switch (message.messageType) {
       case ('Text'):
         return Container(
-            constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
-            child: ExpandableText(
-              text: message.message,
-              children: spliceTextList == null
-                  ? createOnlyText(context, message.message)
-                  : createRichText(context, spliceTextList),
-            ),
+          constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
+          child: ExpandableText(
+            text: message.message,
+            children: spliceTextList == null
+                ? createOnlyText(context, message.message)
+                : createRichText(context, spliceTextList),
+          ),
         );
         break;
 
@@ -148,14 +151,14 @@ class MessageBubble extends StatelessWidget {
             ),
             message.message != null
                 ? Container(
-                  margin: EdgeInsets.only(top: 5),
-                  child: ExpandableText(
-                    text: message.message,
-                    children: spliceTextList == null
-                        ? createOnlyText(context, message.message)
-                        : createRichText(context, spliceTextList),
-                  ),
-                )
+              margin: EdgeInsets.only(top: 5),
+              child: ExpandableText(
+                text: message.message,
+                children: spliceTextList == null
+                    ? createOnlyText(context, message.message)
+                    : createRichText(context, spliceTextList),
+              ),
+            )
                 : Container(width: 0),
           ],
         );
@@ -181,30 +184,45 @@ class MessageBubble extends StatelessWidget {
 
   // Has not emoji only text or link
   List<InlineSpan> createOnlyText(BuildContext context, String message) {
-    return [
-      WidgetSpan(
-          style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+    if(regexUrl.hasMatch(message)) {
+      return [
+          WidgetSpan(
           child: LinkWell(
-              message,
+              message.trim(),
               style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: Theme.of(context).textTheme.bodyText2.fontSize),
-              linkStyle: TextStyle(color: Colors.blueAccent, fontSize: Theme.of(context).textTheme.bodyText2.fontSize + 3)),
+              linkStyle: TextStyle(color: Colors.blueAccent, fontSize: Theme.of(context).textTheme.bodyText2.fontSize + 2)
+          ),
         )
-    ];
+      ];
+    }
+
+    else {
+      return [TextSpan(text: message, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize))];
+    }
   }
 
   // Has emoji, text, link
   List<InlineSpan> createRichText(BuildContext context, List<String> spliceTextList) {
     return spliceTextList.map((pieceText) {
+
       if(regexKeepEmoji.hasMatch(pieceText)) {
         return TextSpan(text: pieceText, style: TextStyle(fontSize: 18));
-      } else {
+      }
+
+      else if(regexUrl.hasMatch(pieceText)) {
         return WidgetSpan(
-          child: LinkWell(
-              pieceText,
-              style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: Theme.of(context).textTheme.bodyText2.fontSize),
-              linkStyle: TextStyle(color: Colors.blueAccent, fontSize: Theme.of(context).textTheme.bodyText2.fontSize + 3)
+          child: Container(
+            child: LinkWell(
+                pieceText.trim(),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: Theme.of(context).textTheme.bodyText2.fontSize),
+                linkStyle: TextStyle(color: Colors.blueAccent, fontSize: Theme.of(context).textTheme.bodyText2.fontSize + 2)
+            ),
           ),
         );
+      }
+
+      else {
+        return TextSpan(text: pieceText, style: TextStyle(fontSize: Theme.of(context).textTheme.bodyText2.fontSize));
       }
     }).toList();
   }
