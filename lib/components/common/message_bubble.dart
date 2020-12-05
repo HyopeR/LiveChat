@@ -39,8 +39,8 @@ class MessageBubble extends StatelessWidget {
     }
     return ContainerColumn(
       margin: message.fromMe
-          ? EdgeInsets.only(top: 3, bottom: 3, right: 10, left: MediaQuery.of(context).size.width * bubbleMarginRate)
-          : EdgeInsets.only(top: 3, bottom: 3, left: 10, right: MediaQuery.of(context).size.width * bubbleMarginRate),
+          ? EdgeInsets.only(top: 3, bottom: 3, right: 8, left: MediaQuery.of(context).size.width * bubbleMarginRate)
+          : EdgeInsets.only(top: 3, bottom: 3, left: 8, right: MediaQuery.of(context).size.width * bubbleMarginRate),
 
       crossAxisAlignment: message.fromMe
           ? CrossAxisAlignment.end
@@ -100,12 +100,14 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget writeMessage(BuildContext context, MessageModel message) {
-    List<String> spliceTextList;
 
-    if(message.message != null) {
-      if(regexKeepEmoji.hasMatch(message.message)) {
-        spliceTextList = message.message.split(regexKeepEmoji);
+
+  Widget writeMessage(BuildContext context, MessageModel message) {
+    List<String> spliceTextList = [];
+
+    if(regexEmoji.hasMatch(message.message)) {
+      if(message.message != null) {
+        spliceTextList = splitByEmoji(message.message);
       }
     }
 
@@ -115,7 +117,7 @@ class MessageBubble extends StatelessWidget {
           constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width * 0.9) - 20),
           child: ExpandableText(
             text: message.message,
-            children: spliceTextList == null
+            children: spliceTextList.isEmpty
                 ? createOnlyText(context, message.message)
                 : createRichText(context, spliceTextList),
           ),
@@ -151,7 +153,7 @@ class MessageBubble extends StatelessWidget {
               margin: EdgeInsets.only(top: 5),
               child: ExpandableText(
                 text: message.message,
-                children: spliceTextList == null
+                children: spliceTextList.isEmpty
                     ? createOnlyText(context, message.message)
                     : createRichText(context, spliceTextList),
               ),
@@ -179,11 +181,32 @@ class MessageBubble extends StatelessWidget {
     }
   }
 
+  // Emoji - Text Split List
+  List<String> splitByEmoji(String text) {
+    List<String> list = [];
+    var matches = regexEmoji.allMatches(text);
+    bool isFinishEmoji = matches.last.end == text.length;
+
+    int pos = 0;
+    matches.forEach((match) {
+      list.addAll([
+        text.substring(pos, match.start),
+        match[0],
+      ]);
+      pos = match.end;
+    });
+
+    if(!isFinishEmoji)
+      list.add(text.substring(pos, text.length));
+
+    return list;
+  }
+
   // Has not emoji only text or link
   List<InlineSpan> createOnlyText(BuildContext context, String message) {
     if(regexUrl.hasMatch(message)) {
       return [
-          WidgetSpan(
+        WidgetSpan(
           child: LinkWell(
               message.trim(),
               style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: Theme.of(context).textTheme.bodyText2.fontSize),
@@ -202,7 +225,7 @@ class MessageBubble extends StatelessWidget {
   List<InlineSpan> createRichText(BuildContext context, List<String> spliceTextList) {
     return spliceTextList.map((pieceText) {
 
-      if(regexKeepEmoji.hasMatch(pieceText)) {
+      if(regexEmoji.hasMatch(pieceText)) {
         return TextSpan(text: pieceText, style: TextStyle(fontSize: 18));
       }
 

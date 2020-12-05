@@ -507,7 +507,7 @@ class _ChatPageState extends State<ChatPage> {
       if(index + 1 == messages.length)
         nipControl = true;
       else
-        nipControl = currentMessage.sendBy != messages[index + 1].sendBy;
+        nipControl = (currentMessage.sendBy != messages[index + 1].sendBy || messages[index + 1].messageType == 'System');
 
       bool fromMe = currentMessage.sendBy == _userView.user.userId;
       currentMessage.fromMe = fromMe;
