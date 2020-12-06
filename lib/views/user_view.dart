@@ -225,15 +225,29 @@ class UserView with ChangeNotifier implements AuthBase {
 
   }
 
-  Future<String> uploadProfilePhoto(String userId, String fileType, File file) async {
+  Future<String> updateProfilePhoto(String userId, String fileType, File file) async {
 
     try{
-      String fileUrl = await _userRepo.uploadProfilePhoto(userId, fileType, file);
+      String fileUrl = await _userRepo.updateProfilePhoto(userId, fileType, file);
       return fileUrl;
 
     }catch(err) {
 
-      print('uploadFile Error: ${err.toString()}');
+      print('updateProfilePhoto Error: ${err.toString()}');
+      return null;
+    }
+
+  }
+
+  Future<String> updateChatWallpaper(String userId, String fileType, File file) async {
+
+    try{
+      String fileUrl = await _userRepo.updateChatWallpaper(userId, fileType, file);
+      return fileUrl;
+
+    }catch(err) {
+
+      print('updateChatWallpaper Error: ${err.toString()}');
       return null;
     }
 

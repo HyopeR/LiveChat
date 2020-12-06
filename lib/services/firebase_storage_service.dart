@@ -21,6 +21,16 @@ class FirebaseStorageService implements StorageBase {
   }
 
   @override
+  Future<String> uploadChatWallpaper(String userId, String fileType, File file) async {
+    _storageReference = _firebaseStorage.ref().child('users').child(userId).child(fileType).child('Wallpaper');
+    StorageUploadTask uploadTask = _storageReference.putFile(file);
+
+    String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+
+    return url;
+  }
+
+  @override
   Future<String> uploadVoiceNote(String groupId, String fileType, File file) async {
     String voiceUniqueName = uuid.v1();
     _storageReference = _firebaseStorage.ref().child('groups').child(groupId).child(fileType).child(voiceUniqueName);

@@ -156,7 +156,7 @@ class _ChatPageState extends State<ChatPage> {
                   margin: EdgeInsets.all(10),
                   key: _messageCreatorState,
                   hintText: 'Bir mesaj yazın.',
-                  textAreaColor: Colors.grey.shade300.withOpacity(0.8),
+                  textAreaColor:  Colors.grey[100],
                   textAreaMaxHeight: MediaQuery.of(context).size.height,
                   textAreaCrossAxisAlignment: CrossAxisAlignment.start,
                   iconAlignment: Alignment.bottomCenter,
@@ -258,6 +258,13 @@ class _ChatPageState extends State<ChatPage> {
 
           body: SafeArea(
             child: ContainerColumn(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(_userView.user.userWallpaper),
+                  fit: BoxFit.cover
+                )
+              ),
+
               children: [
                 _chatView.selectedChatState == SelectedChatState.Loaded && _chatView.selectedChat != null
                     ? Expanded(
@@ -296,7 +303,7 @@ class _ChatPageState extends State<ChatPage> {
                   margin: EdgeInsets.all(10),
                   key: _messageCreatorState,
                   hintText: 'Bir mesaj yazın.',
-                  textAreaColor: Colors.grey.shade300.withOpacity(0.8),
+                  textAreaColor: Colors.grey[100],
                   textAreaMaxHeight: MediaQuery.of(context).orientation == Orientation.portrait ? 150 : 120,
                   buttonColor: Theme.of(context).primaryColor,
                   permissionsAllowed: permissionStatus,
@@ -608,9 +615,7 @@ class _ChatPageState extends State<ChatPage> {
                     groupType: _chatView.groupType,
                     nipControl: nipControl,
                     message: currentMessage,
-                    color: currentMessage.fromMe
-                        ? Theme.of(context).primaryColor.withAlpha(200)
-                        : Colors.grey.shade300.withOpacity(0.8),
+                    color: currentMessage.fromMe ? Theme.of(context).primaryColor : Colors.grey[100],
                   ),
                 ),
               )

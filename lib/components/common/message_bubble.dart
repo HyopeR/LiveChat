@@ -57,7 +57,7 @@ class MessageBubble extends StatelessWidget {
                     : BubbleNip.leftTop
                     : BubbleNip.no,
 
-                elevation: 0,
+                elevation: 2,
                 padding: BubbleEdges.all(5),
                 radius: Radius.circular(10),
                 color: color,

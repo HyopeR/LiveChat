@@ -1,17 +1,17 @@
 import 'dart:io';
 import 'package:live_chat/components/common/appbar_widget.dart';
-import 'package:live_chat/services/operation_service.dart';
+import 'package:live_chat/components/common/custom_expansion_widget.dart';
+import 'package:live_chat/components/common/expandable_text.dart';
+import 'package:live_chat/components/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/components/common/alert_container_widget.dart';
-import 'package:live_chat/components/common/alert_dialog_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/login_button.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/models/user_model.dart';
-import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -22,11 +22,10 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
-  ChatView _chatView;
 
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
-  ImagePicker picker;
+  ImagePicker picker = ImagePicker();
 
   File _profilePhoto;
 
@@ -35,12 +34,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool showUserData = true;
   bool showUserProfilePhoto = true;
-  bool showForm = true;
 
   @override
   void initState() {
     super.initState();
-    picker =  ImagePicker();
     _controllerUserName = TextEditingController();
   }
 
@@ -53,7 +50,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
-    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
       appBar: AppbarWidget(
@@ -63,9 +59,9 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             FlatButton(
                 minWidth: 50,
-                child: Icon(Icons.logout),
-                onPressed: () => _signOutControl()
-            )
+                child: Icon(Icons.settings),
+                onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => SettingsPage()))
+            ),
           ]
       ),
 
@@ -90,6 +86,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       return ContainerColumn(
                         children: [
                           ContainerRow(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
                             children: [
                               Expanded(
                                   flex: 1,
@@ -108,17 +106,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                             backgroundColor:
                                                 Colors.grey.withOpacity(0.3),
                                           )),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 10),
-                                        child: IconButton(
-                                            icon: Icon(!showForm ? Icons.edit : Icons.close),
-                                            splashRadius: 25,
-                                            onPressed: () {
-                                              setState(() {
-                                                showForm = !showForm;
-                                              });
-                                            }),
-                                      )
                                     ],
                                   )),
                               Expanded(
@@ -133,50 +120,98 @@ class _ProfilePageState extends State<ProfilePage> {
                           AlertContainerWidget(
                             key: _alertContainerWidgetState,
                           ),
-                          showForm
-                              ? ContainerColumn(
-                                  mainAxisSize: MainAxisSize.min,
+
+                          ContainerColumn(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TitleArea(
+                                  titleText: 'Bilgileri Güncelle',
+                                  icon: Icons.insert_drive_file,
+                                  iconColor: Theme.of(context).primaryColor
+                              ),
+
+                              Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(width: 2, color: Colors.grey.withOpacity(0.3))
+                                ),
+                                margin: EdgeInsets.only(top: 5),
+                                child: CustomExpansionWidget(
+                                  title: 'Kullanıcı Adı',
+                                  childrenPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                   children: [
-                                    TitleArea(
-                                        titleText: 'Bilgileri Güncelle',
-                                        icon: Icons.insert_drive_file,
-                                        iconColor: Theme.of(context).primaryColor
-                                    ),
                                     TextFormField(
                                       controller: _controllerUserName,
                                       decoration: InputDecoration(
                                           errorText: updateControllerUserName != null ? updateControllerUserName : null,
                                           labelText: 'Username',
-                                          hintText: 'Enter username',
+                                          hintText: 'Kullanıcı adı giriniz.',
                                           border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(10)
                                           )
                                       ),
                                     ),
+
                                     LoginButton(
                                       margin: EdgeInsets.symmetric(vertical: 10),
-                                      buttonText: 'Değişiklikleri Kaydet',
+                                      buttonText: 'Kullanıcı Adını Güncelle',
                                       buttonRadius: 10,
                                       buttonHeight: 40,
                                       textColor: Colors.black,
                                       buttonColor:
-                                          Theme.of(context).primaryColor,
+                                      Theme.of(context).primaryColor,
                                       onPressed: () async {
-                                        bool updateName =
-                                            await _updateUserName();
-                                        bool updatePhoto =
-                                            await _updateProfilePhoto();
+                                        bool updateName = await _updateUserName();
+                                        bool updatePhoto = await _updateProfilePhoto();
 
                                         if (updateName || updatePhoto)
-                                          _alertContainerWidgetState
-                                              .currentState
-                                              .showAlertAddText(
-                                                  'Profil güncelleme başarılı.');
+                                          _alertContainerWidgetState.currentState.showAlertAddText('Kullanıcı adınız güncellendi.');
                                       },
-                                    ),
+                                    )
                                   ],
-                                )
-                              : Container(),
+                                ),
+                              ),
+
+                              Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(width: 2, color: Colors.grey.withOpacity(0.3))
+                                ),
+                                margin: EdgeInsets.only(top: 5),
+                                child: CustomExpansionWidget(
+                                  title: 'Durum',
+                                  childrenPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  children: [
+                                    TextFormField(
+                                      maxLines: null,
+                                      controller: _controllerUserName,
+                                      decoration: InputDecoration(
+                                          errorText: updateControllerUserName != null ? updateControllerUserName : null,
+                                          labelText: 'Statement',
+                                          hintText: 'Durum giriniz.',
+                                          border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(10)
+                                          )
+                                      ),
+                                    ),
+
+                                    LoginButton(
+                                      margin: EdgeInsets.symmetric(vertical: 10),
+                                      buttonText: 'Durumu Güncelle',
+                                      buttonRadius: 10,
+                                      buttonHeight: 40,
+                                      textColor: Colors.black,
+                                      buttonColor:
+                                      Theme.of(context).primaryColor,
+                                      onPressed: () async {
+                                        _alertContainerWidgetState.currentState.showAlertAddText('Durumunuz güncellendi.');
+                                      },
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
                         ],
                       );
                     } else {
@@ -192,17 +227,20 @@ class _ProfilePageState extends State<ProfilePage> {
 
   List<Widget> _userDataWrite() {
     return [
-      userDataWidget('Name', _userView.user.userName),
+      userDataWidget('İsim', _userView.user.userName),
       userDataWidget('Email', _userView.user.userEmail),
+      userDataWidget('Durum', _userView.user.userStatement ?? 'Durum güncellemesi yok.')
       // userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen) : 'Yükleniyor...'),
-      userDataWidget('Status', _userView.user.online ? 'Online' : 'Offline'),
-      userDataWidget('Registered', _userView.user.createdAt != null ? showDate(_userView.user.createdAt)['date'] : 'Yükleniyor...'),
-      userDataWidget('Updated', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.updatedAt) : 'Yükleniyor...'),
+      // userDataWidget('Status', _userView.user.online ? 'Online' : 'Offline'),
+      // userDataWidget('Registered', _userView.user.createdAt != null ? showDate(_userView.user.createdAt)['date'] : 'Yükleniyor...'),
+      // userDataWidget('Updated', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.updatedAt) : 'Yükleniyor...'),
     ];
   }
 
   Widget userDataWidget(String key, dynamic value) {
     return ContainerRow(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
       margin: EdgeInsets.symmetric(vertical: 3),
       children: [
         Expanded(
@@ -227,7 +265,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withOpacity(0.3),
               ),
-              child: Text(value.toString()),
+              child: ExpandableText(children: [TextSpan(text: value.toString())], text: value.toString(), textSize: Theme.of(context).textTheme.bodyText2.fontSize),
             )),
       ],
     );
@@ -279,7 +317,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() => showUserProfilePhoto = false);
       _imageWidgetState.currentState.loadingStart();
 
-      var uploadFile = await _userView.uploadProfilePhoto(
+      var uploadFile = await _userView.updateProfilePhoto(
           _userView.user.userId, 'Profile_Photo', _profilePhoto);
 
       if (uploadFile != null) {
@@ -294,18 +332,6 @@ class _ProfilePageState extends State<ProfilePage> {
         return false;
     } else
       return false;
-  }
-
-  Future _signOutControl() async {
-    AlertDialogWidget(
-      alertTitle: 'Çıkış',
-      alertContent: 'Çıkmak istediğinizden emin misiniz?',
-      completeActionText: 'Evet',
-      cancelActionText: 'Vazgeç',
-    ).show(context).then((value) {
-      if (value)
-        _signOut();
-    });
   }
 
   showModal() {
@@ -330,13 +356,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
-  }
-
-  _signOut() async {
-    _userView.logoutUpdate(_userView.user.userId);
-    _chatView.clearState();
-    _userView.signOut();
-    Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
   }
 
 }

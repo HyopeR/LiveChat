@@ -121,12 +121,18 @@ class UserRepository implements AuthBase{
     return _fireStoreDbService.updateUserName(userId, newUserName);
   }
 
-  Future<String> uploadProfilePhoto(String userId, String fileType, File file) async {
+  Future<String> updateProfilePhoto(String userId, String fileType, File file) async {
+    String profilePhotoUrl = await _firebaseStorageService.uploadProfilePhoto(userId, fileType, file);
+    bool fileUploadComplete = await _fireStoreDbService.updateProfilePhoto(userId, profilePhotoUrl);
 
-    String fileUrl = await _firebaseStorageService.uploadProfilePhoto(userId, fileType, file);
-    bool fileUploadComplete = await _fireStoreDbService.updateProfilePhoto(userId, fileUrl);
+    return fileUploadComplete ? profilePhotoUrl : null;
+  }
 
-    return fileUploadComplete ? fileUrl : null;
+  Future<String> updateChatWallpaper(String userId, String fileType, File file) async {
+    String chatWallpaperUrl = await _firebaseStorageService.uploadChatWallpaper(userId, fileType, file);
+    bool fileUploadComplete = await _fireStoreDbService.updateChatWallpaper(userId, chatWallpaperUrl);
+
+    return fileUploadComplete ? chatWallpaperUrl : null;
   }
 
   Future<void> loginUpdate(String userId) async {

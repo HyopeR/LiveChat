@@ -92,9 +92,19 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
-  Future<bool> updateProfilePhoto(String userId, String fileUrl) async {
+  Future<bool> updateProfilePhoto(String userId, String profilePhotoUrl) async {
     await _fireStore.collection('users').doc(userId).update({
-      'userProfilePhotoUrl': fileUrl,
+      'userProfilePhotoUrl': profilePhotoUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
+  }
+
+  @override
+  Future<bool> updateChatWallpaper(String userId, String wallpaperUrl) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'userWallpaper': wallpaperUrl,
       'updatedAt': FieldValue.serverTimestamp(),
     });
 

@@ -136,6 +136,13 @@ class MessageCreatorWidgetState extends State<MessageCreatorWidget> {
             decoration: BoxDecoration(
               color: widget.textAreaColor,
               borderRadius: BorderRadius.circular(widget.textAreaRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 1,
+                  offset: Offset(0,0.1),
+                ),
+              ]
             ),
 
             children: [

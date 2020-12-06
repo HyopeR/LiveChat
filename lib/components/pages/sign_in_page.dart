@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/views/chat_view.dart';
 import 'package:provider/provider.dart';
 
@@ -28,10 +29,9 @@ class _SignInPageState extends State<SignInPage> {
     _userView = Provider.of<UserView>(context);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppbarWidget(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text('Live Chat'),
-        elevation: 0,
+        titleText: 'Live Chat',
       ),
 
       body: bodyArea(),

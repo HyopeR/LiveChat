@@ -42,7 +42,8 @@ class LoginButton extends StatelessWidget {
       child: RaisedButton(
           color: buttonColor,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(buttonRadius))),
+              borderRadius: BorderRadius.all(Radius.circular(buttonRadius))
+          ),
           child: Stack(
             children: [
 

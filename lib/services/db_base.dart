@@ -12,7 +12,8 @@ abstract class DbBase {
   Stream<UserModel> streamUser(String userId);
 
   Future<bool> updateUserName(String userId, String userName);
-  Future<bool> updateProfilePhoto(String userId, String photoUrl);
+  Future<bool> updateProfilePhoto(String userId, String profilePhotoUrl);
+  Future<bool> updateChatWallpaper(String userId, String wallpaperUrl);
 
   // User'lar kendi içerisinde bir ilişki kurulmadığı için şunada bu alanlar kullanılmıyor.
   // Gerekli olan kodlar baypas edilmiş şekilde projede durmakta.

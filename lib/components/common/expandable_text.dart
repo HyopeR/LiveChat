@@ -5,12 +5,14 @@ class ExpandableText extends StatefulWidget {
   final List<InlineSpan> children;
 
   final String text;
+  final double textSize;
   final String enlargeText;
   final String shrinkText;
 
   ExpandableText({
     @required this.children,
     @required this.text,
+    this.textSize,
     this.enlargeText : 'Devamını oku',
     this.shrinkText : 'Küçült'
   });
@@ -42,7 +44,7 @@ class _ExpandableTextState extends State<ExpandableText> with TickerProviderStat
                     child: RichText(
                       maxLines: !isExpanded ? 5 : null,
                       text: TextSpan(
-                          style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+                          style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: widget.textSize),
                           children: widget.children
                       ),
                     )
@@ -59,7 +61,7 @@ class _ExpandableTextState extends State<ExpandableText> with TickerProviderStat
                             alignment: Alignment.bottomRight,
                             child: Text(
                                 !isExpanded ? widget.enlargeText : widget.shrinkText,
-                                style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500, fontSize: 11)
+                                style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500, fontSize: widget.textSize)
                             )
                         )
                     )
@@ -71,7 +73,7 @@ class _ExpandableTextState extends State<ExpandableText> with TickerProviderStat
           : RichText(
             maxLines: null,
             text: TextSpan(
-                style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color, fontSize: widget.textSize),
                 children: widget.children
             ),
           );
