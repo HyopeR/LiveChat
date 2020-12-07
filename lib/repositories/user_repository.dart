@@ -139,6 +139,10 @@ class UserRepository implements AuthBase{
     return fileUploadComplete ? chatWallpaperUrl : null;
   }
 
+  Future<bool> returnDefaultChatWallpaper(String userId) async {
+    return _fireStoreDbService.returnDefaultChatWallpaper(userId);
+  }
+
   Future<void> loginUpdate(String userId) async {
     return _fireStoreDbService.loginUpdate(userId);
   }

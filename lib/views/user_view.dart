@@ -267,6 +267,17 @@ class UserView with ChangeNotifier implements AuthBase {
 
   }
 
+  Future<bool> returnDefaultChatWallpaper(String userId) async {
+
+    try{
+      return _userRepo.returnDefaultChatWallpaper(userId);
+    }catch(err) {
+      print('returnDefaultChatWallpaper Error: ${err.toString()}');
+      return false;
+    }
+
+  }
+
   Future<void> loginUpdate(String userId) async {
 
     try{

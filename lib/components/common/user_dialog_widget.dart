@@ -40,7 +40,10 @@ class UserDialogWidget extends StatelessWidget {
         minScale: 1,
         maxScale: 4,
         child: InkWell(
-          onTap: onPhotoClick,
+          onTap: () {
+            Navigator.of(context).pop();
+            onPhotoClick();
+          },
           child: Container(
             alignment: Alignment.bottomCenter,
             width: MediaQuery.of(context).orientation == Orientation.portrait
@@ -109,7 +112,10 @@ class UserDialogWidget extends StatelessWidget {
                   bottomLeft: Radius.circular(10),
                 ),
                 splashColor: Theme.of(context).primaryColor,
-                onTap: onDetailClick,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  onDetailClick();
+                },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 5),
                   alignment: Alignment.center,
@@ -121,7 +127,10 @@ class UserDialogWidget extends StatelessWidget {
                   bottomRight: Radius.circular(10),
                 ),
                 splashColor: Theme.of(context).primaryColor,
-                onTap: onChatClick,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  onChatClick();
+                },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 5),
                   alignment: Alignment.center,

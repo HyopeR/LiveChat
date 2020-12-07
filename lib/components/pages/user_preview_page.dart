@@ -125,6 +125,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
 
   Widget userDataWrite(String key, dynamic value) {
     return ContainerRow(
+      crossAxisAlignment: CrossAxisAlignment.start,
       margin: EdgeInsets.symmetric(vertical: 3),
       children: [
         Expanded(
@@ -174,7 +175,9 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
 
                   onPhotoClick: () {
 
-                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage(name: user.userName, photoUrl: user.userProfilePhotoUrl)));
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                        builder: (context) => ProfilePhotoShowPage(name: user.userName, photoUrl: user.userProfilePhotoUrl, id: user.userId))
+                    );
                   },
 
                   onChatClick: () {
@@ -207,12 +210,15 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                 ).show(context);
               }
             },
-            child: ImageWidget(
-              image: NetworkImage(user.userProfilePhotoUrl),
-              imageWidth: 75,
-              imageHeight: 75,
-              backgroundShape: BoxShape.circle,
-              backgroundColor: Colors.grey.withOpacity(0.3),
+            child: Hero(
+              tag: user.userId,
+              child: ImageWidget(
+                image: NetworkImage(user.userProfilePhotoUrl),
+                imageWidth: 75,
+                imageHeight: 75,
+                backgroundShape: BoxShape.circle,
+                backgroundColor: Colors.grey.withOpacity(0.3),
+              ),
             ),
           ),
           title: Text(user.userName),
@@ -252,14 +258,15 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
             )
           ),
         ),
-        userDataWrite('Name', _chatView.interlocutorUser.userName),
+        userDataWrite('İsim', _chatView.interlocutorUser.userName),
         userDataWrite('Email', _chatView.interlocutorUser.userEmail),
-        userDataWrite('Last Seen:', _chatView.interlocutorUser.online
+        userDataWrite('Son Görülme', _chatView.interlocutorUser.online
             ? 'Online'
             : _chatView.interlocutorUser.lastSeen != null
             ? showDateComposedString(_chatView.interlocutorUser.lastSeen)
             : 'Yükleniyor...'
         ),
+        userDataWrite('Durum', _chatView.interlocutorUser.userStatement ?? 'Durum güncellemesi yok.'),
       ]),
     ];
   }
@@ -351,9 +358,22 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
               backgroundColor: pageColor != null ? pageColor : Colors.amber,
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: EdgeInsets.only(left: 56, bottom: 10),
-                background: Image.network(
-                  _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
-                  fit: BoxFit.cover,
+                background: InkWell(
+                  splashColor: Colors.transparent,
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                        builder: (context) => ProfilePhotoShowPage(
+                            name: _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userName : _chatView.selectedChat.groupName,
+                            photoUrl: _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
+                            id:  _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userId : _chatView.selectedChat.groupId,
+                        )
+                        )
+                    );
+                  },
+                  child: Image.network(
+                    _chatView.groupType == 'Private' ? _chatView.interlocutorUser.userProfilePhotoUrl : _chatView.selectedChat.groupImageUrl,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 title: Align(
                   alignment: Alignment.bottomLeft,

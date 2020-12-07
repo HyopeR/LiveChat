@@ -158,7 +158,9 @@ class _UsersPageState extends State<UsersPage> {
                     photoUrl: currentUser.userProfilePhotoUrl,
 
                     onPhotoClick: () {
-                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ProfilePhotoShowPage(name: currentUser.userName, photoUrl: currentUser.userProfilePhotoUrl,)));
+                      Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(builder: (context) => ProfilePhotoShowPage(name: currentUser.userName, photoUrl: currentUser.userProfilePhotoUrl, id: currentUser.userId))
+                      );
                     },
 
                     onChatClick: () {
@@ -176,12 +178,15 @@ class _UsersPageState extends State<UsersPage> {
                   selectedListOperation(selected, currentUser);
                 }
               },
-              child: ImageWidget(
-                image: NetworkImage(currentUser.userProfilePhotoUrl),
-                imageWidth: 75,
-                imageHeight: 75,
-                backgroundShape: BoxShape.circle,
-                backgroundColor: currentUser.online ? Colors.green.withOpacity(0.5) : Colors.grey.withOpacity(0.3),
+              child: Hero(
+                tag: currentUser.userId,
+                child: ImageWidget(
+                  image: NetworkImage(currentUser.userProfilePhotoUrl),
+                  imageWidth: 75,
+                  imageHeight: 75,
+                  backgroundShape: BoxShape.circle,
+                  backgroundColor: currentUser.online ? Colors.green.withOpacity(0.5) : Colors.grey.withOpacity(0.3),
+                ),
               ),
             ),
             title: Text(currentUser.userName),

@@ -32,6 +32,7 @@ class _SignInPageState extends State<SignInPage> {
       appBar: AppbarWidget(
         backgroundColor: Theme.of(context).primaryColor,
         titleText: 'Live Chat',
+        textColor: Colors.black,
       ),
 
       body: bodyArea(),

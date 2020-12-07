@@ -15,6 +15,7 @@ abstract class DbBase {
   Future<bool> updateStatement(String userId, String statement);
   Future<bool> updateProfilePhoto(String userId, String profilePhotoUrl);
   Future<bool> updateChatWallpaper(String userId, String wallpaperUrl);
+  Future<bool> returnDefaultChatWallpaper(String userId);
 
   // User'lar kendi içerisinde bir ilişki kurulmadığı için şunada bu alanlar kullanılmıyor.
   // Gerekli olan kodlar baypas edilmiş şekilde projede durmakta.

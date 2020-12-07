@@ -135,7 +135,7 @@ class _SettingThemePageState extends State<SettingThemePage> {
                           buttonRadius: 10,
                           icon: Icon(Icons.image),
                           textColor: Colors.black,
-                          onPressed: (){},
+                          onPressed: () => chosePhoto('Gallery'),
                         ),
 
                         LoginButton(
@@ -144,7 +144,7 @@ class _SettingThemePageState extends State<SettingThemePage> {
                           buttonRadius: 10,
                           icon: Icon(Icons.camera_alt),
                           textColor: Colors.black,
-                          onPressed: (){},
+                          onPressed: () => chosePhoto('Camera'),
                         ),
 
                         LoginButton(
@@ -153,7 +153,7 @@ class _SettingThemePageState extends State<SettingThemePage> {
                           buttonRadius: 10,
                           icon: Icon(Icons.history),
                           textColor: Colors.black,
-                          onPressed: (){},
+                          onPressed: () => returnDefaultChatWallpaper(),
                         )
                       ],
                     ),
@@ -195,9 +195,16 @@ class _SettingThemePageState extends State<SettingThemePage> {
     }
   }
 
-  void photoFormDefault() async {
-    await _userView.updateChatWallpaper(_userView.user.userId, 'Chat_Wallpaper', chatWallpaper);
+  void returnDefaultChatWallpaper() async {
+    setState(() {
+      wallpaperLoading = true;
+    });
 
+    await _userView.returnDefaultChatWallpaper(_userView.user.userId);
+
+    setState(() {
+      wallpaperLoading = false;
+    });
   }
 
   void changeThemeColor(String colorName, Color color) async {

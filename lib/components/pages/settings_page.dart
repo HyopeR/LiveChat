@@ -18,100 +18,104 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   UserView _userView;
-  ChatView _chatView;
 
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
-    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
       appBar: AppbarWidget(
-        onLeftSideClick: () => Navigator.of(context).pop(),
+        onLeftSideClick: () => Navigator.of(context).pop(false),
         titleText: 'Settings',
         backgroundColor: Theme.of(context).primaryColor,
       ),
 
-      body: SingleChildScrollView(
-        child: ContainerColumn(
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
-              child: ListTile(
-                leading: InkWell(
-                  splashColor: Colors.transparent,
-                  child: ImageWidget(
-                    backgroundPadding: 0,
-                    image: NetworkImage(_userView.user.userProfilePhotoUrl),
-                    imageWidth: 75,
-                    imageHeight: 75,
-                    backgroundShape: BoxShape.circle,
-                    backgroundColor: Colors.grey.withOpacity(0.3),
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.of(context).pop(false);
+          return false;
+        },
+        child: SingleChildScrollView(
+          child: ContainerColumn(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: ListTile(
+                  leading: InkWell(
+                    splashColor: Colors.transparent,
+                    child: ImageWidget(
+                      backgroundPadding: 0,
+                      image: NetworkImage(_userView.user.userProfilePhotoUrl),
+                      imageWidth: 75,
+                      imageHeight: 75,
+                      backgroundShape: BoxShape.circle,
+                      backgroundColor: Colors.grey.withOpacity(0.3),
+                    ),
+                  ),
+                  title: Text(_userView.user.userName),
+                  subtitle: Text(_userView.user.userEmail),
+                ),
+              ),
+
+              Divider(thickness: 1),
+
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingAccountPage()));
+                  },
+                  child: ListTile(
+                    leading: Container(width: 75, child: Icon(Icons.vpn_key, color: Theme.of(context).primaryColor.withOpacity(0.6))),
+                    title: Text('Hesap'),
+                    subtitle: Text('Bilgilerini güncelle'),
                   ),
                 ),
-                title: Text(_userView.user.userName),
-                subtitle: Text(_userView.user.userEmail),
               ),
-            ),
 
-            Divider(thickness: 1),
-
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 5),
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingAccountPage()));
-                },
-                child: ListTile(
-                  leading: Container(width: 75, child: Icon(Icons.vpn_key, color: Theme.of(context).primaryColor.withOpacity(0.6))),
-                  title: Text('Hesap'),
-                  subtitle: Text('Bilgilerini güncelle'),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingThemePage()));
+                  },
+                  child: ListTile(
+                    leading: Container(width: 75, child: Icon(Icons.widgets, color: Theme.of(context).primaryColor.withOpacity(0.6))),
+                    title: Text('Tema'),
+                    subtitle: Text('Tema, duvar kağıdı'),
+                  ),
                 ),
               ),
-            ),
 
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 5),
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingThemePage()));
-                },
-                child: ListTile(
-                  leading: Container(width: 75, child: Icon(Icons.widgets, color: Theme.of(context).primaryColor.withOpacity(0.6))),
-                  title: Text('Tema'),
-                  subtitle: Text('Tema, duvar kağıdı'),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingNotificationPage()));
+                  },
+                  child: ListTile(
+                    leading: Container(width: 75, child: Icon(Icons.notifications, color: Theme.of(context).primaryColor.withOpacity(0.6))),
+                    title: Text('Bildirim'),
+                    subtitle: Text('Mesaj sesleri'),
+                  ),
                 ),
               ),
-            ),
 
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 5),
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingNotificationPage()));
-                },
-                child: ListTile(
-                  leading: Container(width: 75, child: Icon(Icons.notifications, color: Theme.of(context).primaryColor.withOpacity(0.6))),
-                  title: Text('Bildirim'),
-                  subtitle: Text('Mesaj sesleri'),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                child: InkWell(
+                  onTap: () {
+                    _signOutControl();
+                  },
+                  child: ListTile(
+                    leading: Container(width: 75, child: Icon(Icons.logout, color: Colors.red)),
+                    title: Text('Çıkış Yap'),
+                    subtitle: Text('Oturumu kapat'),
+                  ),
                 ),
               ),
-            ),
-
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 5),
-              child: InkWell(
-                onTap: () {
-                  _signOutControl();
-                },
-                child: ListTile(
-                  leading: Container(width: 75, child: Icon(Icons.logout, color: Colors.red)),
-                  title: Text('Çıkış Yap'),
-                  subtitle: Text('Oturumu kapat'),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -126,14 +130,9 @@ class _SettingsPageState extends State<SettingsPage> {
       completeActionText: 'Evet',
       cancelActionText: 'Vazgeç',
     ).show(context).then((value) {
-      if (value)
-        _signOut();
+      if (value) {
+        Navigator.of(context).pop(true);
+      }
     });
-  }
-  _signOut() async {
-    _userView.logoutUpdate(_userView.user.userId);
-    _chatView.clearState();
-    _userView.signOut();
-    Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
   }
 }

@@ -121,6 +121,17 @@ class FireStoreDbService implements DbBase {
     return true;
   }
 
+
+  @override
+  Future<bool> returnDefaultChatWallpaper(String userId) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'userWallpaper': 'https://firebasestorage.googleapis.com/v0/b/flutterlivechat.appspot.com/o/system%2Fchat_wallpaper.png?alt=media&token=636b2161-c31d-4f2f-b998-5065ddde1d62',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
+  }
+
   @override
   Stream<List<UserModel>> getAllUsers() {
     Stream<QuerySnapshot> contactsQuery = _fireStore.collection('users')

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class ExpandableText extends StatefulWidget {
   final List<InlineSpan> children;
+  final int maxCharCount;
 
   final String text;
   final double textSize;
@@ -11,6 +12,7 @@ class ExpandableText extends StatefulWidget {
 
   ExpandableText({
     @required this.children,
+    this.maxCharCount : 500,
     @required this.text,
     this.textSize,
     this.enlargeText : 'Devamını oku',
@@ -28,7 +30,7 @@ class _ExpandableTextState extends State<ExpandableText> with TickerProviderStat
   @override
   void initState() {
     super.initState();
-    isLongText = widget.text.length > 500;
+    isLongText = widget.text.length > widget.maxCharCount;
   }
 
   @override

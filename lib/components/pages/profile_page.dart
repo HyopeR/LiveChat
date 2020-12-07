@@ -13,6 +13,7 @@ import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/login_button.dart';
 import 'package:live_chat/components/common/title_area.dart';
 import 'package:live_chat/models/user_model.dart';
+import 'package:live_chat/views/chat_view.dart';
 import 'package:live_chat/views/user_view.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserView _userView;
+  ChatView _chatView;
 
   GlobalKey<AlertContainerWidgetState> _alertContainerWidgetState = GlobalKey();
   GlobalKey<ImageWidgetState> _imageWidgetState = GlobalKey();
@@ -54,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     _userView = Provider.of<UserView>(context);
+    _chatView = Provider.of<ChatView>(context);
 
     return Scaffold(
       appBar: AppbarWidget(
@@ -64,7 +67,11 @@ class _ProfilePageState extends State<ProfilePage> {
             FlatButton(
                 minWidth: 50,
                 child: Icon(Icons.settings),
-                onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => SettingsPage()))
+                onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => SettingsPage())).then((value) {
+                  if(value) {
+                    _signOut();
+                  }
+                })
             ),
           ]
       ),
@@ -151,7 +158,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                       controller: _controllerUserName,
                                       decoration: InputDecoration(
                                           errorText: updateControllerUserName != null ? updateControllerUserName : null,
-                                          labelText: 'Username',
                                           hintText: 'Kullanıcı adı giriniz.',
                                           border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(10)
@@ -188,7 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                       maxLines: null,
                                       controller: _controllerStatement,
                                       decoration: InputDecoration(
-                                          labelText: 'Durum',
                                           hintText: 'Durum giriniz.',
                                           border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(10)
@@ -229,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<Widget> _userDataWrite() {
     return [
       userDataWidget('İsim', _userView.user.userName),
-      userDataWidget('Email', _userView.user.userEmail),
+      // userDataWidget('Email', _userView.user.userEmail),
       userDataWidget('Durum', _userView.user.userStatement ?? 'Durum güncellemesi yok.')
       // userDataWidget('Last Seen', _userView.user.updatedAt != null ? showDateComposedString(_userView.user.lastSeen) : 'Yükleniyor...'),
       // userDataWidget('Status', _userView.user.online ? 'Online' : 'Offline'),
@@ -266,7 +271,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withOpacity(0.3),
               ),
-              child: ExpandableText(children: [TextSpan(text: value.toString())], text: value.toString(), textSize: Theme.of(context).textTheme.bodyText2.fontSize),
+              child: ExpandableText(
+                  maxCharCount: 200,
+                  children: [TextSpan(text: value.toString())],
+                  text: value.toString(), textSize: Theme.of(context).textTheme.bodyText2.fontSize),
             )),
       ],
     );
@@ -368,6 +376,13 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+  }
+
+  _signOut() async {
+    _userView.logoutUpdate(_userView.user.userId);
+    _userView.signOut();
+    Navigator.of(context, rootNavigator: true).pushReplacementNamed('/signInPage');
+    _chatView.clearState();
   }
 
 }

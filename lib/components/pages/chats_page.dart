@@ -212,6 +212,7 @@ class _ChatsPageState extends State<ChatsPage> {
                           builder: (context) => ProfilePhotoShowPage(
                             name: currentChat.groupType == 'Private' ? interlocutorUser.userName : currentChat.groupName,
                             photoUrl: currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl,
+                            id: currentChat.groupId,
                           ))
                       );
                     },
@@ -235,12 +236,15 @@ class _ChatsPageState extends State<ChatsPage> {
                   selectedListOperation(selected, currentChat);
                 }
               },
-              child: ImageWidget(
-                image: NetworkImage(currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl),
-                imageWidth: 75,
-                imageHeight: 75,
-                backgroundShape: BoxShape.circle,
-                backgroundColor: Colors.grey.withOpacity(0.3),
+              child: Hero(
+                tag: currentChat.groupId,
+                child: ImageWidget(
+                  image: NetworkImage(currentChat.groupType == 'Private' ? interlocutorUser.userProfilePhotoUrl : currentChat.groupImageUrl),
+                  imageWidth: 75,
+                  imageHeight: 75,
+                  backgroundShape: BoxShape.circle,
+                  backgroundColor: Colors.grey.withOpacity(0.3),
+                ),
               ),
             ),
             trailing: ContainerColumn(

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 
@@ -134,13 +135,14 @@ class AppbarWidgetState extends State<AppbarWidget> {
       ),
 
       titleSpacing: 0,
-      title: FlatButton(
-          padding: EdgeInsets.zero,
-
-          onPressed: widget.onTitleClick,
-          child: Column(
+      title: InkWell(
+          splashColor: Colors.transparent,
+          onTap: widget.onTitleClick,
+          child: ContainerColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
-
+            constraints: BoxConstraints(
+              minWidth: 150
+            ),
             children: [
               Text(title, style: TextStyle(color: widget.textColor, fontSize: Theme.of(context).textTheme.headline6.fontSize)),
               subTitle != null ? Text(subTitle, style: TextStyle(fontSize: 12, color: widget.textColor.withOpacity(0.7))) : Container(),
