@@ -271,6 +271,15 @@ class ChatView with ChangeNotifier {
     }
   }
 
+  Future<bool> updateGroupName(String groupId, String groupName) async {
+    try{
+      return _chatRepo.updateGroupName(groupId, groupName);
+    }catch(err) {
+      print('updateGroupName Error: ${err.toString()}');
+      return false;
+    }
+  }
+
   // Voice record ile ilgili fonksiyonlar.
   void recordStart() async {
     return _chatRepo.recordStart();

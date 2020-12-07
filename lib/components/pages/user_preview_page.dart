@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:live_chat/components/common/alert_dialog_widget.dart';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/container_column.dart';
 import 'package:live_chat/components/common/container_row.dart';
@@ -12,6 +13,7 @@ import 'package:live_chat/components/common/expandable_text.dart';
 import 'package:live_chat/components/common/image_widget.dart';
 import 'package:live_chat/components/common/user_dialog_widget.dart';
 import 'package:live_chat/components/pages/chat_page.dart';
+import 'package:live_chat/components/pages/photo_preview_page.dart';
 import 'package:live_chat/components/pages/profile_photo_show_page.dart';
 import 'package:live_chat/models/group_model.dart';
 import 'package:live_chat/models/user_model.dart';
@@ -31,16 +33,22 @@ class UserPreviewPage extends StatefulWidget {
 class _UserPreviewPageState extends State<UserPreviewPage> {
   ChatView _chatView;
   UserView _userView;
+  Color pageColor;
 
   StreamSubscription<UserModel> _subscriptionUser;
   StreamSubscription<GroupModel> _subscriptionGroup;
 
   ImagePicker picker = ImagePicker();
 
+  TextEditingController groupNameController;
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    groupNameController = TextEditingController();
+    pageColor = widget.color;
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (_chatView.groupType == 'Private') {
         _subscriptionUser = _chatView.streamOneUser(_chatView.interlocutorUser.userId).listen((user) {
@@ -58,6 +66,8 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
 
   @override
   void dispose() {
+    groupNameController.dispose();
+
     if(_subscriptionUser != null)
       _subscriptionUser.cancel();
 
@@ -70,6 +80,8 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
   Widget build(BuildContext context) {
     _chatView = Provider.of<ChatView>(context);
     _userView = Provider.of<UserView>(context);
+    if(_chatView.groupType == 'Plural')
+      groupNameController.text = _chatView.selectedChat.groupName;
 
     String status = _chatView.groupType == 'Private'
         ? _chatView.interlocutorUser.online
@@ -217,7 +229,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           margin: EdgeInsets.only(bottom: 5),
           child: Text('Durum', style: TextStyle(
               fontSize: Theme.of(context).textTheme.headline6.fontSize,
-              color: widget.color,
+              color: pageColor,
               shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
             )
           ),
@@ -235,7 +247,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           margin: EdgeInsets.only(bottom: 5),
           child: Text('Hakkında', style: TextStyle(
               fontSize: Theme.of(context).textTheme.headline6.fontSize,
-              color: widget.color,
+              color: pageColor,
               shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
             )
           ),
@@ -259,7 +271,7 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
               margin: EdgeInsets.only(bottom: 5),
               child: Text('Açıklama', style: TextStyle(
                       fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                      color: widget.color,
+                      color: pageColor,
                       shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
                   )
               ),
@@ -279,14 +291,14 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
               children: [
                 Text('Katılımcılar', style: TextStyle(
                     fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                    color: widget.color,
+                    color: pageColor,
                     shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
                   )
                 ),
 
                 Text('(${_chatView.groupUsers.length})', style: TextStyle(
                     fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                    color: widget.color,
+                    color: pageColor,
                     shadows: [Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 5)]
                   )
                 ),
@@ -322,16 +334,21 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                   ? []
                   : [
                     IconButton(
-                        icon: Icon(Icons.edit),
+                        icon: Icon(Icons.photo),
                         onPressed: () {
                           showModalBottomSheet(
                               context: context,
                               builder: (context) => showModal()
                           );
                         }
+                    ),
+
+                    IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () => updateGroupName(),
                     )
                   ],
-              backgroundColor: widget.color != null ? widget.color : Colors.amber,
+              backgroundColor: pageColor != null ? pageColor : Colors.amber,
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: EdgeInsets.only(left: 56, bottom: 10),
                 background: Image.network(
@@ -421,13 +438,18 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
                             ? []
                             : [
                               IconButton(
-                                  icon: Icon(Icons.edit),
+                                  icon: Icon(Icons.photo),
                                   onPressed: () {
                                     showModalBottomSheet(
                                         context: context,
                                         builder: (context) => showModal()
                                     );
                                   }
+                              ),
+
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () => updateGroupName(),
                               )
                             ]
                       ),
@@ -483,27 +505,35 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
     );
   }
 
-  void photoFromCamera() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      File file = File(pickedFile.path);
-      String imgUrl = await _chatView.uploadGroupPhoto(_chatView.selectedChat.groupId, 'Profile_Photo', file);
-      bool result = await _chatView.updateGroupPhoto(_chatView.selectedChat.groupId, imgUrl);
+  void chosePhoto(String methodName) async {
+    PickedFile pickedFile;
 
-      if(result)
-        setState(() {});
+    switch(methodName) {
+      case('Camera'):
+        pickedFile = await picker.getImage(source: ImageSource.camera);
+        break;
+      case('Gallery'):
+        pickedFile = await picker.getImage(source: ImageSource.gallery);
+        break;
+      default:
+        break;
     }
-  }
 
-  void photoFromGallery() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       File file = File(pickedFile.path);
-      String imgUrl = await _chatView.uploadGroupPhoto(_chatView.selectedChat.groupId, 'Profile_Photo', file);
-      bool result = await _chatView.updateGroupPhoto(_chatView.selectedChat.groupId, imgUrl);
+      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => PhotoPreviewPage(file: file))).then((croppedFile) async {
+        Navigator.of(context).pop();
+        if(croppedFile != null) {
+          String imgUrl = await _chatView.uploadGroupPhoto(_chatView.selectedChat.groupId, 'Profile_Photo', croppedFile);
+          bool result = await _chatView.updateGroupPhoto(_chatView.selectedChat.groupId, imgUrl);
+          Color newPageColor = await getDynamicColor(imgUrl);
 
-      if(result)
-        setState(() {});
+          if(result)
+            setState(() {
+              pageColor = newPageColor;
+            });
+        }
+      });
     }
   }
 
@@ -515,17 +545,62 @@ class _UserPreviewPageState extends State<UserPreviewPage> {
           ListTile(
             leading: Icon(Icons.camera_alt),
             title: Text('Kamera Kullan'),
-            onTap: () => photoFromCamera(),
+            onTap: () => chosePhoto('Camera'),
           ),
 
           ListTile(
             leading: Icon(Icons.image),
             title: Text('Geleriden Seç'),
-            onTap: () => photoFromGallery(),
+            onTap: () => chosePhoto('Gallery'),
           )
         ],
       ),
     );
+  }
+
+  Future updateGroupName() async {
+    AlertDialogWidget(
+      alertTitle: 'Grup İsmi',
+      alertChildren: [
+        Container(
+          child: Form(
+            key: formKey,
+            child: TextFormField(
+              maxLength: 30,
+              maxLengthEnforced: true,
+              controller: groupNameController,
+              validator: (value) {
+                if(value.trim().isEmpty) {
+                  return 'Grup ismi boş olamaz.';
+                } else if(value.trim() == _chatView.selectedChat.groupName) {
+                  return 'Varolan grup ismiyle aynı.';
+                }
+
+                return null;
+              },
+              decoration: InputDecoration(
+                  hintText: 'Grup ismi giriniz.',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  )
+              ),
+            ),
+          ),
+        )
+      ],
+      completeActionText: 'Güncelle',
+      cancelActionText: 'Vazgeç',
+      completeAction: () async {
+        if(formKey.currentState.validate()) {
+          bool result = await _chatView.updateGroupName(_chatView.selectedChat.groupId, groupNameController.text);
+
+          if(result) {
+            Navigator.of(context).pop();
+            setState(() {});
+          }
+        }
+      },
+    ).show(context);
   }
 }
 

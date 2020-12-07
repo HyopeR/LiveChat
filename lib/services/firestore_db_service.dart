@@ -92,6 +92,16 @@ class FireStoreDbService implements DbBase {
   }
 
   @override
+  Future<bool> updateStatement(String userId, String statement) async {
+    await _fireStore.collection('users').doc(userId).update({
+      'userStatement': statement,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
+  }
+
+  @override
   Future<bool> updateProfilePhoto(String userId, String profilePhotoUrl) async {
     await _fireStore.collection('users').doc(userId).update({
       'userProfilePhotoUrl': profilePhotoUrl,
@@ -310,6 +320,16 @@ class FireStoreDbService implements DbBase {
   Future<bool> updateGroupPhoto(String groupId, String imgUrl) async {
     await _fireStore.collection('groups').doc(groupId).update({
       'groupImageUrl': imgUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
+  }
+
+  @override
+  Future<bool> updateGroupName(String groupId, String groupName) async {
+    await _fireStore.collection('groups').doc(groupId).update({
+      'groupName': groupName,
       'updatedAt': FieldValue.serverTimestamp(),
     });
 

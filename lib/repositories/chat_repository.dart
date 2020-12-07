@@ -78,6 +78,10 @@ class ChatRepository {
     return _firebaseStorageService.uploadGroupPhoto(groupId, fileType, file);
   }
 
+  Future<bool> updateGroupName(String groupId, String groupName) async {
+    return _fireStoreDbService.updateGroupName(groupId, groupName);
+  }
+
   // Ses kayıt işlemleri
   void recordStart() async {
     return _voiceRecordService.recordStart();

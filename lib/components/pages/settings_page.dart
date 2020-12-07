@@ -120,7 +120,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future _signOutControl() async {
     AlertDialogWidget(
       alertTitle: 'Çıkış',
-      alertContent: 'Çıkmak istediğinizden emin misiniz?',
+      alertChildren: [
+        Text('Çıkmak istediğinizden emin misiniz?'),
+      ],
       completeActionText: 'Evet',
       cancelActionText: 'Vazgeç',
     ).show(context).then((value) {

@@ -168,23 +168,20 @@ class _SettingThemePageState extends State<SettingThemePage> {
     );
   }
 
-  void photoFromCamera() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      setState(() {
-        wallpaperLoading = true;
-      });
+  void chosePhoto(String methodName) async {
+    PickedFile pickedFile;
 
-      chatWallpaper = File(pickedFile.path);
-      await _userView.updateChatWallpaper(_userView.user.userId, 'Chat_Wallpaper', chatWallpaper);
-      setState(() {
-        wallpaperLoading = false;
-      });
+    switch (methodName) {
+      case('Camera'):
+        pickedFile = await picker.getImage(source: ImageSource.camera);
+        break;
+      case('Gallery'):
+        pickedFile = await picker.getImage(source: ImageSource.gallery);
+        break;
+      default:
+        break;
     }
-  }
 
-  void photoFromGallery() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         wallpaperLoading = true;

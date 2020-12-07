@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:live_chat/components/common/appbar_widget.dart';
 import 'package:live_chat/components/common/custom_expansion_widget.dart';
 import 'package:live_chat/components/common/expandable_text.dart';
+import 'package:live_chat/components/pages/photo_preview_page.dart';
 import 'package:live_chat/components/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +33,8 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _controllerUserName;
   String updateControllerUserName;
 
+  TextEditingController _controllerStatement;
+
   bool showUserData = true;
   bool showUserProfilePhoto = true;
 
@@ -39,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _controllerUserName = TextEditingController();
+    _controllerStatement = TextEditingController();
   }
 
   @override
@@ -82,6 +86,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     if (_userView.user.userName != null) {
                       _controllerUserName.text = _userView.user.userName;
+                      if(_userView.user.userStatement != null)
+                        _controllerStatement.text = _userView.user.userStatement;
 
                       return ContainerColumn(
                         children: [
@@ -118,6 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),
                           AlertContainerWidget(
+                            areaColor: Theme.of(context).primaryColor,
                             key: _alertContainerWidgetState,
                           ),
 
@@ -160,18 +167,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                       textColor: Colors.black,
                                       buttonColor:
                                       Theme.of(context).primaryColor,
-                                      onPressed: () async {
-                                        bool updateName = await _updateUserName();
-                                        bool updatePhoto = await _updateProfilePhoto();
-
-                                        if (updateName || updatePhoto)
-                                          _alertContainerWidgetState.currentState.showAlertAddText('Kullanıcı adınız güncellendi.');
+                                      onPressed: () {
+                                        _updateUserName();
                                       },
                                     )
                                   ],
                                 ),
                               ),
-
                               Container(
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
@@ -184,10 +186,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   children: [
                                     TextFormField(
                                       maxLines: null,
-                                      controller: _controllerUserName,
+                                      controller: _controllerStatement,
                                       decoration: InputDecoration(
-                                          errorText: updateControllerUserName != null ? updateControllerUserName : null,
-                                          labelText: 'Statement',
+                                          labelText: 'Durum',
                                           hintText: 'Durum giriniz.',
                                           border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(10)
@@ -203,8 +204,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       textColor: Colors.black,
                                       buttonColor:
                                       Theme.of(context).primaryColor,
-                                      onPressed: () async {
-                                        _alertContainerWidgetState.currentState.showAlertAddText('Durumunuz güncellendi.');
+                                      onPressed: () {
+                                        _updateUserStatement();
                                       },
                                     )
                                   ],
@@ -271,67 +272,78 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void photoFromCamera() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+  void chosePhoto(String methodName) async {
+    PickedFile pickedFile;
+
+    switch (methodName) {
+      case('Camera'):
+        pickedFile = await picker.getImage(source: ImageSource.camera);
+        break;
+      case('Gallery'):
+        pickedFile = await picker.getImage(source: ImageSource.gallery);
+        break;
+      default:
+        break;
+    }
+
     if (pickedFile != null) {
       _profilePhoto = File(pickedFile.path);
-      _alertContainerWidgetState.currentState
-          .showAlertAddText('Resim eklendi. Değişiklikleri kaydedin.');
+      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => PhotoPreviewPage(file: _profilePhoto))).then((file) async {
+        Navigator.of(context).pop();
+        if(file != null) {
+          _profilePhoto = file;
+          _updateProfilePhoto();
+        }
+      });
     }
   }
 
-  void photoFromGallery() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      _profilePhoto = File(pickedFile.path);
-      _alertContainerWidgetState.currentState
-          .showAlertAddText('Resim eklendi. Değişiklikleri kaydedin.');
-    }
-  }
-
-  Future<bool> _updateUserName() async {
+  Future<void> _updateUserName() async {
     if (_userView.user.userName != _controllerUserName.text) {
-      // setState(() => showUserData = false);
-      bool updatedUserName = await _userView.updateUserName(
-          _userView.user.userId, _controllerUserName.text);
+      bool updatedUserName = await _userView.updateUserName(_userView.user.userId, _controllerUserName.text);
 
       if (updatedUserName) {
+        _alertContainerWidgetState.currentState.showAlertAddText('Kullanıcı adınız güncellendi.');
         setState(() {
-          // showUserData = true;
           updateControllerUserName = null;
         });
-        return true;
       } else {
         setState(() {
-          // showUserData = true;
           updateControllerUserName = 'Bu username zaten kullanılıyor.';
         });
-        return false;
       }
-    } else
-      return false;
+    }
   }
 
-  Future<bool> _updateProfilePhoto() async {
+  Future<void> _updateUserStatement() async {
+    if (_userView.user.userStatement != _controllerStatement.text) {
+      bool updatedUserStatement = await _userView.updateStatement(_userView.user.userId, _controllerStatement.text);
+
+      if (updatedUserStatement) {
+        _alertContainerWidgetState.currentState.showAlertAddText('Durumunuz güncellendi.');
+      } else {
+        _alertContainerWidgetState.currentState.showAlertAddText('Durum güncelleme sırasında hata.');
+      }
+    }
+  }
+
+  Future<void> _updateProfilePhoto() async {
     if (_profilePhoto != null) {
       setState(() => showUserProfilePhoto = false);
       _imageWidgetState.currentState.loadingStart();
 
-      var uploadFile = await _userView.updateProfilePhoto(
-          _userView.user.userId, 'Profile_Photo', _profilePhoto);
+      var uploadFile = await _userView.updateProfilePhoto(_userView.user.userId, 'Profile_Photo', _profilePhoto);
 
       if (uploadFile != null) {
+        _alertContainerWidgetState.currentState.showAlertAddText('Profil resminiz güncellendi.');
+
         setState(() {
           _profilePhoto = null;
           showUserProfilePhoto = true;
         });
         _imageWidgetState.currentState.loadingFinish();
-
-        return true;
-      } else
-        return false;
-    } else
-      return false;
+      }
+    }
   }
 
   showModal() {
@@ -344,14 +356,14 @@ class _ProfilePageState extends State<ProfilePage> {
           ListTile(
             leading: Icon(Icons.camera_alt),
             title: Text('Kamera Kullan'),
-            onTap: () => photoFromCamera(),
+            onTap: () => chosePhoto('Camera'),
           ),
 
           ListTile(
             leading:
             Icon(Icons.image),
             title: Text('Geleriden Seç'),
-            onTap: () => photoFromGallery(),
+            onTap: () => chosePhoto('Gallery'),
           )
         ],
       ),

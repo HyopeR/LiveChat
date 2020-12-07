@@ -225,6 +225,20 @@ class UserView with ChangeNotifier implements AuthBase {
 
   }
 
+  Future<bool> updateStatement(String userId, String statement) async {
+
+    try{
+      bool result = await _userRepo.updateStatement(userId, statement);
+      return result;
+
+    }catch(err) {
+
+      print('updateStatement Error: ${err.toString()}');
+      return null;
+    }
+
+  }
+
   Future<String> updateProfilePhoto(String userId, String fileType, File file) async {
 
     try{

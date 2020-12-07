@@ -12,6 +12,7 @@ abstract class DbBase {
   Stream<UserModel> streamUser(String userId);
 
   Future<bool> updateUserName(String userId, String userName);
+  Future<bool> updateStatement(String userId, String statement);
   Future<bool> updateProfilePhoto(String userId, String profilePhotoUrl);
   Future<bool> updateChatWallpaper(String userId, String wallpaperUrl);
 
@@ -40,6 +41,7 @@ abstract class DbBase {
   Future<String> createGroupId();
   Future<GroupModel> createGroup(UserModel user, GroupModel group);
   Future<bool> updateGroupPhoto(String groupId, String imgUrl);
+  Future<bool> updateGroupName(String groupId, String groupName);
 
   // Görülen mesajlara göre sayaç arttırılması.
   Future<void> messagesMarkAsSeen(String userId, String groupId, int totalMessage);

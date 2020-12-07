@@ -2,19 +2,22 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:live_chat/components/common/container_column.dart';
 
 import 'package:live_chat/components/common/platform_responsive.dart';
 
 class AlertDialogWidget extends PlatformResponsiveWidget {
 
   final String alertTitle;
-  final String alertContent;
+  final List<Widget> alertChildren;
+  final VoidCallback completeAction;
   final String completeActionText;
   final String cancelActionText;
 
   AlertDialogWidget({
     @required this.alertTitle,
-    @required this.alertContent,
+    @required this.alertChildren,
+    this.completeAction,
     @required this.completeActionText,
     this.cancelActionText
   });
@@ -29,9 +32,13 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
   @override
   Widget buildAndroidWidget(BuildContext context) {
     return AlertDialog(
+      scrollable: true,
       elevation: 0,
       title: Text(alertTitle),
-      content: Text(alertContent),
+      content: ContainerColumn(
+        mainAxisSize: MainAxisSize.min,
+        children: alertChildren,
+      ),
       actions: _dialogButtons(context),
     );
   }
@@ -40,7 +47,10 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
   Widget buildIosWidget(BuildContext context) {
     return CupertinoAlertDialog(
       title: Text(alertTitle),
-      content: Text(alertContent),
+      content: ContainerColumn(
+        mainAxisSize: MainAxisSize.min,
+        children: alertChildren,
+      ),
       actions: _dialogButtons(context),
     );
   }
@@ -60,9 +70,9 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
 
       buttons.add(FlatButton(
         child: Text(completeActionText),
-        onPressed: () {
-          Navigator.of(context).pop(true);
-        },
+        onPressed: completeAction != null
+            ? completeAction
+            : () {Navigator.of(context).pop(true);},
       ));
     }
 
@@ -77,9 +87,9 @@ class AlertDialogWidget extends PlatformResponsiveWidget {
 
       buttons.add(CupertinoDialogAction(
         child: Text(completeActionText),
-        onPressed: () {
-          Navigator.of(context).pop(true);
-        },
+        onPressed: completeAction != null
+            ? completeAction
+            : () {Navigator.of(context).pop(true);},
       ));
     }
 
